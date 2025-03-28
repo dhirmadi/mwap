@@ -50,7 +50,16 @@ app.use(express.static('public'));
 // Basic health check endpoint - detailed monitoring available in Atlas
 app.get('/health', (req, res) => {
   res.json({ 
-    status: mongoose.connection.readyState === 1 ? 'healthy' : 'unhealthy',
+    status: 'running',
+    mongodb: {
+      connected: mongoose.connection.readyState === 1,
+      state: mongoose.connection.readyState
+    },
+    environment: {
+      node_env: process.env.NODE_ENV || 'development',
+      mongo_uri_set: !!process.env.MONGO_URI,
+      encryption_key_set: !!process.env.MONGO_CLIENT_ENCRYPTION_KEY
+    },
     timestamp: new Date().toISOString()
   });
 });
@@ -109,6 +118,15 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
+    // Check required environment variables
+    if (!process.env.MONGO_URI) {
+      throw new Error('MONGO_URI environment variable is not set');
+    }
+    
+    if (!process.env.MONGO_CLIENT_ENCRYPTION_KEY) {
+      throw new Error('MONGO_CLIENT_ENCRYPTION_KEY environment variable is not set');
+    }
+
     // Initialize database encryption
     await encryption.initialize(process.env.MONGO_URI);
     logger.info('Database encryption initialized');
