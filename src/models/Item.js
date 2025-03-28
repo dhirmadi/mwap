@@ -72,16 +72,7 @@ itemSchema.methods.decryptSensitiveData = async function() {
   return null;
 };
 
-// Create indexes
-itemSchema.index({ name: 1 });
-itemSchema.index({ createdAt: -1 });
-itemSchema.index({ updatedAt: -1 });
-
+// Let Atlas handle index optimization
 const Item = mongoose.model('Item', itemSchema);
-
-// Ensure indexes are created
-Item.createIndexes().catch(error => {
-  console.error('Error creating indexes:', error);
-});
 
 module.exports = Item;

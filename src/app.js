@@ -39,12 +39,11 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Health check endpoint
+// Basic health check endpoint - detailed monitoring available in Atlas
 app.get('/health', (req, res) => {
   res.json({ 
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    status: mongoose.connection.readyState === 1 ? 'healthy' : 'unhealthy',
+    timestamp: new Date().toISOString()
   });
 });
 

@@ -15,17 +15,11 @@ const logger = winston.createLogger({
   ]
 });
 
-// MongoDB connection options
+// MongoDB connection options - minimal since Atlas handles most configuration
 const mongooseOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  maxPoolSize: 10, // Maximum number of connections in the pool
-  minPoolSize: 2,  // Minimum number of connections in the pool
-  serverSelectionTimeoutMS: 5000, // Timeout for server selection
-  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-  family: 4, // Use IPv4, skip trying IPv6
-  autoIndex: true, // Build indexes
-  retryWrites: true,
+  // Only include application-specific settings
+  // Atlas handles connection pooling, timeouts, and other infrastructure concerns
+  autoIndex: true // Keep this for development, disable in production via Atlas
 };
 
 // Connect to MongoDB
