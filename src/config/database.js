@@ -15,22 +15,27 @@ const logger = winston.createLogger({
   ]
 });
 
-// MongoDB connection options - minimal since Atlas handles most configuration
+// MongoDB connection options
 const mongooseOptions = {
-  // Only include application-specific settings
-  // Atlas handles connection pooling, timeouts, and other infrastructure concerns
-  autoIndex: true // Keep this for development, disable in production via Atlas
+  autoIndex: process.env.NODE_ENV !== 'production', // Disable autoIndex in production
+  serverSelectionTimeoutMS: 5000, // Keep trying for 5 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  retryWrites: true,
+  retryReads: true,
+  w: 'majority',
+  maxPoolSize: 10,
+  minPoolSize: 2
 };
 
-// Connect to MongoDB
-const connectDB = async () => {
+// Connect to MongoDB with retries
+const connectDB = async (retries = 5) => {
   try {
     if (!process.env.MONGO_URI) {
       throw new Error('MONGO_URI environment variable is not defined');
     }
 
+    logger.info(`Attempting to connect to MongoDB (${retries} retries left)`);
     const conn = await mongoose.connect(process.env.MONGO_URI, mongooseOptions);
-
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
     
     // Handle connection events
@@ -56,7 +61,15 @@ const connectDB = async () => {
     return conn;
   } catch (error) {
     logger.error(`Error connecting to MongoDB: ${error.message}`);
-    process.exit(1);
+    
+    if (retries > 0) {
+      logger.info(`Retrying connection in 5 seconds... (${retries} retries left)`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      return connectDB(retries - 1);
+    } else {
+      logger.error('Failed to connect to MongoDB after all retries');
+      throw error;
+    }
   }
 };
 

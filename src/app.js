@@ -109,16 +109,9 @@ const itemRoutes = require('./routes/items');
 // Use routes
 app.use('/api/items', itemRoutes);
 
-// Root endpoint
+// Root endpoint - serve the status page
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'MWAP Microservice API',
-    version: '1.0.0',
-    endpoints: {
-      items: '/api/items',
-      health: '/health'
-    }
-  });
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Error handling middleware
