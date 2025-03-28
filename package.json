@@ -19,6 +19,9 @@
     "url": "https://github.com/dhirmadi/mwap/issues"
   },
   "homepage": "https://github.com/dhirmadi/mwap#readme",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
