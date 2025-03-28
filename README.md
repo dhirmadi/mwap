@@ -56,7 +56,7 @@ MWAP is designed as a modular platform where different microservices work togeth
 #### Heroku Deployment (Recommended)
 The application is configured for automatic deployment to Heroku. Every push to the SimpleDeploy branch automatically triggers a new deployment.
 
-See [Simple Deployment Guide](docs/simple-deploy.md) for setup instructions.
+See [Deployment Guide](docs/deployment.md) for setup instructions.
 
 #### Local Docker Deployment
 1. Build the Docker image:
