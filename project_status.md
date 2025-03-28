@@ -78,6 +78,8 @@
 - [2025-03-28] Basic CRUD API implemented
 - [2025-03-28] Docker configuration added
 - [2025-03-28] Documentation updated
+- [2025-03-28] Heroku deployment configuration added
+- [2025-03-28] GitHub Actions workflow for CD implemented
 
 ## Next Steps
 1. Set up MongoDB Atlas cluster

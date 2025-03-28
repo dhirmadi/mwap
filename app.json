@@ -1,0 +1,54 @@
+{
+  "name": "MWAP",
+  "description": "Modular Web Application Platform with MongoDB Integration",
+  "keywords": [
+    "node",
+    "express",
+    "mongodb",
+    "microservice"
+  ],
+  "website": "https://github.com/dhirmadi/mwap",
+  "repository": "https://github.com/dhirmadi/mwap",
+  "success_url": "/health",
+  "env": {
+    "NODE_ENV": {
+      "description": "Environment (production, development, etc.)",
+      "value": "production"
+    },
+    "MONGO_URI": {
+      "description": "MongoDB Atlas connection string",
+      "required": true
+    },
+    "MONGO_CLIENT_ENCRYPTION_KEY": {
+      "description": "Base64 encoded encryption key for MongoDB client-side encryption",
+      "required": true
+    },
+    "MONGO_ENCRYPTION_KEY_NAME": {
+      "description": "Name for the encryption key in MongoDB",
+      "value": "mwap_data_key"
+    },
+    "LOG_LEVEL": {
+      "description": "Logging level (info, error, debug)",
+      "value": "info"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "addons": [],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "environments": {
+    "test": {
+      "scripts": {
+        "test": "npm test"
+      }
+    }
+  }
+}
