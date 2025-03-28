@@ -1,5 +1,7 @@
 # Simple Heroku Deployment Guide
 
+This guide explains how to set up automatic deployments from GitHub to Heroku. Once configured, every push to the SimpleDeploy branch will automatically deploy to Heroku.
+
 ## One-Time Setup
 
 1. **Create Heroku App**:

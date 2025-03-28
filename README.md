@@ -51,7 +51,14 @@ MWAP is designed as a modular platform where different microservices work togeth
    npm start
    ```
 
-### Docker Deployment
+### Deployment Options
+
+#### Heroku Deployment (Recommended)
+The application is configured for automatic deployment to Heroku. Every push to the SimpleDeploy branch automatically triggers a new deployment.
+
+See [Simple Deployment Guide](docs/simple-deploy.md) for setup instructions.
+
+#### Local Docker Deployment
 1. Build the Docker image:
    ```bash
    docker build -t mwap .
@@ -59,7 +66,7 @@ MWAP is designed as a modular platform where different microservices work togeth
 
 2. Run the container:
    ```bash
-   docker run -p 3000:3000 --env-file .env mwap
+   docker run -p 3100:3100 --env-file .env mwap
    ```
 
 ## Project Structure
