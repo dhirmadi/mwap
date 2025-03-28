@@ -35,15 +35,38 @@ const logger = winston.createLogger({
 const app = express();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  }
+}));
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public'));
 
 // Basic health check endpoint - detailed monitoring available in Atlas
 app.get('/health', (req, res) => {
   res.json({ 
     status: mongoose.connection.readyState === 1 ? 'healthy' : 'unhealthy',
     timestamp: new Date().toISOString()
+  });
+});
+
+// MongoDB status endpoint
+app.get('/api/status', (req, res) => {
+  const conn = mongoose.connection;
+  res.json({
+    connectionState: conn.readyState,
+    timestamp: new Date(),
+    version: process.env.npm_package_version || '1.0.0',
+    host: conn.host || 'Not connected',
+    database: conn.name || 'Not connected',
+    message: conn.readyState === 1 ? 'Connected to MongoDB' : 'Not connected to MongoDB'
   });
 });
 
