@@ -61,7 +61,7 @@ app.get('/api/status', (req, res) => {
   res.json({
     connectionState: conn.readyState,
     timestamp: new Date(),
-    version: process.env.npm_package_version || '1.0.0',
+    version: process.env.npm_package_version || '1.0.1',  // Updated version
     host: conn.host || 'Not connected',
     database: conn.name || 'Not connected',
     message: conn.readyState === 1 ? 'Connected to MongoDB' : 'Not connected to MongoDB'
