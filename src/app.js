@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const winston = require('winston');
+const mongoose = require('mongoose');
 const { connectDB } = require('./config/database');
 const encryption = require('./config/encryption');
 require('dotenv').config();
@@ -66,15 +67,40 @@ app.get('/health', (req, res) => {
 
 // MongoDB status endpoint
 app.get('/api/status', (req, res) => {
-  const conn = mongoose.connection;
-  res.json({
-    connectionState: conn.readyState,
-    timestamp: new Date(),
-    version: process.env.npm_package_version || '1.0.1',  // Updated version
-    host: conn.host || 'Not connected',
-    database: conn.name || 'Not connected',
-    message: conn.readyState === 1 ? 'Connected to MongoDB' : 'Not connected to MongoDB'
-  });
+  try {
+    const conn = mongoose.connection;
+    const states = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting',
+      99: 'uninitialized'
+    };
+    
+    res.json({
+      status: 'ok',
+      timestamp: new Date(),
+      version: process.env.npm_package_version || '1.0.1',
+      mongodb: {
+        state: states[conn.readyState || 99],
+        host: conn.host || 'Not connected',
+        database: conn.name || 'Not connected',
+        connected: conn.readyState === 1
+      },
+      environment: {
+        node_env: process.env.NODE_ENV || 'development',
+        mongo_uri_set: !!process.env.MONGO_URI,
+        encryption_key_set: !!process.env.MONGO_CLIENT_ENCRYPTION_KEY
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date(),
+      error: error.message,
+      version: process.env.npm_package_version || '1.0.1'
+    });
+  }
 });
 
 // Import routes
