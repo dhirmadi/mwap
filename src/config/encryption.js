@@ -1,5 +1,4 @@
-const { ClientEncryption } = require('mongodb-client-encryption');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ClientEncryption, Binary } = require('mongodb');
 const winston = require('winston');
 
 const logger = winston.createLogger({
@@ -19,25 +18,36 @@ class DatabaseEncryption {
   constructor() {
     this.keyVaultNamespace = 'encryption.__keyVault';
     this.client = null;
-    this.clientEncryption = null;
+    this.encryption = null;
   }
 
   async initialize(uri) {
     try {
-      // Create a new MongoClient for managing encryption
+      // Create a new MongoClient
       this.client = new MongoClient(uri, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
+        monitorCommands: true
       });
 
       await this.client.connect();
 
-      // Create a ClientEncryption instance
-      this.clientEncryption = new ClientEncryption(this.client, {
+      // Create the key vault collection if it doesn't exist
+      const database = this.client.db();
+      const collections = await database.listCollections({ name: '__keyVault' }).toArray();
+      if (collections.length === 0) {
+        await database.createCollection('__keyVault');
+      }
+
+      // Convert the base64 key to a Binary buffer
+      const localKey = Buffer.from(process.env.MONGO_CLIENT_ENCRYPTION_KEY, 'base64');
+
+      // Configure encryption
+      this.encryption = new ClientEncryption(this.client, {
         keyVaultNamespace: this.keyVaultNamespace,
         kmsProviders: {
           local: {
-            key: Buffer.from(process.env.MONGO_CLIENT_ENCRYPTION_KEY, 'base64')
+            key: localKey
           }
         }
       });
@@ -51,11 +61,11 @@ class DatabaseEncryption {
 
   async createEncryptionKey() {
     try {
-      if (!this.clientEncryption) {
+      if (!this.encryption) {
         throw new Error('Encryption client not initialized');
       }
 
-      const key = await this.clientEncryption.createDataKey('local', {
+      const key = await this.encryption.createDataKey('local', {
         keyAltNames: [process.env.MONGO_ENCRYPTION_KEY_NAME]
       });
 
@@ -69,21 +79,24 @@ class DatabaseEncryption {
 
   async getEncryptionKey() {
     try {
-      if (!this.clientEncryption) {
+      if (!this.encryption) {
         throw new Error('Encryption client not initialized');
       }
 
-      const key = await this.clientEncryption.getKeyByAltName(
-        process.env.MONGO_ENCRYPTION_KEY_NAME
-      );
+      const keyVaultDb = this.client.db();
+      const keyVaultColl = keyVaultDb.collection('__keyVault');
+      
+      let key = await keyVaultColl.findOne({ 
+        keyAltNames: process.env.MONGO_ENCRYPTION_KEY_NAME 
+      });
 
       if (!key) {
         logger.info('No existing encryption key found, creating new one');
-        return await this.createEncryptionKey();
+        key = await this.createEncryptionKey();
       }
 
-      logger.info('Retrieved existing encryption key');
-      return key;
+      logger.info('Retrieved encryption key successfully');
+      return key._id;
     } catch (error) {
       logger.error('Error getting encryption key:', error);
       throw error;
@@ -92,17 +105,17 @@ class DatabaseEncryption {
 
   async encryptField(value) {
     try {
-      if (!this.clientEncryption) {
+      if (!this.encryption) {
         throw new Error('Encryption client not initialized');
       }
 
-      const key = await this.getEncryptionKey();
+      const keyId = await this.getEncryptionKey();
       
-      const encryptedValue = await this.clientEncryption.encrypt(
+      const encryptedValue = await this.encryption.encrypt(
         value,
         {
           algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic',
-          keyId: key
+          keyId
         }
       );
 
@@ -115,11 +128,11 @@ class DatabaseEncryption {
 
   async decryptField(encryptedValue) {
     try {
-      if (!this.clientEncryption) {
+      if (!this.encryption) {
         throw new Error('Encryption client not initialized');
       }
 
-      const decryptedValue = await this.clientEncryption.decrypt(encryptedValue);
+      const decryptedValue = await this.encryption.decrypt(encryptedValue);
       return decryptedValue;
     } catch (error) {
       logger.error('Error decrypting field:', error);
