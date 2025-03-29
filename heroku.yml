@@ -1,0 +1,13 @@
+setup:
+  addons:
+    - plan: mongodb:atlas
+      as: MONGODB
+
+build:
+  docker:
+    api-gateway: services/api-gateway/Dockerfile
+    status-service: services/status-service/Dockerfile
+
+run:
+  api-gateway: npm start
+  status-service: npm start
