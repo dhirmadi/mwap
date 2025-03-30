@@ -11,7 +11,8 @@
     "heroku:setup": "node scripts/setup-heroku-env.js",
     "heroku:check": "node scripts/check-heroku-env.js",
     "heroku:copy": "node scripts/copy-heroku-env.js",
-    "heroku:fix": "node scripts/fix-heroku-env.js"
+    "heroku:fix": "node scripts/fix-heroku-env.js",
+    "test:deployment": "node scripts/test-deployment.js"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "colors": "^1.4.0",
     "nodemon": "^3.1.9"
   }
 }
