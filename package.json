@@ -9,7 +9,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:setup": "node scripts/db-setup.js",
     "heroku:setup": "node scripts/setup-heroku-env.js",
-    "heroku:check": "node scripts/check-heroku-env.js"
+    "heroku:check": "node scripts/check-heroku-env.js",
+    "heroku:copy": "node scripts/copy-heroku-env.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "node": "18.x"
   },
   "dependencies": {
+    "axios": "^1.8.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",

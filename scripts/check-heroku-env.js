@@ -4,9 +4,12 @@ const axios = require('axios');
 const HEROKU_API_TOKEN = process.env.HEROKU_API_KEY;
 const BASE_URL = 'https://api.heroku.com';
 
-const APPS = {
-  staging: 'mwap',
-  production: 'mwap-production'
+const PIPELINE = {
+  id: 'c21a748b-52fc-4972-a4ce-f65784fdb57a',
+  apps: {
+    staging: 'mwap',
+    production: 'mwap-production'
+  }
 };
 
 const headers = {
@@ -57,11 +60,28 @@ function checkRequiredVars(configVars, required) {
   return { missing, set };
 }
 
+async function getPipelineConfig() {
+  try {
+    const url = `${BASE_URL}/pipelines/${PIPELINE.id}/pipeline-couplings`;
+    const response = await axios.get(url, { headers });
+    return response.data;
+  } catch (error) {
+    console.error('Error getting pipeline configuration:', error.response?.data || error.message);
+    throw error;
+  }
+}
+
 async function checkEnvironments() {
   console.log('\nChecking Heroku environments configuration...\n');
 
   try {
-    for (const [env, appName] of Object.entries(APPS)) {
+    // Get pipeline configuration
+    console.log('Checking pipeline configuration...');
+    const pipelineConfig = await getPipelineConfig();
+    console.log(`Found ${pipelineConfig.length} apps in pipeline\n`);
+
+    // Check each environment
+    for (const [env, appName] of Object.entries(PIPELINE.apps)) {
       console.log(`Checking ${env} environment (${appName})...`);
       
       const configVars = await getConfigVars(appName);
