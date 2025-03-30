@@ -1,0 +1,46 @@
+{
+  "name": "MWAP Review",
+  "description": "Review app for MWAP microservices",
+  "keywords": [
+    "nodejs",
+    "mongodb",
+    "auth0",
+    "microservices"
+  ],
+  "website": "https://github.com/dhirmadi/mwap",
+  "repository": "https://github.com/dhirmadi/mwap",
+  "success_url": "/health",
+  "environments": {
+    "review": {
+      "formation": {
+        "web": {
+          "quantity": 1,
+          "size": "eco"
+        }
+      },
+      "scripts": {
+        "postdeploy": "npm run db:setup"
+      },
+      "env": {
+        "NODE_ENV": {
+          "value": "staging"
+        },
+        "LOG_LEVEL": {
+          "value": "debug"
+        },
+        "STATUS_CHECK_INTERVAL": {
+          "value": "30000"
+        },
+        "MONGO_ENCRYPTION_KEY_NAME": {
+          "value": "mwap_data_key_review_${HEROKU_PR_NUMBER}"
+        }
+      },
+      "addons": []
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}

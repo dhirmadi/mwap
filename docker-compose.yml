@@ -18,6 +18,7 @@ services:
       timeout: 10s
       retries: 5
       start_period: 40s
+
   api-gateway:
     build: 
       context: ./services/api-gateway
@@ -26,6 +27,7 @@ services:
       - "3100:3100"
     environment:
       - NODE_ENV=development
+      - HEROKU_APP_NAME=mwap-local
       - PORT=3100
       - AUTH0_DOMAIN=${AUTH0_DOMAIN}
       - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
@@ -47,12 +49,15 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=development
+      - HEROKU_APP_NAME=mwap-local
       - PORT=3101
       - MONGO_URI=${MONGO_URI}
       - STATUS_CHECK_INTERVAL=30000
     volumes:
       - ./services/status-service:/usr/src/app
       - /usr/src/app/node_modules
+    depends_on:
+      - mongodb
 
 volumes:
   mongodb_data:

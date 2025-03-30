@@ -39,14 +39,17 @@
   - Aggregates system health data
   - Provides centralized status reporting
 
-#### 3. Container Strategy
+#### 3. Deployment Strategy
 - **Development**: Docker Compose for local development
-- **Production**: Heroku Container Registry
+- **Pipeline**: Heroku Pipeline (MWAP)
+  - Review Apps: Automatic from Pull Requests
+  - Staging: mwap (SimpleDeploy branch)
+  - Production: mwap-production (main branch)
 - **Benefits**:
-  - Consistent environments
-  - Isolated services
-  - Easy scaling
-  - Simple deployment
+  - Automated review environment
+  - Consistent deployment process
+  - Isolated environments
+  - Controlled promotion
 
 ## Completed Milestones
 ### Infrastructure Setup
@@ -161,11 +164,12 @@
    - [ ] Configure backups
    - [ ] Implement connection pooling
 
-3. **Heroku Deployment**
-   - [ ] Configure container registry
-   - [ ] Set up environment variables
-   - [ ] Configure auto-deployment
-   - [ ] Set up logging
+3. **Heroku Pipeline Configuration**
+   - [ ] Configure Review Apps environment variables
+   - [ ] Set up staging environment (mwap)
+   - [ ] Configure production environment (mwap-production)
+   - [ ] Set up environment-specific logging
+   - [ ] Configure promotion criteria
 
 ### Phase 3: Testing & Monitoring
 1. **Testing Infrastructure**
