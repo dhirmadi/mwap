@@ -1,13 +1,15 @@
 setup:
   addons:
-    - plan: mongodb:atlas
+    - plan: mongodbatlas:free
       as: MONGODB
 
 build:
   docker:
-    api-gateway: services/api-gateway/Dockerfile
-    status-service: services/status-service/Dockerfile
+    pwa: docker/pwa/Dockerfile
+    api-gateway: docker/api-gateway/Dockerfile
+    status-service: docker/status-service/Dockerfile
 
 run:
-  api-gateway: npm start
-  status-service: npm start
+  pwa: nginx -g 'daemon off;'
+  api-gateway: node src/app.js
+  status-service: node src/app.js

@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  pwa:
+    build:
+      context: .
+      dockerfile: docker/pwa/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+      - status-service
   mongodb:
     image: mongo:latest
     environment:
