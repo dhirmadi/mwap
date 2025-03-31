@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set environment variables
-export HEROKU_APP_NAME=mwap-simpledeploy-g1u2y1hpkh0g
+export HEROKU_APP_NAME=mwap-review
 
 # Build containers
 echo "Building containers..."
