@@ -15,12 +15,15 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
     return <div>Error: Auth0 configuration is missing</div>;
   }
 
+  // Get the current origin, ensuring it ends without a trailing slash
+  const origin = window.location.origin.replace(/\/$/, '');
+
   return (
     <Auth0Provider
       domain={domain}
       clientId={clientId}
       authorizationParams={{
-        redirect_uri: window.location.origin,
+        redirect_uri: origin,
         audience: audience,
         scope: 'openid profile email',
       }}
