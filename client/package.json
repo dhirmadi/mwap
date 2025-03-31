@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,14 +14,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.3.0",
-    "@mantine/core": "^7.17.3",
-    "@mantine/hooks": "^7.17.3",
-    "axios": "^1.8.4",
+    "@auth0/auth0-react": "^2.2.4",
+    "@mantine/core": "^7.6.1",
+    "@mantine/hooks": "^7.6.1",
+    "axios": "^1.6.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3",
-    "typescript": "^5.0.4"
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.64",
