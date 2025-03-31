@@ -3,20 +3,23 @@
   "version": "1.0.0",
   "description": "NWAP Mini Project - Full Stack Application",
   "engines": {
-    "node": "20.x"
+    "node": "20.x",
+    "npm": "10.x"
   },
   "scripts": {
     "start": "cd server && npm start",
     "build": "cd client && npm install && npm run build && cd ../server && npm install",
     "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
-    "heroku-postbuild": "cd client && npm install && npm run build && cd ../server && npm install"
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false cd client && npm install && npm run build && cd ../server && npm install"
   },
   "cacheDirectories": [
     "client/node_modules",
     "server/node_modules"
   ],
+  "dependencies": {
+    "typescript": "^5.3.3"
+  },
   "devDependencies": {
-    "concurrently": "^8.0.1",
-    "typescript": "^5.0.4"
+    "concurrently": "^8.2.2"
   }
 }
