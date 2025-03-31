@@ -4,30 +4,32 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
 });
 
-api.interceptors.request.use(async (config) => {
-  // Get the access token from Auth0
-  const token = await new Promise((resolve) => {
-    const maxAttempts = 10;
-    let attempts = 0;
-    const checkAuth = () => {
-      const auth = localStorage.getItem('auth0.is.authenticated');
-      if (auth === 'true') {
-        const accessToken = localStorage.getItem('auth0.access_token');
-        resolve(accessToken);
-      } else if (attempts < maxAttempts) {
-        attempts++;
-        setTimeout(checkAuth, 100);
-      } else {
-        resolve(null);
-      }
-    };
-    checkAuth();
-  });
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Create a function to get the token from Auth0
+export const getAuthToken = async () => {
+  try {
+    const token = localStorage.getItem('auth0.access_token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+    return token;
+  } catch (error) {
+    console.error('Error getting access token:', error);
+    return null;
   }
-  return config;
+};
+
+// Add auth token to requests
+api.interceptors.request.use(async (config) => {
+  try {
+    const token = await getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  } catch (error) {
+    console.error('Error in request interceptor:', error);
+    return config;
+  }
 });
 
 export default api;
