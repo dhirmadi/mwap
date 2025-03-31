@@ -10,13 +10,19 @@
    - Purpose: Testing and reviewing feature branches
    - Lifecycle: Created on PR open, destroyed on PR close
 
-2. **Staging Environment**
+2. **Review Environment**
+   - App Name: mwap-review
+   - Purpose: Feature testing and review
+   - Branch: SimpleDeploy
+   - URL: https://mwap-review.herokuapp.com
+
+3. **Staging Environment**
    - App Name: mwap
    - Purpose: Integration testing and QA
    - Branch: SimpleDeploy
    - URL: https://mwap.herokuapp.com
 
-3. **Production Environment**
+4. **Production Environment**
    - App Name: mwap-production
    - Purpose: Live production environment
    - Branch: main

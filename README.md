@@ -6,9 +6,9 @@ A microservices-based web application platform that leverages MongoDB Atlas for 
 MWAP is designed as a modular platform where different microservices work together to create a comprehensive web application solution. The platform emphasizes security, scalability, and maintainability.
 
 ## Live Demo
-- Status Page: https://mwap-c21a748b52fc.herokuapp.com/
-- Health Check: https://mwap-c21a748b52fc.herokuapp.com/health
-- API Status: https://mwap-c21a748b52fc.herokuapp.com/api/status
+- Status Page: https://mwap-review.herokuapp.com/
+- Health Check: https://mwap-review.herokuapp.com/health
+- API Status: https://mwap-review.herokuapp.com/api/status
 
 ## Current Features
 - MongoDB integration with connection pooling and client-side encryption support

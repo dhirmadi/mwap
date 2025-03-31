@@ -5,7 +5,7 @@ const colors = require('colors');
 // Configuration
 const config = {
   // Will be replaced with the actual review app URL
-  baseUrl: process.env.APP_URL || 'https://mwap-pr-1.herokuapp.com',
+  baseUrl: process.env.APP_URL || 'https://mwap-review.herokuapp.com',
   timeout: 10000,
   retries: 3,
   retryDelay: 2000
