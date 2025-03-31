@@ -1,0 +1,76 @@
+{
+  "name": "mwap",
+  "description": "Modular Web Application Platform",
+  "env": {
+    "NODE_ENV": {
+      "value": "production"
+    },
+    "NPM_CONFIG_PRODUCTION": {
+      "value": "false"
+    },
+    "AUTH0_DOMAIN": {
+      "required": true,
+      "value": "katyev.eu.auth0.com"
+    },
+    "AUTH0_CLIENT_ID": {
+      "required": true,
+      "value": "Cey0E7LFxTF4DhWwiEY3S5k1gxTcgRcV"
+    },
+    "AUTH0_CLIENT_SECRET": {
+      "required": true,
+      "value": "7RuwG_1oac7el1i8SfK7WOf7wefLS2DKBbD3fgfGIqOnpdp0WfRsX-zyzTaVxArz"
+    },
+    "AUTH0_AUDIENCE": {
+      "required": true,
+      "value": "https://api.mwap.local"
+    },
+    "VITE_AUTH0_DOMAIN": {
+      "required": true,
+      "value": "katyev.eu.auth0.com"
+    },
+    "VITE_AUTH0_CLIENT_ID": {
+      "required": true,
+      "value": "Cey0E7LFxTF4DhWwiEY3S5k1gxTcgRcV"
+    },
+    "VITE_AUTH0_AUDIENCE": {
+      "required": true,
+      "value": "https://api.mwap.local"
+    },
+    "VITE_API_URL": {
+      "description": "The URL for the API, automatically set for review apps",
+      "generator": "https://$APP_NAME.herokuapp.com/api"
+    },
+    "MONGO_URI": {
+      "required": true,
+      "value": "mongodb+srv://SimpleDeploy:UYLkGmftPpdnIuG1@cluster0.sigdyny.mongodb.net/mwap_db?retryWrites=true&w=majority&appName=Cluster0"
+    },
+    "MONGO_CLIENT_ENCRYPTION_KEY": {
+      "required": true,
+      "value": "wsKRNWku0fGr2GFkY55/TWL+7mHduOz9GLYPzt/2oN+Jif2Hbortr4UtxAZiwFO03UO9rRDSEi29d74b6W2nC9+D+AmXjvXDEbZtua23b/E767vOLHHiefNzWowivdPY"
+    },
+    "MONGO_ENCRYPTION_KEY_NAME": {
+      "required": true,
+      "value": "mwap_data_key"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "stack": "heroku-24",
+  "environments": {
+    "review": {
+      "addons": [],
+      "scripts": {
+        "postdeploy": "echo 'Review app deployed successfully'"
+      }
+    }
+  }
+}
