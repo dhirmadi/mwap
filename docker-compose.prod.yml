@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   web:
+    image: registry.heroku.com/${HEROKU_APP_NAME}/web
     build:
       context: .
       dockerfile: docker/pwa/Dockerfile
@@ -16,6 +17,7 @@ services:
       - status
 
   api:
+    image: registry.heroku.com/${HEROKU_APP_NAME}/api
     build:
       context: .
       dockerfile: docker/api-gateway/Dockerfile
@@ -32,6 +34,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
 
   status:
+    image: registry.heroku.com/${HEROKU_APP_NAME}/status
     build:
       context: .
       dockerfile: docker/status-service/Dockerfile
