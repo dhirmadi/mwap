@@ -1,0 +1,27 @@
+{
+  "name": "nwap-mini-server",
+  "version": "1.0.0",
+  "description": "NWAP Mini Project - Backend",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "express-oauth2-jwt-bearer": "^1.5.0",
+    "helmet": "^7.0.0",
+    "mongoose": "^7.0.3",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.38.0",
+    "nodemon": "^2.0.22",
+    "prettier": "^2.8.7"
+  }
+}
