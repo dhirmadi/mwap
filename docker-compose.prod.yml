@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/pwa/Dockerfile
+    ports:
+      - "${PORT}:80"
+    environment:
+      - NODE_ENV=production
+      - API_PORT=${API_PORT:-3100}
+      - STATUS_PORT=${STATUS_PORT:-3101}
+    depends_on:
+      - api
+      - status
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api-gateway/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=${API_PORT:-3100}
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_CLIENT_ENCRYPTION_KEY=${MONGO_CLIENT_ENCRYPTION_KEY}
+      - MONGO_ENCRYPTION_KEY_NAME=${MONGO_ENCRYPTION_KEY_NAME}
+      - AUTH0_DOMAIN=${AUTH0_DOMAIN}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_CLIENT_ID=${AUTH0_CLIENT_ID}
+      - AUTH0_CLIENT_SECRET=${AUTH0_CLIENT_SECRET}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+
+  status:
+    build:
+      context: .
+      dockerfile: docker/status-service/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=${STATUS_PORT:-3101}
+      - MONGO_URI=${MONGO_URI}
+      - STATUS_CHECK_INTERVAL=${STATUS_CHECK_INTERVAL:-60000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}

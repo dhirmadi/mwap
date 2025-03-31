@@ -3,27 +3,13 @@ setup:
     - plan: mongodbatlas:free
       as: MONGODB
   config:
-    NODE_ENV: production
-    NGINX_PORT: 80
     API_PORT: 3100
     STATUS_PORT: 3101
+    COMPOSE_FILE: docker-compose.prod.yml
 
 build:
   docker:
     web: docker/pwa/Dockerfile
-    api: docker/api-gateway/Dockerfile
-    status: docker/status-service/Dockerfile
 
 run:
-  web: 
-    command:
-      - nginx -g 'daemon off;'
-    image: web
-  api:
-    command:
-      - node src/app.js
-    image: api
-  status:
-    command:
-      - node src/app.js
-    image: status
+  web: docker-compose -f docker-compose.prod.yml up
