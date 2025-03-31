@@ -139,3 +139,22 @@ dist
 .env
 npm-debug.log
 /*.env
+
+# Security and secrets
+*.key
+*.pem
+*.cert
+*.secret
+secrets.json
+credentials.json
+*_key
+*_secret
+*_token
+*_password
+*_credentials
+
+# Local development overrides
+*.local
+local.*
+*.override
+override.*

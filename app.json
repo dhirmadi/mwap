@@ -1,0 +1,76 @@
+{
+  "name": "mwap",
+  "description": "Modular Web Application Platform",
+  "env": {
+    "NODE_ENV": {
+      "value": "production"
+    },
+    "NPM_CONFIG_PRODUCTION": {
+      "value": "false"
+    },
+    "AUTH0_DOMAIN": {
+      "required": true,
+      "description": "Auth0 domain (copied from parent app)"
+    },
+    "AUTH0_CLIENT_ID": {
+      "required": true,
+      "description": "Auth0 client ID (copied from parent app)"
+    },
+    "AUTH0_CLIENT_SECRET": {
+      "required": true,
+      "description": "Auth0 client secret (copied from parent app)"
+    },
+    "AUTH0_AUDIENCE": {
+      "required": true,
+      "description": "Auth0 API identifier (copied from parent app)"
+    },
+    "VITE_AUTH0_DOMAIN": {
+      "required": true,
+      "description": "Auth0 domain for frontend (copied from parent app)"
+    },
+    "VITE_AUTH0_CLIENT_ID": {
+      "required": true,
+      "description": "Auth0 client ID for frontend (copied from parent app)"
+    },
+    "VITE_AUTH0_AUDIENCE": {
+      "required": true,
+      "description": "Auth0 API identifier for frontend (copied from parent app)"
+    },
+    "VITE_API_URL": {
+      "description": "The URL for the API, automatically set for review apps",
+      "generator": "https://$APP_NAME.herokuapp.com/api"
+    },
+    "MONGO_URI": {
+      "required": true,
+      "description": "MongoDB connection string (copied from parent app)"
+    },
+    "MONGO_CLIENT_ENCRYPTION_KEY": {
+      "required": true,
+      "description": "MongoDB client encryption key (copied from parent app)"
+    },
+    "MONGO_ENCRYPTION_KEY_NAME": {
+      "required": true,
+      "description": "MongoDB encryption key name (copied from parent app)"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "stack": "heroku-24",
+  "environments": {
+    "review": {
+      "addons": [],
+      "scripts": {
+        "postdeploy": "echo 'Review app deployed successfully'"
+      }
+    }
+  }
+}
