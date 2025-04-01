@@ -17,14 +17,30 @@ export function Home() {
   }
 
   if (error) {
+    console.error('Auth0 Error:', error);
     return (
       <Container size="md" py="xl">
         <Stack spacing="xl">
-          <Title order={1} color="red">Error</Title>
-          <Text color="red">{error.message}</Text>
-          <Button onClick={() => window.location.reload()} color="blue">
-            Retry
-          </Button>
+          <Title order={1} color="red">Authentication Error</Title>
+          <Text color="red">Error Type: {error.name}</Text>
+          <Text color="red">Message: {error.message}</Text>
+          <Text size="sm" color="dimmed">
+            If this error persists, please try clearing your browser cache and cookies.
+          </Text>
+          <Group>
+            <Button onClick={() => window.location.reload()} color="blue">
+              Retry
+            </Button>
+            <Button 
+              onClick={() => loginWithRedirect({ 
+                prompt: 'login',
+                appState: { returnTo: window.location.pathname }
+              })} 
+              color="green"
+            >
+              Try Login Again
+            </Button>
+          </Group>
         </Stack>
       </Container>
     );

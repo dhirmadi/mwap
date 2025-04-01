@@ -32,7 +32,8 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
       authorizationParams={{
         redirect_uri: origin,
         audience: audience,
-        scope: 'openid profile email',
+        scope: 'openid profile email offline_access',
+        response_type: 'code'
       }}
       cacheLocation="localstorage"
       useRefreshTokens={true}
