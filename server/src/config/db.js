@@ -2,42 +2,50 @@ const mongoose = require('mongoose');
 const environment = require('./environment');
 
 const connectDB = async () => {
-  // Skip MongoDB connection in development
-  if (environment.isDevelopment()) {
-    console.log('Skipping MongoDB connection in development mode');
-    return;
-  }
-
   try {
     const options = {
       maxPoolSize: 10,
       minPoolSize: 2,
       socketTimeoutMS: 45000,
       serverSelectionTimeoutMS: 5000,
-      family: 4
+      family: 4,
+      retryWrites: true,
+      w: 'majority',
+      ssl: true,
+      authSource: 'admin'
     };
 
+    // Connect to MongoDB
     const conn = await mongoose.connect(process.env.MONGO_URI, options);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     // Initialize models
     const User = require('../models/User');
     const Task = require('../models/Task');
     
-    // Create indexes if models are Mongoose models
-    if (process.env.NODE_ENV !== 'development') {
-      if (User.createIndexes) {
-        await User.createIndexes();
-      }
-      if (Task.createIndexes) {
-        await Task.createIndexes();
+    // Create indexes if models are Mongoose models and we're not in development
+    if (!environment.isDevelopment()) {
+      try {
+        if (typeof User.createIndexes === 'function') {
+          await User.createIndexes();
+          console.log('User indexes created successfully');
+        }
+        if (typeof Task.createIndexes === 'function') {
+          await Task.createIndexes();
+          console.log('Task indexes created successfully');
+        }
+      } catch (indexError) {
+        console.warn('Error creating indexes:', indexError);
+        // Don't fail the connection if indexes can't be created
       }
     }
-
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
     
     // Handle connection events
     mongoose.connection.on('error', err => {
       console.error('MongoDB connection error:', err);
+      if (!environment.isDevelopment()) {
+        process.exit(1);
+      }
     });
 
     mongoose.connection.on('disconnected', () => {
