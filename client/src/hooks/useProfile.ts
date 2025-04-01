@@ -39,14 +39,33 @@ export function useProfile() {
           // Try to create profile if it doesn't exist
           try {
             console.log('Profile not found, creating new profile');
-            const profile = await userService.getCurrentUser();
+            const profile = await userService.createProfile({
+              id: authUser.id,
+              email: authUser.email,
+              name: authUser.name
+            });
             console.log('New profile created:', profile);
             setUser(profile);
             setError(null);
             return;
           } catch (createError) {
             console.error('Error creating profile:', createError);
-            setError('Failed to create user profile');
+            if (axios.isAxiosError(createError) && createError.response?.status === 400) {
+              // Profile already exists but we got a 404 earlier - retry getting the profile
+              try {
+                console.log('Profile exists, retrying get');
+                const profile = await userService.getCurrentUser();
+                console.log('Profile retrieved:', profile);
+                setUser(profile);
+                setError(null);
+                return;
+              } catch (retryError) {
+                console.error('Error retrying profile get:', retryError);
+                setError('Failed to load user profile');
+              }
+            } else {
+              setError('Failed to create user profile');
+            }
           }
         } else {
           setError(err instanceof Error ? err.message : 'Failed to load profile');

@@ -35,7 +35,8 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { ProfileUpdateData } from '../services/userService';
-import { useProfile } from '../hooks/useProfile';
+import { useProfile } from '../contexts/ProfileContext';
+import { useAuth } from '../hooks/useAuth';
 import { getUserTimezone, getTimezoneOptions } from '../utils/timezones';
 
 interface ProfileForm extends ProfileUpdateData {
@@ -58,13 +59,14 @@ interface PreferencesForm {
 }
 
 export function Profile() {
-  const { user, authUser, loading, error: profileError } = useProfile();
+  const { profile, loading, error: profileError, updateProfile } = useProfile();
+  const { user: authUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Debug logging
   console.log('Profile component rendered:', {
-    user,
+    profile,
     authUser,
     loading,
     error,
@@ -73,15 +75,15 @@ export function Profile() {
 
   const profileForm = useForm<ProfileForm>({
     initialValues: {
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      title: user?.title || '',
-      bio: user?.bio || '',
-      location: user?.location || '',
-      timezone: user?.timezone || getUserTimezone(),
+      firstName: profile?.firstName || '',
+      lastName: profile?.lastName || '',
+      title: profile?.title || '',
+      bio: profile?.bio || '',
+      location: profile?.location || '',
+      timezone: profile?.timezone || getUserTimezone(),
       company: '',
-      department: user?.department || '',
-      phoneNumber: user?.phoneNumber || '',
+      department: profile?.department || '',
+      phoneNumber: profile?.phoneNumber || '',
 
     },
     validate: {
@@ -98,10 +100,10 @@ export function Profile() {
 
   const preferencesForm = useForm<PreferencesForm>({
     initialValues: {
-      theme: user?.preferences?.theme || 'system',
+      theme: profile?.preferences?.theme || 'system',
       notifications: {
-        email: user?.preferences?.notifications?.email ?? true,
-        push: user?.preferences?.notifications?.push ?? true,
+        email: profile?.preferences?.notifications?.email ?? true,
+        push: profile?.preferences?.notifications?.push ?? true,
         updates: true,
         security: true,
       },
@@ -190,11 +192,12 @@ export function Profile() {
     }
   };
 
-  if (!user) {
+  if (!profile) {
     return (
       <Container size="md" py="xl">
+        <LoadingOverlay visible={loading} />
         <Alert icon={<IconAlertCircle size="1rem" />} title="Error" color="red">
-          User profile not found
+          {loading ? 'Loading profile...' : 'User profile not found'}
         </Alert>
       </Container>
     );
@@ -210,16 +213,16 @@ export function Profile() {
           <Group justify="space-between" align="flex-start">
             <Group>
               <Avatar 
-                src={user.picture} 
+                src={profile.picture || authUser?.picture} 
                 size={100} 
                 radius={100}
-                alt={user.name}
+                alt={profile.name}
               />
               <Stack gap="xs">
-                <Title order={2}>{user.name}</Title>
+                <Title order={2}>{profile.name}</Title>
                 <Group gap="xs">
                   <Badge color="blue">Member</Badge>
-                  <Badge color="gray">{user.email}</Badge>
+                  <Badge color="gray">{profile.email}</Badge>
                   <Tooltip label="Managed by Auth0">
                     <Badge color="violet">Auth0 Managed</Badge>
                   </Tooltip>
@@ -296,7 +299,7 @@ export function Profile() {
                         </Alert>
                         <TextInput
                           label="Email"
-                          value={user.email}
+                          value={profile.email}
                           disabled
                           rightSection={
                             <Tooltip label="Managed by Auth0">

@@ -1,12 +1,13 @@
 import { AppShell, Container, Group, Title, Button, Menu } from '@mantine/core';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth } from './hooks/useAuth';
 import { IconUser, IconLogout } from '@tabler/icons-react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
+import { ProfileProvider } from './contexts/ProfileContext';
 
 function App() {
-  const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
+  const { isAuthenticated, login, logout, user } = useAuth();
 
   return (
     <Router>
@@ -64,7 +65,7 @@ function App() {
                   </Menu>
                 </Group>
               ) : (
-                <Button onClick={() => loginWithRedirect()}>
+                <Button onClick={() => login()}>
                   Login
                 </Button>
               )}
@@ -75,7 +76,14 @@ function App() {
         <AppShell.Main>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/profile"
+              element={
+                <ProfileProvider>
+                  <Profile />
+                </ProfileProvider>
+              }
+            />
           </Routes>
         </AppShell.Main>
       </AppShell>

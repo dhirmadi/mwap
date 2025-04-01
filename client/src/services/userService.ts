@@ -60,6 +60,16 @@ export const useUserService = () => {
       return response.data;
     }, [api]),
 
+    // Create user profile
+    createProfile: useCallback(async (auth0User: { id: string; email: string; name: string }): Promise<User> => {
+      const response = await api.post('/users/me', {
+        auth0Id: auth0User.id,
+        email: auth0User.email,
+        name: auth0User.name
+      });
+      return response.data;
+    }, [api]),
+
     // Update user profile
     updateProfile: useCallback(async (data: ProfileUpdateData): Promise<User> => {
       const response = await api.patch('/users/me', data);
