@@ -9,6 +9,17 @@ interface Props {
 /**
  * Auth0 configuration wrapper that provides authentication services to the application.
  * Configured for Single Page Application (SPA) using Authorization Code Flow with PKCE.
+ * 
+ * Required environment variables:
+ * - VITE_AUTH0_DOMAIN: Auth0 domain (e.g., 'your-tenant.auth0.com')
+ * - VITE_AUTH0_CLIENT_ID: Auth0 application client ID
+ * - VITE_AUTH0_AUDIENCE: API identifier (e.g., 'https://api.your-app.com')
+ * 
+ * Features:
+ * - Automatic token refresh
+ * - Persistent session handling
+ * - Error handling and recovery
+ * - Redirect handling after login
  */
 export const Auth0ProviderWithConfig = ({ children }: Props) => {
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
