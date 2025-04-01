@@ -8,7 +8,7 @@ class Environment {
   initializeConfig() {
     // Server Configuration
     this.server = {
-      port: this.getEnvNumber('PORT', 3000),
+      port: process.env.PORT || 3000,
       nodeEnv: process.env.NODE_ENV || 'development',
       logLevel: process.env.LOG_LEVEL || 'info',
       host: process.env.HOST || '0.0.0.0',
