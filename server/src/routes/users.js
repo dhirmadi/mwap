@@ -213,6 +213,82 @@ router.get('/me/preferences', checkJwt, async (req, res) => {
   }
 });
 
+// Create user profile
+router.post('/me', checkJwt, async (req, res) => {
+  try {
+    console.log('POST /me - Create profile:', {
+      auth0Id: req.auth.sub,
+      email: req.body.email,
+      name: req.body.name
+    });
+
+    let user = await User.findByAuth0Id(req.auth.sub);
+    if (user) {
+      console.log('User already exists:', {
+        id: user.id,
+        email: user.email
+      });
+      return res.status(400).json({ 
+        message: 'User profile already exists. Use PATCH to update.' 
+      });
+    }
+
+    // Create new user with Auth0 data
+    user = new User({
+      auth0Id: req.auth.sub,
+      email: req.body.email,
+      name: req.body.name,
+      picture: req.auth.picture,
+      status: 'active',
+      preferences: {
+        theme: 'system',
+        notifications: {
+          email: true,
+          push: true
+        },
+        language: 'en'
+      }
+    });
+
+    // Extract first/last name from full name
+    if (req.body.name) {
+      user.firstName = user.extractFirstName(req.body.name);
+      user.lastName = user.extractLastName(req.body.name);
+    }
+
+    await user.save();
+    console.log('Created new user:', {
+      id: user.id,
+      email: user.email,
+      name: user.name
+    });
+    res.status(201).json(user);
+  } catch (error) {
+    console.error('Error creating user:', {
+      error: error.message,
+      stack: error.stack,
+      validation: error.errors
+    });
+
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(err => ({
+          field: err.path,
+          message: err.message,
+          value: err.value
+        }))
+      });
+    }
+
+    res.status(500).json({ 
+      message: 'Error creating profile',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.errors : undefined
+    });
+  }
+});
+
 // Update user preferences
 router.patch('/me/preferences', checkJwt, async (req, res) => {
   try {
