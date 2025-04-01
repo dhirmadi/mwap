@@ -19,8 +19,11 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
     },
     define: {
-      // Pass VITE_API_URL to the app if it exists in process.env
-      'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || env.VITE_API_URL)
+      // Pass environment variables to the app
+      'process.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL),
+      'process.env.VITE_AUTH0_DOMAIN': JSON.stringify(env.VITE_AUTH0_DOMAIN),
+      'process.env.VITE_AUTH0_CLIENT_ID': JSON.stringify(env.VITE_AUTH0_CLIENT_ID),
+      'process.env.VITE_AUTH0_AUDIENCE': JSON.stringify(env.VITE_AUTH0_AUDIENCE)
     }
   }
 })
