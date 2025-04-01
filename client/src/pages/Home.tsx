@@ -1,23 +1,21 @@
-import { Container, Title, Text, Stack, Button, Group } from '@mantine/core';
-import { useAuth0 } from '@auth0/auth0-react';
+import { Container, Title, Text, Stack, Button, Group, Loader } from '@mantine/core';
+import { useAuth } from '../hooks/useAuth';
 
 export function Home() {
-  const { isAuthenticated, isLoading, error, loginWithRedirect, logout, user } = useAuth0();
-
-  console.log('Auth0 State:', { isAuthenticated, isLoading, error, user });
+  const { isAuthenticated, isLoading, error, login, logout, user } = useAuth();
 
   if (isLoading) {
     return (
       <Container size="md" py="xl">
         <Stack spacing="xl" align="center">
-          <Title order={1}>Loading...</Title>
+          <Loader size="lg" />
+          <Text>Loading your profile...</Text>
         </Stack>
       </Container>
     );
   }
 
   if (error) {
-    console.error('Auth0 Error:', error);
     return (
       <Container size="md" py="xl">
         <Stack spacing="xl">
@@ -32,10 +30,7 @@ export function Home() {
               Retry
             </Button>
             <Button 
-              onClick={() => loginWithRedirect({ 
-                prompt: 'login',
-                appState: { returnTo: window.location.pathname }
-              })} 
+              onClick={() => login()} 
               color="green"
             >
               Try Login Again
@@ -49,22 +44,30 @@ export function Home() {
   return (
     <Container size="md" py="xl">
       <Stack spacing="xl">
-        <Title order={1}>👋 Hello World!</Title>
+        <Title order={1}>👋 Welcome to MWAP</Title>
         
         {isAuthenticated && user ? (
           <>
             <Text size="lg">
-              Welcome back, {user.name}! This is a simple starting page for the MWAP application.
+              Welcome back, {user.name}! You're successfully logged in.
             </Text>
+            {user.picture && (
+              <img 
+                src={user.picture} 
+                alt={user.name}
+                style={{ 
+                  width: '100px', 
+                  height: '100px', 
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }} 
+              />
+            )}
             <Group>
               <Button 
-                onClick={() => logout({ 
-                  logoutParams: { 
-                    returnTo: window.location.origin,
-                    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID
-                  } 
-                })}
+                onClick={() => logout()}
                 color="red"
+                variant="light"
               >
                 Logout
               </Button>
@@ -73,13 +76,11 @@ export function Home() {
         ) : (
           <>
             <Text size="lg">
-              Welcome to MWAP! This is a full-stack application built with React, Node.js, Express, MongoDB, and Auth0.
+              MWAP is a full-stack application built with React, Node.js, Express, MongoDB, and Auth0.
             </Text>
             <Group>
               <Button 
-                onClick={() => loginWithRedirect({
-                  appState: { returnTo: window.location.pathname }
-                })} 
+                onClick={() => login()} 
                 color="blue"
               >
                 Login to Get Started
