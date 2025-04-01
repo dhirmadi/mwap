@@ -6,43 +6,32 @@ const env = require('../config/environment');
 // CORS configuration with enhanced security
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin in development
-    if (!origin && env.isDevelopment()) {
-      return callback(null, true);
-    }
-
-    // Allow requests in development or when no origin is present (same-origin)
+    // Allow requests with no origin (same-origin requests)
     if (!origin) {
       return callback(null, true);
     }
 
-    // Allow all Heroku app domains in the same pipeline
-    if (origin.match(/^https:\/\/[a-zA-Z0-9-]+\.herokuapp\.com$/)) {
+    // Check against allowed patterns
+    const allowedPatterns = [
+      /^http:\/\/localhost:5173$/,
+      /^https:\/\/[a-zA-Z0-9-]+\.herokuapp\.com$/
+    ];
+
+    if (allowedPatterns.some(pattern => pattern.test(origin))) {
       return callback(null, true);
     }
 
-    // Allow specific domains
-    const allowedOrigins = [
-      env.security.corsOrigin,
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'https://mwap-staging-a88e5b681617.herokuapp.com',
-      'https://mwap-production-d5a4ed63debf.herokuapp.com'
-    ];
-
-    // Check if the origin matches any allowed pattern
-    const isAllowed = allowedOrigins.includes(origin);
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked request:', {
-        origin,
-        appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME,
-        allowedOrigins
-      });
-      callback(new Error('Not allowed by CORS'));
-    }
+    // Log blocked requests with helpful information
+    console.log('CORS blocked request:', {
+      origin,
+      allowedPatterns: [
+        'http://localhost:5173',
+        'https://*.herokuapp.com'
+      ],
+      appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME
+    });
+    
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   optionsSuccessStatus: 200,
@@ -100,7 +89,8 @@ const setupSecurity = (app) => {
           'https://*.auth0.com',
           'https://*.herokuapp.com',
           'https://cdn.auth0.com',
-          ...(env.isDevelopment() ? ['http://localhost:*'] : [])
+          'http://localhost:5173',
+          'http://localhost:3000'
         ],
         fontSrc: [
           "'self'",
