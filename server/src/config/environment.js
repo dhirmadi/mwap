@@ -29,9 +29,7 @@ class Environment {
         minPoolSize: this.getEnvNumber('MONGO_MIN_POOL_SIZE', 2),
         connectTimeoutMS: this.getEnvNumber('MONGO_CONNECT_TIMEOUT_MS', 10000),
         socketTimeoutMS: this.getEnvNumber('MONGO_SOCKET_TIMEOUT_MS', 45000),
-        family: 4,
-        keepAlive: true,
-        keepAliveInitialDelay: 300000
+        family: 4
       }
     };
 

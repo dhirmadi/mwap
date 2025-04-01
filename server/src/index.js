@@ -35,7 +35,11 @@ app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
-    res.set('X-Response-Time', `${duration}ms`);
+    try {
+      res.set('X-Response-Time', `${duration}ms`);
+    } catch (error) {
+      // Ignore header errors after response is sent
+    }
   });
   next();
 });
