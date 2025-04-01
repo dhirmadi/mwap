@@ -18,6 +18,13 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
   // Get the current origin, ensuring it ends without a trailing slash
   const origin = window.location.origin.replace(/\/$/, '');
 
+  console.log('Auth0 Configuration:', {
+    domain,
+    clientId,
+    audience,
+    redirect_uri: origin
+  });
+
   return (
     <Auth0Provider
       domain={domain}
@@ -28,6 +35,16 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
         scope: 'openid profile email',
       }}
       cacheLocation="localstorage"
+      useRefreshTokens={true}
+      useRefreshTokensFallback={true}
+      onRedirectCallback={(appState) => {
+        console.log('Auth0 Redirect Callback:', { appState });
+        window.history.replaceState(
+          {},
+          document.title,
+          appState?.returnTo || window.location.pathname
+        );
+      }}
     >
       {children}
     </Auth0Provider>
