@@ -13,6 +13,33 @@
     },
     "STATUS_CHECK_INTERVAL": {
       "value": "30000"
+    },
+    "AUTH0_DOMAIN": {
+      "required": true
+    },
+    "AUTH0_CLIENT_ID": {
+      "required": true
+    },
+    "AUTH0_CLIENT_SECRET": {
+      "required": true
+    },
+    "AUTH0_AUDIENCE": {
+      "required": true
+    },
+    "MONGO_URI": {
+      "required": true
+    },
+    "MONGO_ENCRYPTION_KEY_NAME": {
+      "value": "review_data_key"
+    },
+    "VITE_AUTH0_DOMAIN": {
+      "required": true
+    },
+    "VITE_AUTH0_CLIENT_ID": {
+      "required": true
+    },
+    "VITE_AUTH0_AUDIENCE": {
+      "required": true
     }
   },
   "formation": {
@@ -32,6 +59,11 @@
       "addons": [],
       "scripts": {
         "postdeploy": "npm run setup-review"
+      },
+      "env": {
+        "VITE_API_URL": {
+          "postfix": "/api"
+        }
       }
     }
   }
