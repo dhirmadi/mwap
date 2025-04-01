@@ -12,8 +12,6 @@ const connectDB = async () => {
       // MongoDB driver options
       retryWrites: true,
       w: 'majority',
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });

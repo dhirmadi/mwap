@@ -26,8 +26,7 @@ const userSchema = new mongoose.Schema({
   auth0Id: {
     type: String,
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   email: {
     type: String,
@@ -86,9 +85,25 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Indexes
-userSchema.index({ email: 1 });
-userSchema.index({ auth0Id: 1 });
+// Create compound index for better query performance
+userSchema.index({ auth0Id: 1, email: 1 }, { unique: true });
+
+// Pre-save middleware
+userSchema.pre('save', function(next) {
+  // Ensure required Auth0 fields are present
+  if (!this.auth0Id || !this.email || !this.name) {
+    next(new Error('Required Auth0 fields missing: auth0Id, email, and name are required'));
+    return;
+  }
+
+  // Set timestamps
+  if (!this.createdAt) {
+    this.createdAt = new Date();
+  }
+  this.updatedAt = new Date();
+
+  next();
+});
 
 // Instance methods
 userSchema.methods.syncWithAuth0Data = function(auth0Data) {
