@@ -3,19 +3,6 @@ const router = express.Router();
 const { checkJwt } = require('../middleware/auth');
 const User = require('../models/UserSchema');
 
-// Error handler wrapper
-const asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch((error) => {
-    console.error('Route Error:', {
-      path: req.path,
-      method: req.method,
-      error: error.message,
-      stack: error.stack,
-    });
-    next(error);
-  });
-};
-
 // Validation middleware
 const validateProfileUpdate = (req, res, next) => {
   const updates = req.body;
@@ -58,10 +45,22 @@ const validateProfileUpdate = (req, res, next) => {
 // Get current user
 router.get('/me', checkJwt, async (req, res) => {
   try {
+    console.log('GET /me - Auth info:', {
+      sub: req.auth.sub,
+      email: req.auth.email,
+      name: req.auth.name
+    });
+
     let user = await User.findByAuth0Id(req.auth.sub);
-    
+    console.log('Found user:', user ? {
+      id: user.id,
+      email: user.email,
+      name: user.name
+    } : 'null');
+
     // If user doesn't exist, create it with Auth0 data
     if (!user) {
+      console.log('Creating new user profile');
       const auth0Data = {
         auth0Id: req.auth.sub,
         email: req.auth.email,
@@ -71,9 +70,37 @@ router.get('/me', checkJwt, async (req, res) => {
 
       user = new User({
         ...auth0Data,
-        status: 'active'
+        status: 'active',
+        preferences: {
+          theme: 'system',
+          notifications: {
+            email: true,
+            push: true
+          },
+          language: 'en'
+        }
       });
-      await user.save();
+
+      // Extract first/last name from full name
+      if (auth0Data.name) {
+        user.firstName = user.extractFirstName(auth0Data.name);
+        user.lastName = user.extractLastName(auth0Data.name);
+      }
+
+      try {
+        await user.save();
+        console.log('Created new user:', {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        });
+      } catch (saveError) {
+        console.error('Error saving new user:', {
+          error: saveError.message,
+          validation: saveError.errors
+        });
+        throw saveError;
+      }
     }
     // If it's been more than 1 hour since last sync, sync with Auth0
     else {
@@ -81,6 +108,7 @@ router.get('/me', checkJwt, async (req, res) => {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
       
       if (lastSync < oneHourAgo) {
+        console.log('Syncing user with Auth0 data');
         const auth0Data = {
           auth0Id: req.auth.sub,
           email: req.auth.email,
@@ -89,49 +117,35 @@ router.get('/me', checkJwt, async (req, res) => {
         };
         user.syncWithAuth0Data(auth0Data);
         await user.save();
+        console.log('User synced with Auth0');
       }
     }
 
     res.json(user);
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error('Error in GET /me:', {
+      error: error.message,
+      stack: error.stack,
+      validation: error.errors
+    });
     res.status(500).json({ 
       message: 'Error fetching user profile',
-      error: error.message 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.errors : undefined
     });
   }
 });
 
-// Create or update user profile
-router.patch('/me', checkJwt, validateProfileUpdate, asyncHandler(async (req, res) => {
-  console.log('Profile update request:', {
-    auth0Id: req.auth.sub,
-    body: req.body,
-    headers: req.headers
-  });
-
-  let user = await User.findByAuth0Id(req.auth.sub);
-  console.log('Found user:', user ? {
-    auth0Id: user.auth0Id,
-    email: user.email,
-    name: user.name
-  } : 'null');
-
-  if (!user) {
-    // Create user if not found
-    console.log('Creating new user with Auth0 data');
-    user = new User({
-      auth0Id: req.auth.sub,
-      email: req.auth.email,
-      name: req.auth.name,
-      picture: req.auth.picture,
-      status: 'active'
-    });
-  }
-
+// Update user profile
+router.patch('/me', checkJwt, validateProfileUpdate, async (req, res) => {
   try {
-    console.log('Updating user fields:', req.body);
+    console.log('PATCH /me - Update data:', req.body);
     
+    let user = await User.findByAuth0Id(req.auth.sub);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     // Handle nested updates (e.g., preferences.theme)
     Object.keys(req.body).forEach(field => {
       if (field === 'preferences' && typeof req.body[field] === 'object') {
@@ -144,23 +158,15 @@ router.patch('/me', checkJwt, validateProfileUpdate, asyncHandler(async (req, re
       }
     });
 
-    // Log user state before validation
-    console.log('User state before validation:', {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      auth0Id: user.auth0Id
-    });
-
     // Validate before saving
     await user.validate();
     console.log('Validation passed');
 
     // Save the user
     const savedUser = await user.save();
-    console.log('User saved successfully:', {
-      auth0Id: savedUser.auth0Id,
-      updatedFields: Object.keys(req.body),
+    console.log('User updated successfully:', {
+      id: savedUser.id,
+      updatedFields: Object.keys(req.body)
     });
 
     res.json(savedUser);
@@ -168,8 +174,7 @@ router.patch('/me', checkJwt, validateProfileUpdate, asyncHandler(async (req, re
     console.error('Error updating user:', {
       error: error.message,
       stack: error.stack,
-      name: error.name,
-      errors: error.errors
+      validation: error.errors
     });
 
     if (error.name === 'ValidationError') {
@@ -179,42 +184,14 @@ router.patch('/me', checkJwt, validateProfileUpdate, asyncHandler(async (req, re
           field: err.path,
           message: err.message,
           value: err.value
-        })),
-      });
-    }
-    throw error; // Let asyncHandler deal with other errors
-  }
-}));
-
-// Create or sync user profile
-router.post('/me', checkJwt, async (req, res) => {
-  try {
-    let user = await User.findOne({ auth0Id: req.auth.sub });
-    const auth0Data = {
-      auth0Id: req.auth.sub,
-      email: req.body.email,
-      name: req.body.name,
-      picture: req.body.picture
-    };
-
-    if (user) {
-      // Sync existing user with Auth0 data
-      user.syncWithAuth0Data(auth0Data);
-    } else {
-      // Create new user with Auth0 data
-      user = new User({
-        ...auth0Data,
-        status: 'active'
+        }))
       });
     }
 
-    await user.save();
-    res.status(201).json(user);
-  } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(400).json({ 
-      message: 'Error creating profile',
-      error: error.message
+    res.status(500).json({ 
+      message: 'Error updating profile',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.errors : undefined
     });
   }
 });
@@ -222,7 +199,7 @@ router.post('/me', checkJwt, async (req, res) => {
 // Get user preferences
 router.get('/me/preferences', checkJwt, async (req, res) => {
   try {
-    const user = await User.findOne({ auth0Id: req.auth.sub });
+    const user = await User.findByAuth0Id(req.auth.sub);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -239,7 +216,7 @@ router.get('/me/preferences', checkJwt, async (req, res) => {
 // Update user preferences
 router.patch('/me/preferences', checkJwt, async (req, res) => {
   try {
-    const user = await User.findOne({ auth0Id: req.auth.sub });
+    const user = await User.findByAuth0Id(req.auth.sub);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
