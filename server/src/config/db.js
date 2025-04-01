@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
+const environment = require('./environment');
 
 const connectDB = async () => {
+  // Skip MongoDB connection in development
+  if (environment.isDevelopment()) {
+    console.log('Skipping MongoDB connection in development mode');
+    return;
+  }
+
   try {
     const options = {
       maxPoolSize: 10,
@@ -47,7 +54,9 @@ const connectDB = async () => {
 
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
+    if (!environment.isDevelopment()) {
+      process.exit(1);
+    }
   }
 };
 
