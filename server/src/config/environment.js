@@ -98,6 +98,11 @@ class Environment {
 
   // Validation
   validateConfig() {
+    // Temporarily disable validation for development
+    if (this.isDevelopment()) {
+      return;
+    }
+
     const required = [
       'mongodb.uri',
       'mongodb.encryptionKey',
