@@ -41,17 +41,21 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
       authorizationParams={{
         redirect_uri: window.location.origin,
         audience,
-        scope: 'openid profile email',
+        scope: 'openid profile email offline_access',
       }}
       // Enable optimal caching strategy for tokens
       cacheLocation="localstorage"
       // Enable automatic token renewal
       useRefreshTokens={true}
+      useRefreshTokensFallback={true}
       // Handle redirect after login
       onRedirectCallback={onRedirectCallback}
+      // Configure token refresh
+      tokenRefreshMode="in-memory"
+      // Configure token expiration buffer
+      tokenRefreshBuffer={60} // Refresh token 60 seconds before expiration
     >
       {children}
     </Auth0Provider>
   );
 }
-};
