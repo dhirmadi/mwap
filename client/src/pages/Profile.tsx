@@ -35,8 +35,7 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import type { ProfileUpdateData } from '../services/userService';
-import { useProfile } from '../contexts/ProfileContext';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth0 } from '@auth0/auth0-react';
 import { getUserTimezone, getTimezoneOptions } from '../utils/timezones';
 
 interface ProfileForm extends ProfileUpdateData {
@@ -59,31 +58,29 @@ interface PreferencesForm {
 }
 
 export function Profile() {
-  const { profile, loading, error: profileError, updateProfile } = useProfile();
-  const { user: authUser } = useAuth();
+  const { user, isLoading } = useAuth0();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Debug logging
-  console.log('Profile component rendered:', {
-    profile,
-    authUser,
-    loading,
-    error,
-    profileError
-  });
+  if (isLoading) {
+    return (
+      <Container size="md" py="xl">
+        <LoadingOverlay visible={true} />
+      </Container>
+    );
+  }
 
   const profileForm = useForm<ProfileForm>({
     initialValues: {
-      firstName: profile?.firstName || '',
-      lastName: profile?.lastName || '',
-      title: profile?.title || '',
-      bio: profile?.bio || '',
-      location: profile?.location || '',
-      timezone: profile?.timezone || getUserTimezone(),
+      firstName: user?.given_name || '',
+      lastName: user?.family_name || '',
+      title: '',
+      bio: '',
+      location: '',
+      timezone: getUserTimezone(),
       company: '',
-      department: profile?.department || '',
-      phoneNumber: profile?.phoneNumber || '',
+      department: '',
+      phoneNumber: '',
 
     },
     validate: {
@@ -100,10 +97,10 @@ export function Profile() {
 
   const preferencesForm = useForm<PreferencesForm>({
     initialValues: {
-      theme: profile?.preferences?.theme || 'system',
+      theme: 'system',
       notifications: {
-        email: profile?.preferences?.notifications?.email ?? true,
-        push: profile?.preferences?.notifications?.push ?? true,
+        email: true,
+        push: true,
         updates: true,
         security: true,
       },
@@ -192,12 +189,11 @@ export function Profile() {
     }
   };
 
-  if (!profile) {
+  if (!user) {
     return (
       <Container size="md" py="xl">
-        <LoadingOverlay visible={loading} />
         <Alert icon={<IconAlertCircle size="1rem" />} title="Error" color="red">
-          {loading ? 'Loading profile...' : 'User profile not found'}
+          Please log in to view your profile
         </Alert>
       </Container>
     );
@@ -213,16 +209,16 @@ export function Profile() {
           <Group justify="space-between" align="flex-start">
             <Group>
               <Avatar 
-                src={profile.picture || authUser?.picture} 
+                src={user.picture} 
                 size={100} 
                 radius={100}
-                alt={profile.name}
+                alt={user.name}
               />
               <Stack gap="xs">
-                <Title order={2}>{profile.name}</Title>
+                <Title order={2}>{user.name}</Title>
                 <Group gap="xs">
                   <Badge color="blue">Member</Badge>
-                  <Badge color="gray">{profile.email}</Badge>
+                  <Badge color="gray">{user.email}</Badge>
                   <Tooltip label="Managed by Auth0">
                     <Badge color="violet">Auth0 Managed</Badge>
                   </Tooltip>
@@ -299,7 +295,7 @@ export function Profile() {
                         </Alert>
                         <TextInput
                           label="Email"
-                          value={profile.email}
+                          value={user.email}
                           disabled
                           rightSection={
                             <Tooltip label="Managed by Auth0">
