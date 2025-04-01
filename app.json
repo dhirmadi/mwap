@@ -62,9 +62,8 @@
       },
       "env": {
         "VITE_API_URL": {
-          "required": true,
-          "generator": "url",
-          "postfix": "/api"
+          "description": "API URL for the client application",
+          "value": "https://${HEROKU_APP_NAME}.herokuapp.com/api"
         }
       }
     }
