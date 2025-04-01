@@ -8,7 +8,7 @@ class Environment {
   initializeConfig() {
     // Server Configuration
     this.server = {
-      port: process.env.PORT || 3000,
+      port: this.getEnvNumber('PORT', 54014),
       nodeEnv: process.env.NODE_ENV || 'development',
       logLevel: process.env.LOG_LEVEL || 'info',
       host: process.env.HOST || '0.0.0.0',
@@ -44,7 +44,7 @@ class Environment {
 
     // Security Configuration
     this.security = {
-      corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+      corsOrigin: process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:54014'],
       rateLimiting: {
         enabled: this.getEnvBoolean('RATE_LIMITING_ENABLED', true),
         windowMs: this.getEnvNumber('RATE_LIMIT_WINDOW_MS', 900000),
