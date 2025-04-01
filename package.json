@@ -10,8 +10,8 @@
     "start": "cd server && npm start",
     "build": "cd client && npm install --production=false && npm run build && cd ../server && npm install",
     "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
-    "heroku-prebuild": "chmod +x scripts/setup-env.sh && ./scripts/setup-env.sh",
-    "heroku-postbuild": "cd client && npm install --production=false && npm run build && cd ../server && npm install"
+    "heroku-prebuild": "chmod +x scripts/setup-env.sh",
+    "heroku-postbuild": "scripts/setup-env.sh && cd client && npm install --production=false && npm run build && cd ../server && npm install"
   },
   "cacheDirectories": [
     "client/node_modules",
