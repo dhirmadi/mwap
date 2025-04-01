@@ -19,11 +19,19 @@ const connectDB = async () => {
 
     const conn = await mongoose.connect(process.env.MONGO_URI, options);
 
-    // Create indexes for better query performance
-    await Promise.all([
-      require('../models/User').createIndexes(),
-      require('../models/Task').createIndexes()
-    ]);
+    // Initialize models
+    const User = require('../models/User');
+    const Task = require('../models/Task');
+    
+    // Create indexes if models are Mongoose models
+    if (process.env.NODE_ENV !== 'development') {
+      if (User.createIndexes) {
+        await User.createIndexes();
+      }
+      if (Task.createIndexes) {
+        await Task.createIndexes();
+      }
+    }
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     
