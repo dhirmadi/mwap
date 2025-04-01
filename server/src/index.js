@@ -62,7 +62,7 @@ if (env.isProduction() || env.getEnvironmentName() === 'review') {
   app.use(express.static(clientPath, staticOptions));
 
   // Serve index.html for all routes (SPA)
-  app.get('*', (req, res) => {
+  app.get('*', (req, res, next) => {
     // Skip API routes
     if (req.path.startsWith('/api')) {
       return next();
