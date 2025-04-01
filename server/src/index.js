@@ -42,8 +42,8 @@ app.use((req, res, next) => {
 
 app.use('/api', routes);
 
-// Serve static files in production with caching
-if (env.isProduction()) {
+// Serve static files in production and review apps with caching
+if (env.isProduction() || env.getEnvironmentName() === 'review') {
   const staticOptions = {
     etag: true,
     lastModified: true,
@@ -56,10 +56,18 @@ if (env.isProduction()) {
     }
   };
 
-  app.use(express.static(path.join(__dirname, '../../client/dist'), staticOptions));
+  const clientPath = path.join(__dirname, '../../client/dist');
+  
+  // Serve static files
+  app.use(express.static(clientPath, staticOptions));
 
+  // Serve index.html for all routes (SPA)
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
+    // Skip API routes
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(clientPath, 'index.html'));
   });
 }
 
