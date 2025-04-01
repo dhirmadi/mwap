@@ -11,18 +11,21 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Allow direct access to the app's own domain
-    const appDomain = process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME;
-    if (appDomain) {
-      const currentAppDomain = `https://${appDomain}.herokuapp.com`;
-      if (origin === currentAppDomain || !origin) {
-        return callback(null, true);
-      }
+    // Allow requests in development or when no origin is present (same-origin)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Allow all Heroku app domains in the same pipeline
+    if (origin.match(/^https:\/\/[a-zA-Z0-9-]+\.herokuapp\.com$/)) {
+      return callback(null, true);
     }
 
     // Allow specific domains
     const allowedOrigins = [
       env.security.corsOrigin,
+      'http://localhost:5173',
+      'http://localhost:3000',
       'https://mwap-staging-a88e5b681617.herokuapp.com',
       'https://mwap-production-d5a4ed63debf.herokuapp.com'
     ];
