@@ -53,5 +53,4 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
       {children}
     </Auth0Provider>
   );
-}
 };
