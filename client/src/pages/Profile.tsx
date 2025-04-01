@@ -35,7 +35,8 @@ import {
 } from '@tabler/icons-react';
 import { useAuth } from '../hooks/useAuth';
 import { User, useUserService, ProfileUpdateData } from '../services/userService';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getUserTimezone, getTimezoneOptions } from '../utils/timezones';
 
 interface ProfileForm extends ProfileUpdateData {
   company: string;
@@ -68,7 +69,7 @@ export function Profile() {
       title: user?.title || '',
       bio: user?.bio || '',
       location: user?.location || '',
-      timezone: user?.timezone || 'UTC',
+      timezone: user?.timezone || getUserTimezone(),
       company: '',
       department: user?.department || '',
       phoneNumber: user?.phoneNumber || '',
@@ -325,13 +326,10 @@ export function Profile() {
                         <Select
                           label="Time Zone"
                           placeholder="Select your time zone"
-                          data={[
-                            { value: 'UTC', label: 'UTC' },
-                            { value: 'America/New_York', label: 'Eastern Time' },
-                            { value: 'America/Chicago', label: 'Central Time' },
-                            { value: 'America/Denver', label: 'Mountain Time' },
-                            { value: 'America/Los_Angeles', label: 'Pacific Time' },
-                          ]}
+                          data={getTimezoneOptions()}
+                          searchable
+                          nothingFound="No timezone found"
+                          maxDropdownHeight={400}
                           {...profileForm.getInputProps('timezone')}
                         />
                       </Stack>
