@@ -46,8 +46,8 @@ app.use((req, res, next) => {
 
 app.use('/api', routes);
 
-// Serve static files in production and review apps with caching
-if (env.isProduction() || env.getEnvironmentName() === 'review') {
+// Serve static files in all non-development environments with caching
+if (!env.isDevelopment()) {
   const staticOptions = {
     etag: true,
     lastModified: true,
@@ -71,7 +71,12 @@ if (env.isProduction() || env.getEnvironmentName() === 'review') {
     if (req.path.startsWith('/api')) {
       return next();
     }
-    res.sendFile(path.join(clientPath, 'index.html'));
+    res.sendFile(path.join(clientPath, 'index.html'), (err) => {
+      if (err) {
+        console.error('Error sending index.html:', err);
+        res.status(500).send('Error loading application');
+      }
+    });
   });
 }
 

@@ -6,12 +6,18 @@ const env = require('../config/environment');
 // CORS configuration with enhanced security
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow all origins in development and review environments
-    if (env.isDevelopment() || env.getEnvironmentName() === 'review') {
+    // Allow requests with no origin in development
+    if (!origin && env.isDevelopment()) {
       return callback(null, true);
     }
 
-    // Production environment: strict CORS
+    // Allow direct access to the app's own domain
+    const appDomain = `https://${process.env.HEROKU_APP_NAME}.herokuapp.com`;
+    if (origin === appDomain) {
+      return callback(null, true);
+    }
+
+    // Allow specific domains
     const allowedOrigins = [
       env.security.corsOrigin,
       'https://mwap-staging-a88e5b681617.herokuapp.com',
