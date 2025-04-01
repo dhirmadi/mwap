@@ -14,6 +14,8 @@ const corsOptions = {
     // Check against allowed patterns
     const allowedPatterns = [
       /^http:\/\/localhost:5173$/,
+      /^http:\/\/localhost:54014$/,
+      /^http:\/\/localhost:3000$/,
       /^https:\/\/[a-zA-Z0-9-]+\.herokuapp\.com$/
     ];
 
@@ -26,6 +28,8 @@ const corsOptions = {
       origin,
       allowedPatterns: [
         'http://localhost:5173',
+        'http://localhost:54014',
+        'http://localhost:3000',
         'https://*.herokuapp.com'
       ],
       appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME
@@ -90,6 +94,7 @@ const setupSecurity = (app) => {
           'https://*.herokuapp.com',
           'https://cdn.auth0.com',
           'http://localhost:5173',
+          'http://localhost:54014',
           'http://localhost:3000'
         ],
         fontSrc: [
