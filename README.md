@@ -198,36 +198,75 @@ All authentication is handled through Auth0's endpoints. The application uses:
 
 ## 🚀 Deployment
 
-### Heroku Setup
+### Heroku Pipeline
 
-1. **Create Heroku apps**
+The application uses a Heroku pipeline with review apps, staging, and production environments.
+
+1. **Review Apps**
+   - Automatically created for pull requests
+   - Isolated testing environment
+   - Configured via `app.json`
+   - Temporary database instances
+
+2. **Staging Environment**
    ```bash
+   # Create staging app
    heroku create mwap-staging
-   heroku create mwap-production
-   ```
 
-2. **Configure environment variables**
-   ```bash
-   # For staging
+   # Configure environment
    heroku config:set -a mwap-staging \
      NODE_ENV=production \
      AUTH0_DOMAIN=your-domain \
      AUTH0_CLIENT_ID=your-client-id \
      AUTH0_CLIENT_SECRET=your-client-secret \
      AUTH0_AUDIENCE=your-audience \
-     MONGO_URI=your-mongodb-uri
+     MONGO_URI=your-mongodb-uri \
+     VITE_API_URL=https://mwap-staging.herokuapp.com/api
 
-   # For production (repeat with production values)
-   ```
-
-3. **Deploy**
-   ```bash
    # Deploy to staging
    git push heroku-staging main
+   ```
+
+3. **Production Environment**
+   ```bash
+   # Create production app
+   heroku create mwap-production
+
+   # Configure environment
+   heroku config:set -a mwap-production \
+     NODE_ENV=production \
+     AUTH0_DOMAIN=your-domain \
+     AUTH0_CLIENT_ID=your-client-id \
+     AUTH0_CLIENT_SECRET=your-client-secret \
+     AUTH0_AUDIENCE=your-audience \
+     MONGO_URI=your-mongodb-uri \
+     VITE_API_URL=https://mwap-production.herokuapp.com/api
 
    # Deploy to production
    git push heroku-production main
    ```
+
+### Review Apps
+
+Review apps are automatically created for pull requests and configured via `app.json`:
+
+1. **Environment**
+   - Dynamic API URL based on app name
+   - Secure environment variables
+   - Temporary database instances
+   - Auth0 integration
+
+2. **Configuration**
+   - `app.json` defines the environment
+   - `setup-review.sh` handles initialization
+   - Environment variables are set automatically
+   - CORS is configured for the review app domain
+
+3. **Testing**
+   - Isolated environment for each PR
+   - Full application stack
+   - Real Auth0 integration
+   - Database seeding for testing
 
 ## 🔧 Development Guidelines
 
