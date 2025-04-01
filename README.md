@@ -114,42 +114,87 @@ mwap/
 
 ## 🔒 Authentication
 
-This project uses Auth0 for authentication. Required setup:
+This project uses Auth0 for authentication, implementing a Single Page Application (SPA) flow with PKCE.
+
+### Auth0 Setup
 
 1. Create an Auth0 account and application
-2. Configure the following URLs in Auth0 dashboard:
+2. Set Application Type to "Single Page Application"
+3. Configure the following URLs in Auth0 dashboard:
    ```
    Allowed Callback URLs:
-   - https://mwap-staging-a88e5b681617.herokuapp.com
-   - https://mwap-production-d5a4ed63debf.herokuapp.com
+   - https://*.herokuapp.com
    - http://localhost:5173
 
    Allowed Logout URLs:
-   - https://mwap-staging-a88e5b681617.herokuapp.com
-   - https://mwap-production-d5a4ed63debf.herokuapp.com
+   - https://*.herokuapp.com
    - http://localhost:5173
 
    Allowed Web Origins:
-   - https://mwap-staging-a88e5b681617.herokuapp.com
-   - https://mwap-production-d5a4ed63debf.herokuapp.com
+   - https://*.herokuapp.com
    - http://localhost:5173
    ```
+
+### Authentication Features
+
+- **Secure Authentication Flow**:
+  - Authorization Code Flow with PKCE
+  - Token management and renewal
+  - Secure session handling
+  - Protected API routes
+
+- **User Management**:
+  - User profile data
+  - Profile picture support
+  - User preferences
+  - Account settings
+
+- **Developer Experience**:
+  - Custom useAuth hook
+  - TypeScript support
+  - Error handling
+  - Loading states
+
+### Usage in Components
+
+```typescript
+import { useAuth } from '../hooks/useAuth';
+
+export function MyComponent() {
+  const { 
+    isAuthenticated, 
+    isLoading, 
+    user, 
+    login, 
+    logout,
+    getToken 
+  } = useAuth();
+
+  // Use authentication state and functions
+}
 
 ## 🌐 API Endpoints
 
 ### Protected Routes
 
-All routes require authentication via Auth0 JWT token.
+All routes require authentication via Auth0 JWT token. Include the token in the Authorization header:
+```
+Authorization: Bearer <token>
+```
 
 #### User Management
 - `GET /api/users/me` - Get current user profile
-- `POST /api/users/me` - Update current user profile
+- `POST /api/users/me` - Create initial user profile
+- `PATCH /api/users/me` - Update user profile
+- `GET /api/users/me/preferences` - Get user preferences
+- `PATCH /api/users/me/preferences` - Update user preferences
 
-#### Task Management
-- `GET /api/tasks` - Get all tasks for the authenticated user
-- `POST /api/tasks` - Create a new task
-- `PATCH /api/tasks/:id` - Update a task
-- `DELETE /api/tasks/:id` - Delete a task
+#### Authentication
+All authentication is handled through Auth0's endpoints. The application uses:
+- Authorization Code flow with PKCE
+- Automatic token renewal
+- Secure token storage
+- JWT validation middleware
 
 ## 🚀 Deployment
 
