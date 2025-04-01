@@ -7,6 +7,12 @@
     },
     "NPM_CONFIG_PRODUCTION": {
       "value": "false"
+    },
+    "LOG_LEVEL": {
+      "value": "debug"
+    },
+    "STATUS_CHECK_INTERVAL": {
+      "value": "30000"
     }
   },
   "formation": {
@@ -20,5 +26,13 @@
       "url": "heroku/nodejs"
     }
   ],
-  "stack": "heroku-24"
+  "stack": "heroku-24",
+  "environments": {
+    "review": {
+      "addons": [],
+      "scripts": {
+        "postdeploy": "npm run setup-review"
+      }
+    }
+  }
 }
