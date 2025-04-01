@@ -12,9 +12,12 @@ const corsOptions = {
     }
 
     // Allow direct access to the app's own domain
-    const appDomain = `https://${process.env.HEROKU_APP_NAME}.herokuapp.com`;
-    if (origin === appDomain) {
-      return callback(null, true);
+    const appDomain = process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME;
+    if (appDomain) {
+      const currentAppDomain = `https://${appDomain}.herokuapp.com`;
+      if (origin === currentAppDomain || !origin) {
+        return callback(null, true);
+      }
     }
 
     // Allow specific domains
@@ -30,6 +33,11 @@ const corsOptions = {
     if (isAllowed) {
       callback(null, true);
     } else {
+      console.log('CORS blocked request:', {
+        origin,
+        appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME,
+        allowedOrigins
+      });
       callback(new Error('Not allowed by CORS'));
     }
   },
