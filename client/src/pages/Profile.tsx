@@ -38,7 +38,7 @@ import {
   IconAlertCircle,
 } from '@tabler/icons-react';
 import { useAuth } from '../hooks/useAuth';
-import { User, userService, ProfileUpdateData } from '../services/userService';
+import { User, useUserService, ProfileUpdateData } from '../services/userService';
 import { useState } from 'react';
 
 interface SocialLinks {
@@ -117,6 +117,8 @@ export function Profile() {
       },
     },
   });
+
+  const userService = useUserService();
 
   const handleProfileSubmit = async (values: ProfileForm) => {
     try {

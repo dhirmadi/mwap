@@ -1,4 +1,5 @@
-import api from './api';
+import { createAuthenticatedApi } from './api';
+import { useCallback } from 'react';
 
 export interface UserPreferences {
   theme: 'light' | 'dark' | 'system';
@@ -49,28 +50,32 @@ export interface PreferencesUpdateData {
   language?: string;
 }
 
-export const userService = {
-  // Get current user profile
-  getCurrentUser: async (): Promise<User> => {
-    const response = await api.get('/users/me');
-    return response.data;
-  },
+export const useUserService = () => {
+  const api = createAuthenticatedApi();
 
-  // Update user profile
-  updateProfile: async (data: ProfileUpdateData): Promise<User> => {
-    const response = await api.patch('/users/me', data);
-    return response.data;
-  },
+  return {
+    // Get current user profile
+    getCurrentUser: useCallback(async (): Promise<User> => {
+      const response = await api.get('/users/me');
+      return response.data;
+    }, [api]),
 
-  // Get user preferences
-  getPreferences: async (): Promise<UserPreferences> => {
-    const response = await api.get('/users/me/preferences');
-    return response.data;
-  },
+    // Update user profile
+    updateProfile: useCallback(async (data: ProfileUpdateData): Promise<User> => {
+      const response = await api.patch('/users/me', data);
+      return response.data;
+    }, [api]),
 
-  // Update user preferences
-  updatePreferences: async (data: PreferencesUpdateData): Promise<UserPreferences> => {
-    const response = await api.patch('/users/me/preferences', data);
-    return response.data;
-  },
+    // Get user preferences
+    getPreferences: useCallback(async (): Promise<UserPreferences> => {
+      const response = await api.get('/users/me/preferences');
+      return response.data;
+    }, [api]),
+
+    // Update user preferences
+    updatePreferences: useCallback(async (data: PreferencesUpdateData): Promise<UserPreferences> => {
+      const response = await api.patch('/users/me/preferences', data);
+      return response.data;
+    }, [api]),
+  };
 };
