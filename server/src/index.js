@@ -1,34 +1,34 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
 const path = require('path');
 const mongoose = require('mongoose');
+const env = require('./config/environment');
+const setupSecurity = require('./middleware/security');
 const { errorHandler } = require('./middleware/errorHandler');
 const routes = require('./routes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "img-src": ["'self'", "data:", "https:"],
-      "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      "frame-src": ["'self'", "https://*.auth0.com"]
-    }
-  }
-}));
-app.use(cors());
+// Security setup (includes CORS, helmet, rate limiting)
+setupSecurity(app);
+
+// Basic middleware
 app.use(express.json());
+
+// Health check endpoint (no auth required)
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    environment: env.getEnvironmentName(),
+    timestamp: new Date().toISOString()
+  });
+});
 
 // API Routes
 app.use('/api', routes);
 
 // Serve static files in production
-if (process.env.NODE_ENV === 'production') {
+if (env.isProduction()) {
   // Serve static files from the React app
   app.use(express.static(path.join(__dirname, '../../client/dist')));
 
@@ -43,11 +43,24 @@ app.use(errorHandler);
 
 // Database connection
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log('Connected to MongoDB'))
+  .connect(env.mongodb.uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log(`Connected to MongoDB (${env.getEnvironmentName()})`))
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(env.port, () => {
+  console.log(`Server running on port ${env.port} (${env.getEnvironmentName()})`);
+  
+  if (env.isDevelopment()) {
+    console.log('Configuration:', {
+      environment: env.getEnvironmentName(),
+      port: env.port,
+      mongoDb: 'Connected',
+      auth0Domain: env.auth0.domain,
+      corsOrigin: env.security.corsOrigin,
+    });
+  }
 });
