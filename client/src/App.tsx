@@ -1,7 +1,7 @@
 import { AppShell, Container, Group, Title, Button, Menu } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 import { IconUser, IconLogout } from '@tabler/icons-react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { ProfileProvider } from './contexts/ProfileContext';
@@ -10,8 +10,7 @@ function App() {
   const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
 
   return (
-    <Router>
-      <AppShell
+    <AppShell
         header={{ height: 60 }}
         padding="md"
       >
@@ -87,7 +86,6 @@ function App() {
           </Routes>
         </AppShell.Main>
       </AppShell>
-    </Router>
   );
 }
 

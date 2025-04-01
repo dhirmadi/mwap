@@ -5,15 +5,27 @@ import { Notifications } from '@mantine/notifications'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import App from './App.tsx'
-import { Auth0ProviderWithConfig } from './auth/Auth0Provider'
+import { Auth0Provider } from '@auth0/auth0-react'
+import { BrowserRouter as Router } from 'react-router-dom'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MantineProvider>
       <Notifications />
-      <Auth0ProviderWithConfig>
-        <App />
-      </Auth0ProviderWithConfig>
+      <Auth0Provider
+        domain={import.meta.env.VITE_AUTH0_DOMAIN}
+        clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+        authorizationParams={{
+          redirect_uri: window.location.origin,
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        }}
+        useRefreshTokens={true}
+        cacheLocation="localstorage"
+      >
+        <Router>
+          <App />
+        </Router>
+      </Auth0Provider>
     </MantineProvider>
   </StrictMode>,
 )
