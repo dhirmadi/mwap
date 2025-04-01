@@ -1,9 +1,10 @@
 class AppError extends Error {
-  constructor(message, statusCode) {
+  constructor(message, statusCode, details = null) {
     super(message);
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
     this.isOperational = true;
+    this.details = details;
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -14,9 +15,12 @@ const handleCastErrorDB = err => {
 };
 
 const handleValidationErrorDB = err => {
-  const errors = Object.values(err.errors).map(el => el.message);
-  const message = `Invalid input data. ${errors.join('. ')}`;
-  return new AppError(message, 400);
+  const errors = Object.values(err.errors).map(el => ({
+    field: el.path,
+    message: el.message,
+    value: el.value
+  }));
+  return new AppError('Validation failed', 400, { errors });
 };
 
 const handleDuplicateFieldsDB = err => {
@@ -63,10 +67,14 @@ const errorHandler = (err, req, res, next) => {
 
   // Operational, trusted error: send message to client
   if (error.isOperational) {
-    return res.status(error.statusCode).json({
+    const response = {
       status: error.status,
       message: error.message
-    });
+    };
+    if (error.details) {
+      response.details = error.details;
+    }
+    return res.status(error.statusCode).json(response);
   }
 
   // Programming or other unknown error: don't leak error details

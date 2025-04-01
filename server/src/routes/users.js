@@ -3,6 +3,19 @@ const router = express.Router();
 const { checkJwt } = require('../middleware/auth');
 const User = require('../models/UserSchema');
 
+// Error handler wrapper
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch((error) => {
+    console.error('Route Error:', {
+      path: req.path,
+      method: req.method,
+      error: error.message,
+      stack: error.stack,
+    });
+    next(error);
+  });
+};
+
 // Validation middleware
 const validateProfileUpdate = (req, res, next) => {
   const updates = req.body;
@@ -90,13 +103,13 @@ router.get('/me', checkJwt, async (req, res) => {
 });
 
 // Create or update user profile
-router.patch('/me', checkJwt, validateProfileUpdate, async (req, res) => {
-  try {
-    let user = await User.findOne({ auth0Id: req.auth.sub });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+router.patch('/me', checkJwt, validateProfileUpdate, asyncHandler(async (req, res) => {
+  let user = await User.findByAuth0Id(req.auth.sub);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
 
+  try {
     // Handle nested updates (e.g., preferences.theme)
     Object.keys(req.body).forEach(field => {
       if (field === 'preferences' && typeof req.body[field] === 'object') {
@@ -109,16 +122,31 @@ router.patch('/me', checkJwt, validateProfileUpdate, async (req, res) => {
       }
     });
 
-    await user.save();
-    res.json(user);
-  } catch (error) {
-    console.error('Error updating user:', error);
-    res.status(400).json({ 
-      message: 'Error updating profile',
-      error: error.message
+    // Validate before saving
+    await user.validate();
+
+    // Save the user
+    const savedUser = await user.save();
+    
+    console.log('User updated successfully:', {
+      auth0Id: savedUser.auth0Id,
+      updatedFields: Object.keys(req.body),
     });
+
+    res.json(savedUser);
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(err => ({
+          field: err.path,
+          message: err.message,
+        })),
+      });
+    }
+    throw error; // Let asyncHandler deal with other errors
   }
-});
+}));
 
 // Create or sync user profile
 router.post('/me', checkJwt, async (req, res) => {

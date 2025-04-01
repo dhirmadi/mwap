@@ -20,7 +20,7 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     // Initialize models
-    const User = require('../models/User');
+    const User = require('../models/UserSchema');
     const Task = require('../models/Task');
     
     // Create indexes if models are Mongoose models and we're not in development

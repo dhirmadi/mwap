@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const compression = require('compression');
-const connectDB = require('./config/db');
+const connectDB = require('./config/database');
 const env = require('./config/environment');
 const setupSecurity = require('./middleware/security');
 const { errorHandler } = require('./middleware/errors');
