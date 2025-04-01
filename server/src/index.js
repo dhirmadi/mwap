@@ -82,13 +82,13 @@ process.on('SIGINT', gracefulShutdown);
 connectDB();
 
 // Start server
-const server = app.listen(env.port, () => {
-  console.log(`Server running on port ${env.port} (${env.getEnvironmentName()})`);
+const server = app.listen(env.server.port, () => {
+  console.log(`Server running on port ${env.server.port} (${env.getEnvironmentName()})`);
   
   if (env.isDevelopment()) {
     console.log('Configuration:', {
       environment: env.getEnvironmentName(),
-      port: env.port,
+      port: env.server.port,
       mongoDb: 'Connected',
       auth0Domain: env.auth0.domain,
       corsOrigin: env.security.corsOrigin,
