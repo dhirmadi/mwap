@@ -78,28 +78,34 @@ const setupSecurity = (app) => {
           "'self'",
           "'unsafe-inline'",
           "'unsafe-eval'",
-          'https://*.auth0.com'
+          'https://*.auth0.com',
+          'https://cdn.auth0.com'
         ],
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
-          'https://fonts.googleapis.com'
+          'https://fonts.googleapis.com',
+          'https://cdn.auth0.com'
         ],
         imgSrc: [
           "'self'",
           'data:',
           'https:',
-          'blob:'
+          'blob:',
+          'https://*.auth0.com',
+          'https://s.gravatar.com'
         ],
         connectSrc: [
           "'self'",
           'https://*.auth0.com',
           'https://*.herokuapp.com',
+          'https://cdn.auth0.com',
           ...(env.isDevelopment() ? ['http://localhost:*'] : [])
         ],
         fontSrc: [
           "'self'",
           'https://fonts.gstatic.com',
+          'https://cdn.auth0.com',
           'data:'
         ],
         objectSrc: ["'none'"],
