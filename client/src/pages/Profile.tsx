@@ -28,28 +28,17 @@ import {
   IconSettings,
   IconShield,
   IconBell,
-  IconPencil,
   IconCheck,
   IconX,
   IconRefresh,
-  IconBrandGithub,
-  IconBrandLinkedin,
-  IconBrandTwitter,
   IconAlertCircle,
 } from '@tabler/icons-react';
 import { useAuth } from '../hooks/useAuth';
 import { User, useUserService, ProfileUpdateData } from '../services/userService';
 import { useState } from 'react';
 
-interface SocialLinks {
-  github?: string;
-  linkedin?: string;
-  twitter?: string;
-}
-
 interface ProfileForm extends ProfileUpdateData {
   company: string;
-  socialLinks: SocialLinks;
 }
 
 interface PreferencesForm {
@@ -83,11 +72,7 @@ export function Profile() {
       company: '',
       department: user?.department || '',
       phoneNumber: user?.phoneNumber || '',
-      socialLinks: {
-        github: '',
-        linkedin: '',
-        twitter: '',
-      },
+
     },
     validate: {
       phoneNumber: (value) => 
@@ -221,32 +206,15 @@ export function Profile() {
                 <Group gap="xs">
                   <Badge color="blue">Member</Badge>
                   <Badge color="gray">{user.email}</Badge>
-                </Group>
-                <Group gap="xs">
-                  <Tooltip label="GitHub">
-                    <ActionIcon variant="subtle" color="gray">
-                      <IconBrandGithub size="1.2rem" />
-                    </ActionIcon>
-                  </Tooltip>
-                  <Tooltip label="LinkedIn">
-                    <ActionIcon variant="subtle" color="gray">
-                      <IconBrandLinkedin size="1.2rem" />
-                    </ActionIcon>
-                  </Tooltip>
-                  <Tooltip label="Twitter">
-                    <ActionIcon variant="subtle" color="gray">
-                      <IconBrandTwitter size="1.2rem" />
-                    </ActionIcon>
+                  <Tooltip label="Managed by Auth0">
+                    <Badge color="violet">Auth0 Managed</Badge>
                   </Tooltip>
                 </Group>
+                <Text size="sm" color="dimmed">
+                  Name and email are managed through your Auth0 account settings
+                </Text>
               </Stack>
             </Group>
-            <Button 
-              variant="light"
-              leftSection={<IconPencil size="1.1rem" />}
-            >
-              Edit Profile
-            </Button>
           </Group>
         </Paper>
 
@@ -283,21 +251,46 @@ export function Profile() {
                         <Title order={3}>Personal Information</Title>
                       </Card.Section>
                       <Stack gap="md" p="md">
-                        <TextInput
-                          label="First Name"
-                          placeholder="Enter your first name"
-                          {...profileForm.getInputProps('firstName')}
-                        />
-                        <TextInput
-                          label="Last Name"
-                          placeholder="Enter your last name"
-                          {...profileForm.getInputProps('lastName')}
-                        />
+                        <Group grow align="flex-start">
+                          <TextInput
+                            label="First Name"
+                            placeholder="Enter your first name"
+                            {...profileForm.getInputProps('firstName')}
+                          />
+                          <TextInput
+                            label="Last Name"
+                            placeholder="Enter your last name"
+                            {...profileForm.getInputProps('lastName')}
+                          />
+                        </Group>
+                        <Alert icon={<IconAlertCircle size="1rem" />} color="violet">
+                          <Text fw={500} mb={5}>Auth0 Account Settings</Text>
+                          <Text size="sm" mb={10}>
+                            Your name and email are managed through Auth0. To update these, visit your Auth0 account settings.
+                          </Text>
+                          <Button
+                            component="a"
+                            href={`https://${import.meta.env.VITE_AUTH0_DOMAIN}/account`}
+                            target="_blank"
+                            variant="light"
+                            color="violet"
+                            size="xs"
+                            leftSection={<IconSettings size="1rem" />}
+                          >
+                            Open Auth0 Settings
+                          </Button>
+                        </Alert>
                         <TextInput
                           label="Email"
                           value={user.email}
                           disabled
-                          description="Email cannot be changed"
+                          rightSection={
+                            <Tooltip label="Managed by Auth0">
+                              <ActionIcon variant="subtle" color="violet">
+                                <IconShield size="1rem" />
+                              </ActionIcon>
+                            </Tooltip>
+                          }
                         />
                         <TextInput
                           label="Phone Number"
