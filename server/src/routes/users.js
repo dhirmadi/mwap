@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { checkJwt } = require('../middleware/auth');
-const User = require('../models/User');
+const User = require('../models/UserSchema');
 
 // Validation middleware
 const validateProfileUpdate = (req, res, next) => {
@@ -45,10 +45,40 @@ const validateProfileUpdate = (req, res, next) => {
 // Get current user
 router.get('/me', checkJwt, async (req, res) => {
   try {
-    const user = await User.findOne({ auth0Id: req.auth.sub });
+    let user = await User.findByAuth0Id(req.auth.sub);
+    
+    // If user doesn't exist, create it with Auth0 data
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      const auth0Data = {
+        auth0Id: req.auth.sub,
+        email: req.auth.email,
+        name: req.auth.name,
+        picture: req.auth.picture
+      };
+
+      user = new User({
+        ...auth0Data,
+        status: 'active'
+      });
+      await user.save();
     }
+    // If it's been more than 1 hour since last sync, sync with Auth0
+    else {
+      const lastSync = new Date(user.lastAuth0Sync);
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      
+      if (lastSync < oneHourAgo) {
+        const auth0Data = {
+          auth0Id: req.auth.sub,
+          email: req.auth.email,
+          name: req.auth.name,
+          picture: req.auth.picture
+        };
+        user.syncWithAuth0Data(auth0Data);
+        await user.save();
+      }
+    }
+
     res.json(user);
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -90,23 +120,27 @@ router.patch('/me', checkJwt, validateProfileUpdate, async (req, res) => {
   }
 });
 
-// Create initial user profile
+// Create or sync user profile
 router.post('/me', checkJwt, async (req, res) => {
   try {
     let user = await User.findOne({ auth0Id: req.auth.sub });
-    if (user) {
-      return res.status(400).json({ 
-        message: 'User profile already exists. Use PATCH to update.' 
-      });
-    }
-
-    user = new User({
+    const auth0Data = {
       auth0Id: req.auth.sub,
       email: req.body.email,
       name: req.body.name,
-      picture: req.body.picture,
-      status: 'active'
-    });
+      picture: req.body.picture
+    };
+
+    if (user) {
+      // Sync existing user with Auth0 data
+      user.syncWithAuth0Data(auth0Data);
+    } else {
+      // Create new user with Auth0 data
+      user = new User({
+        ...auth0Data,
+        status: 'active'
+      });
+    }
 
     await user.save();
     res.status(201).json(user);
