@@ -104,12 +104,34 @@ router.get('/me', checkJwt, async (req, res) => {
 
 // Create or update user profile
 router.patch('/me', checkJwt, validateProfileUpdate, asyncHandler(async (req, res) => {
+  console.log('Profile update request:', {
+    auth0Id: req.auth.sub,
+    body: req.body,
+    headers: req.headers
+  });
+
   let user = await User.findByAuth0Id(req.auth.sub);
+  console.log('Found user:', user ? {
+    auth0Id: user.auth0Id,
+    email: user.email,
+    name: user.name
+  } : 'null');
+
   if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+    // Create user if not found
+    console.log('Creating new user with Auth0 data');
+    user = new User({
+      auth0Id: req.auth.sub,
+      email: req.auth.email,
+      name: req.auth.name,
+      picture: req.auth.picture,
+      status: 'active'
+    });
   }
 
   try {
+    console.log('Updating user fields:', req.body);
+    
     // Handle nested updates (e.g., preferences.theme)
     Object.keys(req.body).forEach(field => {
       if (field === 'preferences' && typeof req.body[field] === 'object') {
@@ -122,25 +144,41 @@ router.patch('/me', checkJwt, validateProfileUpdate, asyncHandler(async (req, re
       }
     });
 
+    // Log user state before validation
+    console.log('User state before validation:', {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      auth0Id: user.auth0Id
+    });
+
     // Validate before saving
     await user.validate();
+    console.log('Validation passed');
 
     // Save the user
     const savedUser = await user.save();
-    
-    console.log('User updated successfully:', {
+    console.log('User saved successfully:', {
       auth0Id: savedUser.auth0Id,
       updatedFields: Object.keys(req.body),
     });
 
     res.json(savedUser);
   } catch (error) {
+    console.error('Error updating user:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name,
+      errors: error.errors
+    });
+
     if (error.name === 'ValidationError') {
       return res.status(400).json({
         message: 'Validation error',
         errors: Object.values(error.errors).map(err => ({
           field: err.path,
           message: err.message,
+          value: err.value
         })),
       });
     }

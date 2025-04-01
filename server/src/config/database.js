@@ -7,10 +7,15 @@ const connectDB = async () => {
       throw new Error('MongoDB URI is not defined in environment variables');
     }
 
+    console.log('Connecting to MongoDB...');
     const conn = await mongoose.connect(mongoURI, {
       // MongoDB driver options
       retryWrites: true,
-      w: 'majority'
+      w: 'majority',
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
