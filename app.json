@@ -10,7 +10,7 @@
     },
     "VITE_API_URL": {
       "description": "The URL for the API, automatically set for review apps",
-      "generator": "https://$APP_NAME.herokuapp.com/api"
+      "generator": "https://${HEROKU_APP_NAME}.herokuapp.com/api"
     }
   },
   "formation": {
