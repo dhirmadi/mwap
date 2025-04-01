@@ -33,9 +33,9 @@ import {
   IconRefresh,
   IconAlertCircle,
 } from '@tabler/icons-react';
-import { useAuth } from '../hooks/useAuth';
-import { User, useUserService, ProfileUpdateData } from '../services/userService';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { ProfileUpdateData } from '../services/userService';
+import { useProfile } from '../hooks/useProfile';
 import { getUserTimezone, getTimezoneOptions } from '../utils/timezones';
 
 interface ProfileForm extends ProfileUpdateData {
@@ -58,9 +58,18 @@ interface PreferencesForm {
 }
 
 export function Profile() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { user, authUser, loading, error: profileError } = useProfile();
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Debug logging
+  console.log('Profile component rendered:', {
+    user,
+    authUser,
+    loading,
+    error,
+    profileError
+  });
 
   const profileForm = useForm<ProfileForm>({
     initialValues: {
@@ -108,7 +117,7 @@ export function Profile() {
 
   const handleProfileSubmit = async (values: ProfileForm) => {
     try {
-      setLoading(true);
+      setSaving(true);
       setError(null);
       
       // Extract the profile update data
@@ -123,7 +132,8 @@ export function Profile() {
         phoneNumber: values.phoneNumber,
       };
 
-      await userService.updateProfile(profileData);
+      const updatedUser = await userService.updateProfile(profileData);
+      setUser(updatedUser);
       
       notifications.show({
         title: 'Profile Updated',
@@ -132,15 +142,16 @@ export function Profile() {
         icon: <IconCheck size="1.1rem" />,
       });
     } catch (error) {
+      console.error('Error updating profile:', error);
       setError('Failed to update profile');
       notifications.show({
         title: 'Error',
-        message: 'Failed to update profile. Please try again.',
+        message: error instanceof Error ? error.message : 'Failed to update profile. Please try again.',
         color: 'red',
         icon: <IconX size="1.1rem" />,
       });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -189,7 +200,7 @@ export function Profile() {
 
   return (
     <Container size="xl" py="xl">
-      <LoadingOverlay visible={loading} />
+      <LoadingOverlay visible={loading || saving} />
       
       <Stack spacing="xl">
         {/* Profile Header */}
@@ -219,9 +230,9 @@ export function Profile() {
           </Group>
         </Paper>
 
-        {error && (
+        {(error || profileError) && (
           <Alert icon={<IconAlertCircle size="1rem" />} title="Error" color="red">
-            {error}
+            {error || profileError}
           </Alert>
         )}
 
