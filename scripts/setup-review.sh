@@ -1,14 +1,36 @@
 #!/bin/bash
-
-# Exit on error
 set -e
 
+# Set up environment variables for the review app
 echo "Setting up review app environment..."
 
-# Generate random strings for encryption keys
-ENCRYPTION_KEY=$(openssl rand -base64 64)
+# Ensure API URL is set
+if [ -z "$VITE_API_URL" ]; then
+  echo "Error: VITE_API_URL is not set"
+  exit 1
+fi
 
-# Set only the encryption key
-heroku config:set MONGO_CLIENT_ENCRYPTION_KEY="$ENCRYPTION_KEY" --app "$HEROKU_APP_NAME"
+# Create client .env file
+echo "Creating client .env file..."
+cat > client/.env << EOF
+VITE_AUTH0_DOMAIN=$VITE_AUTH0_DOMAIN
+VITE_AUTH0_CLIENT_ID=$VITE_AUTH0_CLIENT_ID
+VITE_AUTH0_AUDIENCE=$VITE_AUTH0_AUDIENCE
+VITE_API_URL=$VITE_API_URL
+EOF
 
-echo "Review app environment setup complete!"
+# Create server .env file
+echo "Creating server .env file..."
+cat > server/.env << EOF
+PORT=\${PORT}
+NODE_ENV=production
+AUTH0_DOMAIN=$AUTH0_DOMAIN
+AUTH0_CLIENT_ID=$AUTH0_CLIENT_ID
+AUTH0_CLIENT_SECRET=$AUTH0_CLIENT_SECRET
+AUTH0_AUDIENCE=$AUTH0_AUDIENCE
+MONGO_URI=$MONGO_URI
+MONGO_ENCRYPTION_KEY_NAME=$MONGO_ENCRYPTION_KEY_NAME
+CORS_ORIGIN=*
+EOF
+
+echo "Review app setup complete"

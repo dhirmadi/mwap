@@ -62,6 +62,8 @@
       },
       "env": {
         "VITE_API_URL": {
+          "required": true,
+          "generator": "url",
           "postfix": "/api"
         }
       }
