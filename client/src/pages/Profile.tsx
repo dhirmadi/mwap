@@ -34,7 +34,7 @@ import {
   IconAlertCircle,
 } from '@tabler/icons-react';
 import { useState } from 'react';
-import { ProfileUpdateData } from '../services/userService';
+import type { ProfileUpdateData } from '../services/userService';
 import { useProfile } from '../hooks/useProfile';
 import { getUserTimezone, getTimezoneOptions } from '../utils/timezones';
 
@@ -113,7 +113,7 @@ export function Profile() {
     },
   });
 
-  const userService = useUserService();
+  const { userService } = useProfile();
 
   const handleProfileSubmit = async (values: ProfileForm) => {
     try {
@@ -133,7 +133,9 @@ export function Profile() {
       };
 
       const updatedUser = await userService.updateProfile(profileData);
-      setUser(updatedUser);
+      // Refresh profile data after update
+      const refreshedUser = await userService.getCurrentUser();
+      setUser(refreshedUser);
       
       notifications.show({
         title: 'Profile Updated',

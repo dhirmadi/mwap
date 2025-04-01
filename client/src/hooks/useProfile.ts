@@ -39,5 +39,6 @@ export function useProfile() {
     loading: loading || authLoading,
     error,
     setUser,
+    userService,
   };
 }
