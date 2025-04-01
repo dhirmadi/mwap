@@ -8,9 +8,19 @@
     "NPM_CONFIG_PRODUCTION": {
       "value": "false"
     },
+    "LOG_LEVEL": {
+      "value": "debug"
+    },
+    "STATUS_CHECK_INTERVAL": {
+      "value": "30000"
+    },
     "VITE_API_URL": {
       "description": "The URL for the API, automatically set for review apps",
       "generator": "https://${HEROKU_APP_NAME}.herokuapp.com/api"
+    },
+    "MONGO_ENCRYPTION_KEY_NAME": {
+      "description": "Unique encryption key name for each review app",
+      "generator": "mwap_data_key_review_${HEROKU_PR_NUMBER}"
     }
   },
   "formation": {
@@ -30,6 +40,44 @@
       "addons": [],
       "scripts": {
         "postdeploy": "echo 'Review app deployed successfully'"
+      },
+      "env": {
+        "VITE_AUTH0_AUDIENCE": {
+          "required": true,
+          "description": "Auth0 API identifier (inherited from parent app)"
+        },
+        "VITE_AUTH0_DOMAIN": {
+          "required": true,
+          "description": "Auth0 domain (inherited from parent app)"
+        },
+        "VITE_AUTH0_CLIENT_ID": {
+          "required": true,
+          "description": "Auth0 client ID (inherited from parent app)"
+        },
+        "AUTH0_DOMAIN": {
+          "required": true,
+          "description": "Auth0 domain for backend (inherited from parent app)"
+        },
+        "AUTH0_CLIENT_ID": {
+          "required": true,
+          "description": "Auth0 client ID for backend (inherited from parent app)"
+        },
+        "AUTH0_CLIENT_SECRET": {
+          "required": true,
+          "description": "Auth0 client secret (inherited from parent app)"
+        },
+        "AUTH0_AUDIENCE": {
+          "required": true,
+          "description": "Auth0 API identifier for backend (inherited from parent app)"
+        },
+        "MONGO_URI": {
+          "required": true,
+          "description": "MongoDB connection string (inherited from parent app)"
+        },
+        "MONGO_CLIENT_ENCRYPTION_KEY": {
+          "required": true,
+          "description": "MongoDB encryption key (inherited from parent app)"
+        }
       }
     }
   }
