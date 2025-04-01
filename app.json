@@ -1,0 +1,36 @@
+{
+  "name": "mwap",
+  "description": "Modular Web Application Platform",
+  "env": {
+    "NODE_ENV": {
+      "value": "production"
+    },
+    "NPM_CONFIG_PRODUCTION": {
+      "value": "false"
+    },
+    "VITE_API_URL": {
+      "description": "The URL for the API, automatically set for review apps",
+      "generator": "https://$APP_NAME.herokuapp.com/api"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "stack": "heroku-24",
+  "environments": {
+    "review": {
+      "addons": [],
+      "scripts": {
+        "postdeploy": "echo 'Review app deployed successfully'"
+      }
+    }
+  }
+}
