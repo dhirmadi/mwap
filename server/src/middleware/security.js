@@ -11,10 +11,13 @@ const corsOptions = {
 
     const allowedOrigins = [
       env.security.corsOrigin,
-      // Allow specific Heroku app domains
+      // Allow Heroku app domains
       'https://mwap-staging-a88e5b681617.herokuapp.com',
       'https://mwap-production-d5a4ed63debf.herokuapp.com',
-      ...(env.isDevelopment() ? ['http://localhost:5173'] : [])
+      'https://mwap-usermanagement-dsdpeeq1l1.herokuapp.com',
+      ...(env.isDevelopment() ? ['http://localhost:5173'] : []),
+      // Allow direct access to the domain
+      `https://${process.env.HEROKU_APP_NAME}.herokuapp.com`
     ];
 
     // Check if the origin matches any allowed pattern
