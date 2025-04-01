@@ -1,11 +1,73 @@
-# React + TypeScript + Vite
+# MWAP Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern web application client built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 18**: Latest React features and improvements
+- **TypeScript**: Full type safety and better developer experience
+- **Vite**: Fast development server and optimized builds
+- **Auth0**: Secure authentication with PKCE flow
+- **Mantine UI**: Modern UI components and theming
+- **React Router**: Client-side routing
+- **Axios**: Type-safe API client
+
+## Quick Start
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Environment Setup**
+   ```bash
+   # Copy example environment file
+   cp .env.example .env
+
+   # Fill in the values:
+   VITE_AUTH0_DOMAIN=your-domain.auth0.com
+   VITE_AUTH0_CLIENT_ID=your-client-id
+   VITE_AUTH0_AUDIENCE=your-api-identifier
+   VITE_API_URL=http://localhost:54014/api
+   ```
+
+3. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+
+## Auth0 Integration
+
+The application uses Auth0 for authentication with the following features:
+
+- Authorization Code flow with PKCE
+- Automatic token refresh
+- Secure token storage
+- Profile management
+- Role-based access control
+
+### Auth0 Setup
+
+1. Create an Auth0 application (Single Page Application)
+2. Configure the following URLs:
+   ```
+   Allowed Callback URLs:
+   - http://localhost:5173
+   - https://*.herokuapp.com
+
+   Allowed Logout URLs:
+   - http://localhost:5173
+   - https://*.herokuapp.com
+
+   Allowed Web Origins:
+   - http://localhost:5173
+   - https://*.herokuapp.com
+   ```
+
+3. Enable the following features:
+   - PKCE (default for SPAs)
+   - Refresh Tokens
+   - ID Tokens
 
 ## Expanding the ESLint configuration
 
