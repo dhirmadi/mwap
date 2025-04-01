@@ -1,17 +1,36 @@
 {
-  "name": "nwap-mini",
+  "name": "mwap",
   "version": "1.0.0",
-  "description": "NWAP Mini Project - Full Stack Application",
+  "description": "Modular Web Application Platform",
   "engines": {
     "node": "20.x",
     "npm": "10.x"
   },
   "scripts": {
     "start": "cd server && npm start",
-    "build": "cd client && npm install --production=false && npm run build && cd ../server && npm install",
-    "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
-    "heroku-prebuild": "chmod +x scripts/setup-env.sh",
-    "heroku-postbuild": "scripts/setup-env.sh && cd client && npm install --production=false && npm run build && cd ../server && npm install --production=false"
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm install --production=false && npm run build",
+    "build:server": "cd server && npm install",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "clean": "npm run clean:client && npm run clean:server",
+    "clean:client": "cd client && rm -rf dist node_modules",
+    "clean:server": "cd server && rm -rf dist node_modules",
+    "lint": "npm run lint:client && npm run lint:server",
+    "lint:client": "cd client && npm run lint",
+    "lint:server": "cd server && npm run lint",
+    "test": "npm run test:client && npm run test:server",
+    "test:client": "cd client && npm test",
+    "test:server": "cd server && npm test",
+    "setup": "npm install && npm run setup:client && npm run setup:server",
+    "setup:client": "cd client && npm install",
+    "setup:server": "cd server && npm install",
+    "setup-review": "scripts/setup-review.sh",
+    "heroku-prebuild": "chmod +x scripts/setup-env.sh scripts/setup-review.sh",
+    "heroku-postbuild": "scripts/setup-env.sh && npm run build:client && cd server && npm install --production=false",
+    "validate": "npm run lint && npm run test",
+    "prepare": "husky install"
   },
   "cacheDirectories": [
     "client/node_modules",
@@ -21,6 +40,16 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+    "client/src/**/*.{js,jsx,ts,tsx}": [
+      "cd client && npm run lint"
+    ],
+    "server/src/**/*.{js,ts}": [
+      "cd server && npm run lint"
+    ]
   }
 }

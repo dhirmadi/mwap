@@ -3,24 +3,22 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const env = require('../config/environment');
 
-// CORS configuration
+// CORS configuration with enhanced security
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin && env.isDevelopment()) return callback(null, true);
 
     const allowedOrigins = [
       env.security.corsOrigin,
-      // Allow all Heroku app domains
-      /\.herokuapp\.com$/,
+      // Allow specific Heroku app domains
+      'https://mwap-staging-a88e5b681617.herokuapp.com',
+      'https://mwap-production-d5a4ed63debf.herokuapp.com',
+      ...(env.isDevelopment() ? ['http://localhost:5173'] : [])
     ];
 
     // Check if the origin matches any allowed pattern
-    const isAllowed = allowedOrigins.some(allowed => 
-      typeof allowed === 'string' 
-        ? allowed === origin
-        : allowed.test(origin)
-    );
+    const isAllowed = allowedOrigins.includes(origin);
 
     if (isAllowed) {
       callback(null, true);
@@ -29,57 +27,115 @@ const corsOptions = {
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['X-Response-Time'],
+  maxAge: 600 // Cache preflight requests for 10 minutes
 };
 
-// Rate limiting configuration
-const limiter = rateLimit({
-  windowMs: env.security.rateLimitWindowMs,
-  max: env.security.rateLimitMaxRequests,
-  message: 'Too many requests from this IP, please try again later.'
+// Rate limiting with different configs for production and development
+const createLimiter = (windowMs, max, prefix = '') => rateLimit({
+  windowMs,
+  max,
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Use X-Forwarded-For header if available (for Heroku)
+    const realIP = req.headers['x-forwarded-for'] || req.ip;
+    return `${prefix}${realIP}`;
+  },
+  skip: (req) => env.isDevelopment() // Skip rate limiting in development
 });
 
 // Security middleware setup
 const setupSecurity = (app) => {
-  // Basic security headers
-  app.use(helmet());
+  // Enhanced security headers
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          'https://*.auth0.com'
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'https://fonts.googleapis.com'
+        ],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'https:',
+          'blob:'
+        ],
+        connectSrc: [
+          "'self'",
+          'https://*.auth0.com',
+          'https://*.herokuapp.com',
+          ...(env.isDevelopment() ? ['http://localhost:*'] : [])
+        ],
+        fontSrc: [
+          "'self'",
+          'https://fonts.gstatic.com',
+          'data:'
+        ],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: [
+          "'self'",
+          'https://*.auth0.com'
+        ],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        upgradeInsecureRequests: env.isProduction() ? [] : null
+      }
+    },
+    crossOriginEmbedderPolicy: false, // Required for Auth0
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Required for external resources
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  }));
 
   // CORS
   app.use(cors(corsOptions));
 
-  // Rate limiting
-  app.use(limiter);
+  // Rate limiting for different endpoints
+  app.use('/api/auth', createLimiter(15 * 60 * 1000, 25, 'auth:')); // 25 requests per 15 minutes for auth
+  app.use('/api', createLimiter(60 * 1000, 100, 'api:')); // 100 requests per minute for API
+  app.use(createLimiter(60 * 1000, 250)); // 250 requests per minute overall
 
-  // Prevent clickjacking
-  app.use(helmet.frameguard({ action: 'deny' }));
-
-  // Content Security Policy
-  app.use(helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'https://*.auth0.com', 'https://*.herokuapp.com'],
-      fontSrc: ["'self'", 'https:', 'data:'],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"]
-    }
-  }));
-
-  // Additional security headers
-  app.use(helmet.dnsPrefetchControl());
-  app.use(helmet.expectCt());
-  app.use(helmet.hsts());
-  app.use(helmet.ieNoOpen());
-  app.use(helmet.noSniff());
-  app.use(helmet.permittedCrossDomainPolicies());
-  app.use(helmet.referrerPolicy());
-  app.use(helmet.xssFilter());
-
-  // Remove X-Powered-By header
+  // Security best practices
   app.disable('x-powered-by');
+  app.set('trust proxy', 1); // Trust first proxy (important for Heroku)
+
+  // Add security headers
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    if (env.isProduction()) {
+      res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
+    next();
+  });
+
+  // Validate content types
+  app.use((req, res, next) => {
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+      const contentType = req.headers['content-type'];
+      if (!contentType || !contentType.includes('application/json')) {
+        return res.status(415).json({
+          error: 'Unsupported Media Type - API only accepts application/json'
+        });
+      }
+    }
+    next();
+  });
 };
 
 module.exports = setupSecurity;
