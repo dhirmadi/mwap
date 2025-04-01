@@ -6,18 +6,16 @@ const env = require('../config/environment');
 // CORS configuration with enhanced security
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin && env.isDevelopment()) return callback(null, true);
+    // Allow all origins in development and review environments
+    if (env.isDevelopment() || env.getEnvironmentName() === 'review') {
+      return callback(null, true);
+    }
 
+    // Production environment: strict CORS
     const allowedOrigins = [
       env.security.corsOrigin,
-      // Allow Heroku app domains
       'https://mwap-staging-a88e5b681617.herokuapp.com',
-      'https://mwap-production-d5a4ed63debf.herokuapp.com',
-      'https://mwap-usermanagement-dsdpeeq1l1.herokuapp.com',
-      ...(env.isDevelopment() ? ['http://localhost:5173'] : []),
-      // Allow direct access to the domain
-      `https://${process.env.HEROKU_APP_NAME}.herokuapp.com`
+      'https://mwap-production-d5a4ed63debf.herokuapp.com'
     ];
 
     // Check if the origin matches any allowed pattern
