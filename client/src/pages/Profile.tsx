@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
 import {
   Container,
   Title,
@@ -20,7 +20,7 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { User, useUserService, ProfileUpdateData } from '../services/userService';
 
-export function Profile() {
+const ProfileComponent = () => {
   const { user: auth0User, isLoading: authLoading } = useAuth0();
   const userService = useUserService();
   const [user, setUser] = useState<User | null>(null);
@@ -77,8 +77,10 @@ export function Profile() {
       }
     };
 
-    loadUser();
-  }, []);
+    if (!authLoading && auth0User) {
+      loadUser();
+    }
+  }, [authLoading, auth0User, userService, form]);
 
   const handleSubmit = async (values: ProfileUpdateData) => {
     try {
@@ -274,4 +276,9 @@ export function Profile() {
       </Stack>
     </Container>
   );
-}
+};
+
+export const Profile = withAuthenticationRequired(ProfileComponent, {
+  onRedirecting: () => <LoadingOverlay visible={true} />,
+  returnTo: '/profile',
+});
