@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express, { Application } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import path from 'path';
 import compression from 'compression';
 import environment from './config/environment';
@@ -7,6 +7,34 @@ import * as security from './middleware/security';
 import { errorHandler } from './middleware/errors';
 import routes from './routes';
 
+// Custom error for application errors
+export class AppError extends Error {
+  constructor(
+    public statusCode: number,
+    message: string
+  ) {
+    super(message);
+    this.name = 'AppError';
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+// Types for response time middleware
+interface ResponseWithTimer extends Response {
+  startTime?: number;
+}
+
+// Types for static file options
+interface StaticFileOptions {
+  etag: boolean;
+  lastModified: boolean;
+  setHeaders: (res: Response, filePath: string) => void;
+}
+
+/**
+ * Creates and configures an Express application instance
+ * @returns Configured Express application
+ */
 export function createApp(): Application {
   const app = express();
 
@@ -17,11 +45,17 @@ export function createApp(): Application {
   app.use(compression());
 
   // Body parsing middleware with size limits
-  app.use(express.json({ limit: '10kb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+  app.use(express.json({ 
+    limit: '10kb',
+    strict: true // Enforce strict JSON parsing
+  }));
+  app.use(express.urlencoded({ 
+    extended: true, 
+    limit: '10kb'
+  }));
 
   // Health check endpoint (no auth required)
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req: Request, res: Response) => {
     res.json({
       status: 'healthy',
       environment: environment.getEnvironmentName(),
@@ -30,28 +64,29 @@ export function createApp(): Application {
     });
   });
 
-  // API Routes with response time header
-  app.use((req, res, next) => {
-    const start = Date.now();
+  // Response time middleware
+  app.use((req: Request, res: ResponseWithTimer, next: NextFunction) => {
+    res.startTime = Date.now();
     res.on('finish', () => {
-      const duration = Date.now() - start;
+      const duration = Date.now() - (res.startTime || Date.now());
       try {
         res.set('X-Response-Time', `${duration}ms`);
       } catch (error) {
-        // Ignore header errors after response is sent
+        // Headers already sent, ignore
       }
     });
     next();
   });
 
+  // API Routes
   app.use('/api', routes);
 
-  // Serve static files in all non-development environments with caching
+  // Static file serving in non-development environments
   if (!environment.isDevelopment()) {
-    const staticOptions = {
+    const staticOptions: StaticFileOptions = {
       etag: true,
       lastModified: true,
-      setHeaders: (res, filePath: string) => {
+      setHeaders: (res: Response, filePath: string) => {
         if (filePath.endsWith('.html')) {
           res.setHeader('Cache-Control', 'no-cache');
         } else {
@@ -65,22 +100,23 @@ export function createApp(): Application {
     // Serve static files
     app.use(express.static(clientPath, staticOptions));
 
-    // Serve index.html for all routes (SPA)
-    app.get('*', (req, res, next) => {
-      // Skip API routes
+    // SPA fallback route
+    app.get('*', (req: Request, res: Response, next: NextFunction) => {
       if (req.path.startsWith('/api')) {
         return next();
       }
-      res.sendFile(path.join(clientPath, 'index.html'), (err) => {
+
+      const indexPath = path.join(clientPath, 'index.html');
+      res.sendFile(indexPath, (err) => {
         if (err) {
           console.error('Error sending index.html:', err);
-          res.status(500).send('Error loading application');
+          next(new AppError(500, 'Error loading application'));
         }
       });
     });
   }
 
-  // Error handling
+  // Error handling middleware
   app.use(errorHandler);
 
   return app;
