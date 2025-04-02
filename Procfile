@@ -1,1 +1,1 @@
-web: cd client && npm install && npm run build && cd ../server && npm start
+web: cd client && rm -rf dist node_modules && npm install && npm run build && cd ../server && rm -rf dist node_modules && npm install && npm start
