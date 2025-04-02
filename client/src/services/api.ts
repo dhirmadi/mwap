@@ -4,37 +4,9 @@ import axios from 'axios';
 export const createAuthenticatedApi = () => {
   const { getAccessTokenSilently } = useAuth0();
   
-  // Determine API URL
-  const getApiUrl = () => {
-    const configuredUrl = import.meta.env.VITE_API_URL;
-    const hostname = window.location.hostname;
-    
-    console.log('API URL Configuration:', {
-      VITE_API_URL: configuredUrl,
-      hostname,
-      isDevelopment: hostname === 'localhost'
-    });
-
-    if (configuredUrl) {
-      return configuredUrl;
-    }
-    
-    // Fallback for local development
-    if (hostname === 'localhost') {
-      return 'http://localhost:54014/api';
-    }
-    
-    // Fallback for Heroku
-    const herokuUrl = `https://${hostname}/api`;
-    console.log('Using Heroku URL:', herokuUrl);
-    return herokuUrl;
-  };
-
   const api = axios.create({
-    baseURL: getApiUrl(),
-    // Add timeout
+    baseURL: import.meta.env.VITE_API_URL,
     timeout: 10000,
-    // Add headers
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -43,6 +15,11 @@ export const createAuthenticatedApi = () => {
 
   // Add auth token to requests
   api.interceptors.request.use(async (config) => {
+    // Only get token if we have a valid config
+    if (!config.baseURL) {
+      throw new Error('API URL not configured');
+    }
+
     try {
       const token = await getAccessTokenSilently();
       if (token) {
@@ -60,13 +37,16 @@ export const createAuthenticatedApi = () => {
     (response) => response,
     (error) => {
       if (axios.isAxiosError(error)) {
-        console.error('API Error:', {
-          url: error.config?.url,
-          method: error.config?.method,
-          status: error.response?.status,
-          data: error.response?.data,
-          message: error.message,
-        });
+        if (error.response?.status === 401) {
+          console.error('Authentication error - token may be invalid or expired');
+        } else {
+          console.error('API Error:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            message: error.response?.data?.message || error.message
+          });
+        }
       }
       return Promise.reject(error);
     }

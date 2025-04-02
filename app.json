@@ -62,7 +62,7 @@
       },
       "env": {
         "VITE_API_URL": {
-          "description": "API URL for the client application",
+          "required": true,
           "value": "https://$HEROKU_APP_NAME.herokuapp.com/api"
         }
       }
