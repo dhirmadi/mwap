@@ -1,4 +1,4 @@
-import { createAuthenticatedApi } from './api';
+import { useApi } from './api';
 import { useCallback } from 'react';
 
 export interface UserPreferences {
@@ -51,7 +51,7 @@ export interface PreferencesUpdateData {
 }
 
 export const useUserService = () => {
-  const api = createAuthenticatedApi();
+  const api = useApi();
 
   return {
     // Get current user profile
