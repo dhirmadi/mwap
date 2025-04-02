@@ -48,25 +48,33 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({ children }) =>
         setLoading(true);
         setError(null);
 
-        const profile = await userService.getCurrentUser();
+        try {
+          const profile = await userService.getCurrentUser();
+          setUser(profile);
+          return;
+        } catch (err) {
+          if (!axios.isAxiosError(err) || err.response?.status !== 404) {
+            throw err;
+          }
+          console.log('Profile not found, creating new profile');
+        }
+
+        // If we get here, profile doesn't exist (404)
+        const profile = await userService.createProfile({
+          id: authUser.sub,
+          email: authUser.email,
+          name: authUser.name,
+          picture: authUser.picture
+        });
         setUser(profile);
       } catch (err) {
-        if (axios.isAxiosError(err) && err.response?.status === 404) {
-          try {
-            // Profile doesn't exist, create it
-            const profile = await userService.createProfile({
-              id: authUser.id,
-              email: authUser.email,
-              name: authUser.name
-            });
-            setUser(profile);
-          } catch (createError) {
-            setError('Failed to create profile');
-            console.error('Profile creation error:', createError);
-          }
+        console.error('Error in profile flow:', err);
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || err.message);
+        } else if (err instanceof Error) {
+          setError(err.message);
         } else {
-          setError('Failed to load profile');
-          console.error('Profile loading error:', err);
+          setError('An unexpected error occurred');
         }
       } finally {
         setLoading(false);
