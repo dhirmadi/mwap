@@ -18,10 +18,11 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { User, userService, ProfileUpdateData } from '../services/userService';
+import { User, useUserService, ProfileUpdateData } from '../services/userService';
 
 export function Profile() {
-  const { user: auth0User } = useAuth0();
+  const { user: auth0User, isLoading: authLoading } = useAuth0();
+  const userService = useUserService();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,7 +99,7 @@ export function Profile() {
     }
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <Container size="md" py="xl">
         <LoadingOverlay visible={true} />
