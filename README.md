@@ -8,9 +8,9 @@ A modern, full-stack web application platform built with scalability and modular
 - **Modern Frontend**: React 18 with Vite and Mantine UI
 - **Robust Backend**: Node.js with Express
 - **Database**: MongoDB with Mongoose
-- **Authentication**: Auth0 integration
+- **Authentication**: Simple Auth0 integration
 - **Deployment**: Heroku pipeline with staging and production environments
-- **Security**: JWT validation, protected routes, and secure configurations
+- **Security**: JWT validation and protected routes
 
 ## 🚀 Quick Start
 
@@ -143,12 +143,6 @@ This project uses Auth0 for authentication, implementing a Single Page Applicati
   - Secure session handling
   - Protected API routes
 
-- **User Management**:
-  - User profile data
-  - Profile picture support
-  - User preferences
-  - Account settings
-
 - **Developer Experience**:
   - Custom useAuth hook
   - TypeScript support
@@ -172,6 +166,7 @@ export function MyComponent() {
 
   // Use authentication state and functions
 }
+```
 
 ## 🌐 API Endpoints
 
@@ -182,12 +177,14 @@ All routes require authentication via Auth0 JWT token. Include the token in the 
 Authorization: Bearer <token>
 ```
 
-#### User Management
-- `GET /api/users/me` - Get current user profile
-- `POST /api/users/me` - Create initial user profile
-- `PATCH /api/users/me` - Update user profile
-- `GET /api/users/me/preferences` - Get user preferences
-- `PATCH /api/users/me/preferences` - Update user preferences
+#### User Info
+- `GET /api/users/me` - Get current user info
+
+#### Tasks
+- `GET /api/tasks` - Get user's tasks
+- `POST /api/tasks` - Create a new task
+- `PATCH /api/tasks/:id` - Update a task
+- `DELETE /api/tasks/:id` - Delete a task
 
 #### Authentication
 All authentication is handled through Auth0's endpoints. The application uses:
