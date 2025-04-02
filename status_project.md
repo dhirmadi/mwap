@@ -11,8 +11,8 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
 - **Review Apps**: Automatically deployed for pull requests
 
 ### Active Branch
-- Branch: `profilebuilder`
-- Latest Commit: "Removed profile feature for simpler architecture"
+- Branch: `platform-stable`
+- Latest Commit: "Updated project roadmap and priorities"
 
 ### Implementation Progress
 
