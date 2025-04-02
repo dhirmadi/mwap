@@ -52,35 +52,56 @@ const ProfileComponent = () => {
     },
   });
 
+  // Initialize form with user data
+  const updateFormValues = (userData: User) => {
+    form.setValues({
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      phoneNumber: userData.phoneNumber || '',
+      title: userData.title || '',
+      department: userData.department || '',
+      location: userData.location || '',
+      timezone: userData.timezone || '',
+      bio: userData.bio || '',
+    });
+  };
+
+  // Load user data
   useEffect(() => {
+    let mounted = true;
+
     const loadUser = async () => {
+      if (!auth0User) return;
+
       try {
         setLoading(true);
         setError(null);
         const userData = await userService.getCurrentUser();
+        
+        if (!mounted) return;
+        
         setUser(userData);
-        form.setValues({
-          firstName: userData.firstName || '',
-          lastName: userData.lastName || '',
-          phoneNumber: userData.phoneNumber || '',
-          title: userData.title || '',
-          department: userData.department || '',
-          location: userData.location || '',
-          timezone: userData.timezone || '',
-          bio: userData.bio || '',
-        });
+        updateFormValues(userData);
       } catch (err) {
+        if (!mounted) return;
+        
         console.error('Error loading user:', err);
         setError('Failed to load user profile');
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    if (!authLoading && auth0User) {
+    if (!authLoading) {
       loadUser();
     }
-  }, [authLoading, auth0User, userService, form]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [authLoading, auth0User, userService]);
 
   const handleSubmit = async (values: ProfileUpdateData) => {
     try {
@@ -235,41 +256,67 @@ const ProfileComponent = () => {
           <Stack spacing="md">
             <Select
               label="Theme"
-              defaultValue={user?.preferences.theme}
+              value={user?.preferences.theme}
               data={[
                 { value: 'light', label: 'Light' },
                 { value: 'dark', label: 'Dark' },
                 { value: 'system', label: 'System' },
               ]}
-              onChange={(value) =>
-                userService.updatePreferences({
-                  theme: value as 'light' | 'dark' | 'system',
-                })
-              }
+              onChange={async (value) => {
+                try {
+                  const theme = value as 'light' | 'dark' | 'system';
+                  const prefs = await userService.updatePreferences({ theme });
+                  setUser(prev => prev ? { ...prev, preferences: prefs } : null);
+                } catch (err) {
+                  notifications.show({
+                    title: 'Error',
+                    message: 'Failed to update theme',
+                    color: 'red',
+                  });
+                }
+              }}
             />
             <Switch
               label="Email Notifications"
-              defaultChecked={user?.preferences.notifications.email}
-              onChange={(event) =>
-                userService.updatePreferences({
-                  notifications: {
-                    ...user?.preferences.notifications,
-                    email: event.currentTarget.checked,
-                  },
-                })
-              }
+              checked={user?.preferences.notifications.email}
+              onChange={async (event) => {
+                try {
+                  const prefs = await userService.updatePreferences({
+                    notifications: {
+                      ...user?.preferences.notifications,
+                      email: event.currentTarget.checked,
+                    },
+                  });
+                  setUser(prev => prev ? { ...prev, preferences: prefs } : null);
+                } catch (err) {
+                  notifications.show({
+                    title: 'Error',
+                    message: 'Failed to update email notifications',
+                    color: 'red',
+                  });
+                }
+              }}
             />
             <Switch
               label="Push Notifications"
-              defaultChecked={user?.preferences.notifications.push}
-              onChange={(event) =>
-                userService.updatePreferences({
-                  notifications: {
-                    ...user?.preferences.notifications,
-                    push: event.currentTarget.checked,
-                  },
-                })
-              }
+              checked={user?.preferences.notifications.push}
+              onChange={async (event) => {
+                try {
+                  const prefs = await userService.updatePreferences({
+                    notifications: {
+                      ...user?.preferences.notifications,
+                      push: event.currentTarget.checked,
+                    },
+                  });
+                  setUser(prev => prev ? { ...prev, preferences: prefs } : null);
+                } catch (err) {
+                  notifications.show({
+                    title: 'Error',
+                    message: 'Failed to update push notifications',
+                    color: 'red',
+                  });
+                }
+              }}
             />
           </Stack>
         </Paper>
