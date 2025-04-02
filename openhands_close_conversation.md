@@ -1,9 +1,11 @@
-# ✅ End of Conversation
+# ✅ End of Thread — Final Instructions
 
-Please do the following:
+1. Update any relevant files, including:
+   - `README.md`
+   - `status_project.md`
 
-1. Update the documentation and the project_status.md
-2. Do **not** retain any state or context after this message.
-3. Reset all memory and history unless future prompts restate requirements.
+2. Clear all memory and previous instructions.
 
-This concludes this thread.
+3. Do not carry over state to future prompts unless explicitly restated.
+
+This concludes this conversation.
