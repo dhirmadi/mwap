@@ -42,7 +42,6 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
    - MongoDB integration
    - Protected API routes
    - Auth0 middleware integration
-   - Task model and routes
    - Security middleware configuration
 
 5. **Deployment**
@@ -53,14 +52,7 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
    - CORS and security headers
 
 #### 🚧 In Progress
-1. **Task Management** (Current Sprint)
-   - Task creation
-   - Task listing
-   - Task updates
-   - Task deletion
-   - Data validation
-
-2. **User Experience**
+1. **User Experience**
    - Form validations
    - Responsive design
    - Accessibility improvements
@@ -206,18 +198,12 @@ Backend Variables:
 5. Build marketplace features
 
 ## 🐛 Known Issues
-1. Task management is basic
-   - No categories
-   - No priorities
-   - No due dates
-   - No assignments
-2. Frontend needs improvement
+1. Frontend needs improvement
    - Basic UI implementation
    - No loading states
    - Poor error handling
    - Limited responsive design
 3. Backend needs enhancement
-   - Basic task model
    - No search functionality
    - Limited validation
 4. Testing coverage is minimal

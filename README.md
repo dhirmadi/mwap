@@ -180,12 +180,6 @@ Authorization: Bearer <token>
 #### User Info
 - `GET /api/users/me` - Get current user info
 
-#### Tasks
-- `GET /api/tasks` - Get user's tasks
-- `POST /api/tasks` - Create a new task
-- `PATCH /api/tasks/:id` - Update a task
-- `DELETE /api/tasks/:id` - Delete a task
-
 #### Authentication
 All authentication is handled through Auth0's endpoints. The application uses:
 - Authorization Code flow with PKCE
