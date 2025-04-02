@@ -9,10 +9,15 @@ export const mockUser = {
 };
 
 // Mock Auth0 middleware
-export const mockAuthMiddleware = (req: Request, _res: Response, next: NextFunction) => {
+export const mockAuth = jest.fn((req: Request, _res: Response, next: NextFunction) => {
   req.auth = mockUser;
   next();
-};
+});
+
+// Mock the auth middleware module
+jest.mock('express-oauth2-jwt-bearer', () => ({
+  auth: () => mockAuth
+}));
 
 // Generate test tokens
 export const getTestToken = () => 'test-token';

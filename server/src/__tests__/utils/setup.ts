@@ -1,6 +1,27 @@
 import { app } from '../../app';
 import request from 'supertest';
-import mongoose from 'mongoose';
+
+// Mock environment variables
+process.env.AUTH0_AUDIENCE = 'https://api.test.local';
+process.env.AUTH0_DOMAIN = 'test.auth0.com';
+
+// Mock express-oauth2-jwt-bearer
+jest.mock('express-oauth2-jwt-bearer', () => ({
+  auth: () => (req: any, res: any, next: any) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token === 'valid-token') {
+      req.auth = {
+        sub: 'auth0|123456789',
+        email: 'test@example.com',
+        name: 'Test User',
+        picture: 'https://example.com/avatar.jpg'
+      };
+      next();
+    } else {
+      res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
+}));
 
 // Create a type-safe test client
 export type TestClient = request.SuperTest<request.Test>;
@@ -9,27 +30,15 @@ export function createTestClient(): TestClient {
   return request(app);
 }
 
-// Database handling
-export async function connectTestDb(): Promise<void> {
-  try {
-    // Use test database URL or in-memory MongoDB
-    const testDbUrl = process.env.TEST_MONGODB_URI || 'mongodb://localhost:27017/test';
-    await mongoose.connect(testDbUrl);
-  } catch (error) {
-    console.error('Error connecting to test database:', error);
-    throw error;
-  }
-}
+// Global test setup
+beforeAll(() => {
+  jest.resetModules();
+});
 
-export async function clearTestDb(): Promise<void> {
-  if (mongoose.connection.readyState === 1) {
-    const collections = mongoose.connection.collections;
-    await Promise.all(
-      Object.values(collections).map((collection) => collection.deleteMany({}))
-    );
-  }
-}
+afterAll(() => {
+  jest.restoreAllMocks();
+});
 
-export async function disconnectTestDb(): Promise<void> {
-  await mongoose.disconnect();
-}
+beforeEach(() => {
+  jest.clearAllMocks();
+});

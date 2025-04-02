@@ -1,6 +1,12 @@
 import { createTestClient, TestClient } from '../../utils/setup';
-import { getAuthHeaders } from '../../utils/auth';
-import { testUsers } from '../../fixtures/users';
+
+// Mock user data
+const mockUser = {
+  sub: 'auth0|123456789',
+  email: 'test@example.com',
+  name: 'Test User',
+  picture: 'https://example.com/avatar.jpg'
+};
 
 describe('Users API', () => {
   let api: TestClient;
@@ -19,14 +25,15 @@ describe('Users API', () => {
     it('should return user profile when authenticated', async () => {
       await api
         .get('/api/users/me')
-        .set(getAuthHeaders())
+        .set('Authorization', 'Bearer valid-token')
         .expect(200)
         .expect('Content-Type', /application\/json/)
         .then(response => {
           expect(response.body).toMatchObject({
-            id: expect.any(String),
-            email: expect.any(String),
-            name: expect.any(String)
+            id: mockUser.sub,
+            email: mockUser.email,
+            name: mockUser.name,
+            picture: mockUser.picture
           });
         });
     });
