@@ -4,8 +4,34 @@ import axios from 'axios';
 export const createAuthenticatedApi = () => {
   const { getAccessTokenSilently } = useAuth0();
   
+  // Determine API URL
+  const getApiUrl = () => {
+    const configuredUrl = import.meta.env.VITE_API_URL;
+    const hostname = window.location.hostname;
+    
+    console.log('API URL Configuration:', {
+      VITE_API_URL: configuredUrl,
+      hostname,
+      isDevelopment: hostname === 'localhost'
+    });
+
+    if (configuredUrl) {
+      return configuredUrl;
+    }
+    
+    // Fallback for local development
+    if (hostname === 'localhost') {
+      return 'http://localhost:54014/api';
+    }
+    
+    // Fallback for Heroku
+    const herokuUrl = `https://${hostname}/api`;
+    console.log('Using Heroku URL:', herokuUrl);
+    return herokuUrl;
+  };
+
   const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:54014/api',
+    baseURL: getApiUrl(),
     // Add timeout
     timeout: 10000,
     // Add headers
