@@ -20,16 +20,11 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     // Initialize models
-    const User = require('../models/User');
     const Task = require('../models/Task');
     
     // Create indexes if models are Mongoose models and we're not in development
     if (!environment.isDevelopment()) {
       try {
-        if (typeof User.createIndexes === 'function') {
-          await User.createIndexes();
-          console.log('User indexes created successfully');
-        }
         if (typeof Task.createIndexes === 'function') {
           await Task.createIndexes();
           console.log('Task indexes created successfully');

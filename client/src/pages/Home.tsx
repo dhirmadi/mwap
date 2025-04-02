@@ -9,7 +9,7 @@ export function Home() {
       <Container size="md" py="xl">
         <Stack spacing="xl" align="center">
           <Loader size="lg" />
-          <Text>Loading your profile...</Text>
+          <Text>Loading...</Text>
         </Stack>
       </Container>
     );
