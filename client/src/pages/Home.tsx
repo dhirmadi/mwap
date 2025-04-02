@@ -46,32 +46,14 @@ export function Home() {
       <Stack spacing="xl">
         <Title order={1}>👋 Welcome to MWAP</Title>
         
-        {isAuthenticated && user ? (
+        {isAuthenticated ? (
           <>
             <Text size="lg">
-              Welcome back, {user.name}! You're successfully logged in.
+              Welcome back! You're successfully logged in.
             </Text>
-            {user.picture && (
-              <img 
-                src={user.picture} 
-                alt={user.name}
-                style={{ 
-                  width: '100px', 
-                  height: '100px', 
-                  borderRadius: '50%',
-                  objectFit: 'cover'
-                }} 
-              />
-            )}
-            <Group>
-              <Button 
-                onClick={() => logout()}
-                color="red"
-                variant="light"
-              >
-                Logout
-              </Button>
-            </Group>
+            <Text size="lg" color="dimmed">
+              The profile builder feature is coming soon.
+            </Text>
           </>
         ) : (
           <>

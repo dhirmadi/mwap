@@ -2,13 +2,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 
 const getApiUrl = () => {
-  // In development
-  if (process.env.NODE_ENV === 'development') {
-    return 'http://localhost:54014/api';
-  }
-  
-  // In production/review apps
-  return window.location.origin + '/api';
+  return import.meta.env.VITE_API_URL;
 };
 
 export const useApi = () => {
