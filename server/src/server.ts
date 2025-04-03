@@ -14,7 +14,7 @@ interface ServerConfig {
  * @param config Server configuration
  * @returns HTTP Server instance
  */
-export async function startServer(config: ServerConfig = { port: environment.server.port }): Promise<Server> {
+export async function startServer(config: ServerConfig = { port: parseInt(environment.PORT, 10) }): Promise<Server> {
   try {
     // Connect to database
     await connectDB();
