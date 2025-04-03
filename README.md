@@ -270,10 +270,20 @@ Review apps are automatically created for pull requests and configured via `app.
    - Use TypeScript where possible
    - Follow ESLint configuration
    - Write unit tests for critical functionality
+   - Use high-precision timing for performance tests
+   - Implement comprehensive integration tests
 
-3. **Commit Messages**
+3. **Testing Strategy**
+   - Integration tests for all API endpoints
+   - High-precision response time tracking
+   - Database cleanup between tests
+   - Concurrent request testing
+   - Rate limit and security testing
+
+4. **Commit Messages**
    - Use clear, descriptive commit messages
    - Reference issue numbers when applicable
+   - Use conventional commit format
 
 ## 📚 Additional Documentation
 

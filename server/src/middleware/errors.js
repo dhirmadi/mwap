@@ -26,54 +26,82 @@ const handleDuplicateFieldsDB = err => {
 };
 
 const errorHandler = (err, req, res, next) => {
+  // Log error for debugging
+  console.error('ERROR:', err);
+
+  // Set default status code
   err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
-  if (process.env.NODE_ENV === 'development') {
-    // Development error response
-    console.error('ERROR:', err);
-    return res.status(err.statusCode).json({
-      status: err.status,
-      error: err,
-      message: err.message,
-      stack: err.stack
-    });
-  }
-
-  // Production error handling
-  let error = { ...err };
-  error.message = err.message;
 
   // Handle specific error types
-  if (err.name === 'CastError') error = handleCastErrorDB(err);
-  if (err.name === 'ValidationError') error = handleValidationErrorDB(err);
-  if (err.code === 11000) error = handleDuplicateFieldsDB(err);
   if (err.name === 'UnauthorizedError') {
     return res.status(401).json({ 
-      status: 'fail',
-      message: 'Invalid token or authorization failed'
-    });
-  }
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ 
-      status: 'fail',
-      message: 'Your token has expired! Please log in again.'
+      error: 'Unauthorized'
     });
   }
 
-  // Operational, trusted error: send message to client
-  if (error.isOperational) {
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({ 
+      error: 'Token expired'
+    });
+  }
+
+  if (err.name === 'CastError') {
+    const error = handleCastErrorDB(err);
     return res.status(error.statusCode).json({
-      status: error.status,
-      message: error.message
+      error: error.message
+    });
+  }
+
+  if (err.name === 'ValidationError') {
+    const error = handleValidationErrorDB(err);
+    return res.status(error.statusCode).json({
+      error: error.message
+    });
+  }
+
+  if (err.code === 11000) {
+    const error = handleDuplicateFieldsDB(err);
+    return res.status(error.statusCode).json({
+      error: error.message
+    });
+  }
+
+  // Handle common Express errors
+  if (err instanceof SyntaxError && err.status === 400) {
+    return res.status(400).json({
+      error: 'Invalid JSON format'
+    });
+  }
+
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({
+      error: 'Request entity too large'
+    });
+  }
+
+  if (err.status === 404 || err.statusCode === 404) {
+    return res.status(404).json({
+      error: 'Not found'
+    });
+  }
+
+  // Handle 404 for non-existent routes
+  if (err.name === 'NotFoundError' || err.message?.includes('not found')) {
+    return res.status(404).json({
+      error: 'Not found'
+    });
+  }
+
+  // Handle operational errors
+  if (err.isOperational) {
+    return res.status(err.statusCode).json({
+      error: err.message
     });
   }
 
   // Programming or other unknown error: don't leak error details
-  console.error('ERROR:', err);
   return res.status(500).json({
-    status: 'error',
-    message: 'Something went wrong!'
+    error: 'Internal server error'
   });
 };
 
