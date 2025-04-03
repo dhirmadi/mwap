@@ -91,7 +91,8 @@ describe('Response Time Middleware', () => {
     const results = await Promise.all(requests);
 
     // Verify each response
-    results.forEach(({ response, delay, actualDuration }) => {
+    results.forEach((result: { response: any; delay: number; actualDuration: number }) => {
+      const { response, delay, actualDuration } = result;
       const responseTime = parseInt((response as any).headers['x-response-time'].replace('ms', ''), 10);
       
       // Response time should be valid
@@ -106,7 +107,7 @@ describe('Response Time Middleware', () => {
 
     // Times should be different and roughly in order
     const times = results.map(r => 
-      parseInt((r.response as any).headers['x-response-time'].replace('ms', ''), 10)
+      parseInt(((r as { response: any }).response).headers['x-response-time'].replace('ms', ''), 10)
     );
 
     // Should have unique times
