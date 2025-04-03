@@ -123,3 +123,4 @@
 - [Project Status](../status_project.md)
 - [Security Policy](../SECURITY.md)
 - [API Documentation](./API.md)
+- [Testing Patterns](./testing-patterns.md)

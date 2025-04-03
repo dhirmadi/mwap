@@ -290,6 +290,7 @@ Review apps are automatically created for pull requests and configured via `app.
 - [Project Status](./status_project.md)
 - [Contributing Guidelines](./CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
+- [Testing Patterns](./docs/testing-patterns.md)
 
 ## 🔐 Security
 
