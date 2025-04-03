@@ -20,7 +20,7 @@ export async function startServer(config: ServerConfig = { port: environment.ser
     await connectDB();
 
     // Start server
-    const server = app.listen(config.port, config.host, () => {
+    const server = app.listen(config.port, () => {
       console.log(`Server running on port ${config.port} (${environment.getEnvironmentName()})`);
       
       if (environment.isDevelopment()) {
