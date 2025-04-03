@@ -48,7 +48,7 @@ jest.mock('express-oauth2-jwt-bearer', () => ({
 export type TestClient = request.SuperTest<request.Test>;
 
 export function createTestClient(): TestClient {
-  return request(app);
+  return request(app) as unknown as TestClient;
 }
 
 // Increase timeout for database operations

@@ -70,7 +70,7 @@ async function getConnection(): Promise<mongoose.Connection> {
 export async function connectTestDb(): Promise<void> {
   try {
     const conn = await getConnection();
-    mongoose.connection = conn;
+    (mongoose as any).connection = conn;
     console.log('Connected to test database:', dbName);
   } catch (error) {
     console.error('Failed to connect to test database:', error);
@@ -89,7 +89,7 @@ export async function clearDatabase(): Promise<void> {
       return;
     }
 
-    const collections = await conn.db.collections();
+    const collections = await conn.db!.collections();
     
     // Drop each collection
     await Promise.all(collections.map(async (collection) => {
@@ -145,7 +145,7 @@ export async function resetDatabase(): Promise<void> {
   } catch (error) {
     console.error('Error resetting database:', error);
     // Try to reconnect if we lost connection
-    if (error.message?.includes('Connection was force closed')) {
+    if ((error as Error).message?.includes('Connection was force closed')) {
       await getConnection();
     }
   }
@@ -170,6 +170,6 @@ export function getDatabaseName(): string {
  */
 export async function getCollectionNames(): Promise<string[]> {
   const conn = await getConnection();
-  const collections = await conn.db.collections();
+  const collections = await conn.db!.collections();
   return collections.map(c => c.collectionName);
 }

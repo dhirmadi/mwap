@@ -1,4 +1,4 @@
-import { Application, Request, Response, NextFunction } from 'express';
+import { Application, Request, Response, NextFunction, RequestHandler } from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
@@ -128,27 +128,28 @@ export const setupSecurity = (app: Application): void => {
   app.disable('x-powered-by');
   app.set('trust proxy', 1); // Trust first proxy (important for Heroku)
 
-  // Add security headers
-  app.use((req: Request, res: Response, next: NextFunction) => {
+  // Add security headers and validate content types
+  const securityMiddleware: RequestHandler = (req, res, next) => {
+    // Add security headers
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     if (environment.isProduction()) {
       res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
     }
-    next();
-  });
 
-  // Validate content types
-  app.use((req: Request, res: Response, next: NextFunction) => {
+    // Validate content types for POST, PUT, PATCH requests
     if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
       const contentType = req.headers['content-type'];
       if (!contentType || !contentType.includes('application/json')) {
-        return res.status(415).json({
+        res.status(415).json({
           error: 'Unsupported Media Type - API only accepts application/json'
         });
+        return;
       }
     }
     next();
-  });
+  };
+
+  app.use(securityMiddleware);
 };

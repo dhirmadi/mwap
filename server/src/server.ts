@@ -14,13 +14,13 @@ interface ServerConfig {
  * @param config Server configuration
  * @returns HTTP Server instance
  */
-export async function startServer(config: ServerConfig = { port: environment.server.port }): Promise<Server> {
+export async function startServer(config: ServerConfig = { port: Number(environment.server?.port) || 3000 }): Promise<Server> {
   try {
     // Connect to database
     await connectDB();
 
     // Start server
-    const server = app.listen(config.port, config.host, () => {
+    const server = app.listen(config.port, config.host || '0.0.0.0', () => {
       console.log(`Server running on port ${config.port} (${environment.getEnvironmentName()})`);
       
       if (environment.isDevelopment()) {
@@ -29,8 +29,8 @@ export async function startServer(config: ServerConfig = { port: environment.ser
           port: config.port,
           host: config.host || 'default',
           mongoDb: 'Connected',
-          auth0Domain: environment.auth0.domain,
-          corsOrigin: environment.security.corsOrigin,
+          auth0Domain: environment.auth0?.domain || '',
+          corsOrigin: environment.security?.corsOrigin || '*',
         });
       }
     });

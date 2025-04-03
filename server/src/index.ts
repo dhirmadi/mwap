@@ -3,7 +3,7 @@ import environment from './config/environment';
 
 // Start server with environment-specific configuration
 startServer({
-  port: environment.server.port,
+  port: Number(environment.server?.port) || 3000,
   host: environment.isDevelopment() ? 'localhost' : undefined
 }).catch((error) => {
   console.error('Failed to start server:', error);

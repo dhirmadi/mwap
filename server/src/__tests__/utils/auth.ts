@@ -10,7 +10,12 @@ export const mockUser = {
 
 // Mock Auth0 middleware
 export const mockAuth = jest.fn((req: Request, _res: Response, next: NextFunction) => {
-  req.auth = mockUser;
+  req.auth = {
+    ...mockUser,
+    header: {},
+    payload: mockUser,
+    token: 'mock-token'
+  };
   next();
 });
 

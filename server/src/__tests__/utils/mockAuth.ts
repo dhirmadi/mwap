@@ -12,7 +12,12 @@ export const mockUser = {
 export const mockAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (token === 'valid-token') {
-    req.auth = mockUser;
+    req.auth = {
+      ...mockUser,
+      header: {},
+      payload: mockUser,
+      token: 'mock-token'
+    };
     next();
   } else {
     res.status(401).json({ error: 'Unauthorized' });
