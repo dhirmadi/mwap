@@ -2,13 +2,13 @@
   "name": "nwap-mini-server",
   "version": "1.0.0",
   "description": "NWAP Mini Project - Backend",
-  "main": "src/index.js",
+  "main": "dist/server.js",
   "engines": {
     "node": "20.x",
     "npm": "10.x"
   },
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "build": "tsc",
     "dev": "ts-node-dev src/server.ts",
     "lint": "eslint .",
