@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node dist/server.js",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "dev": "ts-node-dev src/server.ts",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -27,6 +27,7 @@
     "express-rate-limit": "^7.2.0",
     "helmet": "^7.1.0",
     "mongoose": "^8.2.1",
+    "typescript": "^5.3.3",
     "winston": "^3.11.0"
   },
   "devDependencies": {
