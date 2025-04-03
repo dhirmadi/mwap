@@ -140,7 +140,7 @@ export const setupSecurity = (app: Application): void => {
   });
 
   // Validate content types for API routes
-  const validateContentType = (req: Request, res: Response, next: NextFunction) => {
+  const validateContentType = (req: Request, res: Response, next: NextFunction): void => {
     if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
       const contentType = req.headers['content-type'];
       if (!contentType || !contentType.includes('application/json')) {
