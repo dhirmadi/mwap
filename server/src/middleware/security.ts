@@ -139,8 +139,8 @@ export const setupSecurity = (app: Application): void => {
     next();
   });
 
-  // Validate content types
-  const validateContentType = (req: Request, res: Response, next: NextFunction) => {
+  // Validate content types for API routes
+  app.all('/api/*', (req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
       const contentType = req.headers['content-type'];
       if (!contentType || !contentType.includes('application/json')) {
@@ -150,6 +150,5 @@ export const setupSecurity = (app: Application): void => {
       }
     }
     next();
-  };
-  app.use('/api', validateContentType);
+  });
 };
