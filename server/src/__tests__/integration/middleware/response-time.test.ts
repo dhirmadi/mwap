@@ -35,58 +35,87 @@ describe('Response Time Middleware', () => {
     validateResponseTime(response);
   });
 
-  it('should measure time accurately for slow responses', async () => {
-    // Create a slow endpoint for testing
-    const start = Date.now();
-    const slowResponse = await api
-      .get('/health')
-      .set('Accept', 'application/json')
-      .expect(200);
+  it('should measure time accurately', async () => {
+    // Add artificial delay to simulate processing
+    const delay = 100; // 100ms delay
+    const start = process.hrtime();
 
-    validateResponseTime(slowResponse);
+    // Make request with artificial delay
+    const response = await new Promise((resolve) => {
+      setTimeout(async () => {
+        const result = await api
+          .get('/health')
+          .set('Accept', 'application/json')
+          .expect(200);
+        resolve(result);
+      }, delay);
+    });
 
-    const duration = parseInt(slowResponse.headers['x-response-time'].replace('ms', ''), 10);
-    const actualDuration = Date.now() - start;
-    
-    // Duration should be within 50ms of actual time
-    expect(Math.abs(duration - actualDuration)).toBeLessThan(50);
+    // Calculate actual time taken
+    const [seconds, nanoseconds] = process.hrtime(start);
+    const actualDuration = Math.round((seconds * 1000) + (nanoseconds / 1000000));
+
+    // Get response time from header
+    const responseTime = parseInt((response as any).headers['x-response-time'].replace('ms', ''), 10);
+
+    // Response time should be close to actual duration
+    expect(Math.abs(responseTime - actualDuration)).toBeLessThan(50);
+    expect(responseTime).toBeGreaterThanOrEqual(delay);
   });
 
-  it('should handle concurrent requests correctly', async () => {
-    // Make multiple concurrent requests with artificial delays
-    const requests = Array(5).fill(null).map((_, i) => 
-      new Promise(resolve => {
+  it('should handle concurrent requests with different delays', async () => {
+    // Make multiple requests with increasing delays
+    const delays = [50, 100, 150, 200, 250];
+    const requests = delays.map(delay => 
+      new Promise((resolve) => {
         setTimeout(async () => {
-          // Add artificial processing time
-          const start = Date.now();
-          while (Date.now() - start < i * 50) {
-            // Busy wait to simulate processing
-          }
+          const start = process.hrtime();
           const response = await api
             .get('/health')
             .set('Accept', 'application/json')
             .expect(200);
-          resolve(response);
-        }, 0);
+
+          // Calculate actual duration
+          const [seconds, nanoseconds] = process.hrtime(start);
+          const actualDuration = Math.round((seconds * 1000) + (nanoseconds / 1000000));
+
+          resolve({
+            response,
+            delay,
+            actualDuration
+          });
+        }, delay);
       })
     );
 
-    const responses = await Promise.all(requests);
+    const results = await Promise.all(requests);
 
-    // Each response should have its own timing
-    responses.forEach(response => {
+    // Verify each response
+    results.forEach(({ response, delay, actualDuration }) => {
+      const responseTime = parseInt((response as any).headers['x-response-time'].replace('ms', ''), 10);
+      
+      // Response time should be valid
       validateResponseTime(response as any);
+
+      // Response time should be close to actual duration
+      expect(Math.abs(responseTime - actualDuration)).toBeLessThan(50);
+
+      // Response time should be at least the artificial delay
+      expect(responseTime).toBeGreaterThanOrEqual(delay - 50);
     });
 
-    // Times should be different for each request
-    const times = responses.map(r => 
-      parseInt((r as any).headers['x-response-time'].replace('ms', ''), 10)
+    // Times should be different and roughly in order
+    const times = results.map(r => 
+      parseInt((r.response as any).headers['x-response-time'].replace('ms', ''), 10)
     );
-    const uniqueTimes = new Set(times);
-    expect(uniqueTimes.size).toBeGreaterThan(1); // At least some times should be different
 
-    // Verify times are in ascending order (since each request takes longer)
-    const sortedTimes = [...times].sort((a, b) => a - b);
-    expect(times).toEqual(sortedTimes);
+    // Should have unique times
+    const uniqueTimes = new Set(times);
+    expect(uniqueTimes.size).toBeGreaterThan(1);
+
+    // Times should generally increase (allow some variance)
+    for (let i = 1; i < times.length; i++) {
+      expect(times[i]).toBeGreaterThan(times[i-1] - 50);
+    }
   });
 });

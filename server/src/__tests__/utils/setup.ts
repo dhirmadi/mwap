@@ -16,17 +16,31 @@ process.env.NODE_ENV = 'test';
 jest.mock('express-oauth2-jwt-bearer', () => ({
   auth: () => (req: any, res: any, next: any) => {
     const token = req.headers.authorization?.split(' ')[1];
-    if (token === 'valid-token') {
-      req.auth = {
-        sub: 'auth0|123456789',
-        email: 'test@example.com',
-        name: 'Test User',
-        picture: 'https://example.com/avatar.jpg'
-      };
-      next();
-    } else {
-      res.status(401).json({ error: 'Unauthorized' });
+    
+    // No token
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized - No token provided' });
     }
+
+    // Invalid token format
+    if (!token.startsWith('Bearer ') && !token.startsWith('valid-token-')) {
+      return res.status(401).json({ error: 'Unauthorized - Invalid token format' });
+    }
+
+    // Valid token
+    if (token.startsWith('valid-token-')) {
+      const sub = token.replace('valid-token-', '');
+      req.auth = {
+        sub,
+        email: `test@example.com`,
+        name: `Test User`,
+        picture: `https://example.com/avatar.jpg`
+      };
+      return next();
+    }
+
+    // Default unauthorized
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 }));
 

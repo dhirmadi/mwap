@@ -87,11 +87,14 @@ describe('Database Utilities', () => {
     });
 
     it('should handle invalid collection operations', async () => {
-      // Create an invalid model (no schema)
-      const InvalidModel = mongoose.model('Invalid', new mongoose.Schema({}));
+      // Create a test model with a unique name
+      const modelName = `TestModel${Date.now()}`;
+      const TestModel = mongoose.model(modelName, new mongoose.Schema({
+        name: { type: String, required: true }
+      }));
 
-      // Try to create invalid data
-      await expect(InvalidModel.create({})).resolves.not.toThrow();
+      // Try to create invalid data (missing required field)
+      await expect(TestModel.create({})).rejects.toThrow();
 
       // Clear should still work
       await expect(clearDatabase()).resolves.not.toThrow();

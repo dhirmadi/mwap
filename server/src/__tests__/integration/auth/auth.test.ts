@@ -41,7 +41,12 @@ describe('Auth Middleware', () => {
         .set(getAuthHeaders(testUsers.regular))
         .expect(200);
 
-      expect(response.body).toHaveProperty('id', testUsers.regular.sub);
+      expect(response.body).toEqual({
+        id: testUsers.regular.sub,
+        email: 'test@example.com',
+        name: 'Test User',
+        picture: 'https://example.com/avatar.jpg'
+      });
     });
   });
 

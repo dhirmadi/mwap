@@ -43,17 +43,24 @@ export function createApp(): Application {
 
   // Response time middleware (after security, before routes)
   app.use((req: Request, res: Response, next: NextFunction) => {
-    const start = Date.now();
+    // Use high-resolution time for better accuracy
+    const start = process.hrtime();
+
+    // Function to calculate response time in milliseconds
+    const getResponseTime = (): number => {
+      const [seconds, nanoseconds] = process.hrtime(start);
+      return Math.round((seconds * 1000) + (nanoseconds / 1000000));
+    };
 
     // Function to set response time header
     const setResponseTime = () => {
-      const duration = Date.now() - start;
       if (!res.headersSent) {
+        const duration = getResponseTime();
         res.setHeader('X-Response-Time', `${duration}ms`);
       }
     };
 
-    // Patch response methods
+    // Patch response methods to ensure timing is captured
     const methods = ['send', 'json', 'sendFile', 'sendStatus', 'end'];
     methods.forEach(method => {
       const original = (res as any)[method];
@@ -63,18 +70,18 @@ export function createApp(): Application {
       };
     });
 
-    // Handle errors and normal responses
+    // Handle various response completion scenarios
     res.on('finish', setResponseTime);
     res.on('close', setResponseTime);
     res.on('error', setResponseTime);
 
     // Handle errors in error middleware
-    const originalError = res.emit;
+    const originalEmit = res.emit;
     res.emit = function(type: string, ...args: any[]): boolean {
-      if (type === 'error') {
+      if (type === 'error' || type === 'timeout') {
         setResponseTime();
       }
-      return originalError.call(res, type, ...args);
+      return originalEmit.call(res, type, ...args);
     };
 
     next();

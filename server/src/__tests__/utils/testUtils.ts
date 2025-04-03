@@ -23,7 +23,7 @@ export const testUsers = {
  * Generate a valid JWT token for testing
  */
 export function generateTestToken(user: AuthUser = testUsers.regular): string {
-  return 'valid-token';
+  return `valid-token-${user.sub}`;
 }
 
 /**
@@ -31,23 +31,23 @@ export function generateTestToken(user: AuthUser = testUsers.regular): string {
  */
 export function getAuthHeaders(user: AuthUser = testUsers.regular) {
   return {
-    Authorization: `Bearer ${generateTestToken(user)}`
+    'Authorization': `Bearer ${generateTestToken(user)}`,
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
   };
 }
 
 /**
  * Test helper to make authenticated requests
  */
-export async function authenticatedRequest(
+export function authenticatedRequest(
   api: TestClient,
   method: 'get' | 'post' | 'put' | 'delete' | 'patch',
   url: string,
   data?: unknown,
   user: AuthUser = testUsers.regular
 ) {
-  const request = api[method](url)
-    .set(getAuthHeaders(user))
-    .set('Accept', 'application/json');
+  const request = api[method](url).set(getAuthHeaders(user));
 
   if (data) {
     request.send(data);
