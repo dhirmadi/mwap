@@ -144,9 +144,10 @@ export const setupSecurity = (app: Application): void => {
     if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
       const contentType = req.headers['content-type'];
       if (!contentType || !contentType.includes('application/json')) {
-        return res.status(415).json({
+        res.status(415).json({
           error: 'Unsupported Media Type - API only accepts application/json'
         });
+        return;
       }
     }
     next();
