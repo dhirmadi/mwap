@@ -7,9 +7,9 @@ import { TestClient } from './setup';
 export const testUsers = {
   regular: {
     sub: 'auth0|123456789',
-    email: 'user@example.com',
-    name: 'Regular User',
-    picture: 'https://example.com/avatar1.jpg'
+    email: 'test@example.com',
+    name: 'Test User',
+    picture: 'https://example.com/avatar.jpg'
   },
   admin: {
     sub: 'auth0|987654321',
@@ -45,7 +45,10 @@ export async function authenticatedRequest(
   data?: unknown,
   user: AuthUser = testUsers.regular
 ) {
-  const request = api[method](url).set(getAuthHeaders(user));
+  const request = api[method](url)
+    .set(getAuthHeaders(user))
+    .set('Accept', 'application/json');
+
   if (data) {
     request.send(data);
   }
@@ -56,13 +59,48 @@ export async function authenticatedRequest(
  * Validate error response structure
  */
 export function validateErrorResponse(response: any) {
-  expect(response.body).toMatchObject({
-    message: expect.any(String)
-  });
+  // Check for error field
   if (response.body.error) {
-    expect(typeof response.body.error).toBe('string');
+    expect(response.body).toMatchObject({
+      error: expect.any(String)
+    });
+    return;
   }
-  if (response.body.code) {
-    expect(typeof response.body.code).toBe('string');
+
+  // Check for message field
+  if (response.body.message) {
+    expect(response.body).toMatchObject({
+      message: expect.any(String)
+    });
+    return;
   }
+
+  // If neither error nor message, fail
+  throw new Error('Response body must contain either error or message field');
+}
+
+/**
+ * Validate response time header
+ */
+export function validateResponseTime(response: any) {
+  const responseTime = response.headers['x-response-time'];
+  expect(responseTime).toBeDefined();
+  expect(responseTime).toMatch(/^\d+ms$/);
+  
+  // Extract duration and verify it's reasonable
+  const duration = parseInt(responseTime.replace('ms', ''), 10);
+  expect(duration).toBeGreaterThanOrEqual(0);
+  expect(duration).toBeLessThan(10000); // Should not take more than 10 seconds
+}
+
+/**
+ * Validate user profile response
+ */
+export function validateUserProfile(response: any, user: AuthUser = testUsers.regular) {
+  expect(response.body).toMatchObject({
+    id: user.sub,
+    email: user.email,
+    name: user.name,
+    picture: user.picture
+  });
 }

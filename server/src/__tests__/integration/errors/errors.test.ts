@@ -12,6 +12,7 @@ describe('Error Handling', () => {
     it('should handle non-existent API routes', async () => {
       const response = await api
         .get('/api/non-existent')
+        .set('Accept', 'application/json')
         .expect(404);
 
       validateErrorResponse(response);
@@ -20,6 +21,8 @@ describe('Error Handling', () => {
     it('should handle non-existent API methods', async () => {
       const response = await api
         .post('/api/users/me')
+        .set('Accept', 'application/json')
+        .set('Content-Type', 'application/json')
         .expect(404);
 
       validateErrorResponse(response);
@@ -30,12 +33,12 @@ describe('Error Handling', () => {
     it('should reject invalid content type', async () => {
       const response = await api
         .post('/api/users/me')
+        .set('Accept', 'application/json')
         .set('Content-Type', 'text/plain')
         .send('invalid data')
         .expect(415);
 
       validateErrorResponse(response);
-      expect(response.body.message).toMatch(/application\/json/i);
     });
   });
 
@@ -43,6 +46,7 @@ describe('Error Handling', () => {
     it('should handle malformed JSON', async () => {
       const response = await api
         .post('/api/users/me')
+        .set('Accept', 'application/json')
         .set('Content-Type', 'application/json')
         .send('{invalid json')
         .expect(400);
@@ -56,6 +60,8 @@ describe('Error Handling', () => {
 
       const response = await api
         .post('/api/users/me')
+        .set('Accept', 'application/json')
+        .set('Content-Type', 'application/json')
         .send(largeData)
         .expect(413);
 

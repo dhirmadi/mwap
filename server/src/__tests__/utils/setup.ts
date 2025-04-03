@@ -1,9 +1,16 @@
 import { app } from '../../app';
 import request from 'supertest';
+import { 
+  connectTestDb, 
+  closeTestDb, 
+  resetDatabase,
+  isDatabaseConnected 
+} from './dbUtils';
 
 // Mock environment variables
 process.env.AUTH0_AUDIENCE = 'https://api.test.local';
 process.env.AUTH0_DOMAIN = 'test.auth0.com';
+process.env.NODE_ENV = 'test';
 
 // Mock express-oauth2-jwt-bearer
 jest.mock('express-oauth2-jwt-bearer', () => ({
@@ -30,15 +37,40 @@ export function createTestClient(): TestClient {
   return request(app);
 }
 
+// Increase timeout for database operations
+jest.setTimeout(30000);
+
 // Global test setup
-beforeAll(() => {
+beforeAll(async () => {
+  // Reset modules
   jest.resetModules();
-});
 
-afterAll(() => {
+  // Connect to test database
+  try {
+    await connectTestDb();
+  } catch (error) {
+    console.error('Failed to connect to test database:', error);
+    throw error;
+  }
+}, 30000);
+
+afterAll(async () => {
+  // Cleanup
+  try {
+    await closeTestDb();
+  } catch (error) {
+    console.error('Failed to close test database:', error);
+  }
   jest.restoreAllMocks();
-});
+}, 30000);
 
-beforeEach(() => {
+beforeEach(async () => {
+  // Reset mocks and database
   jest.clearAllMocks();
-});
+  try {
+    await resetDatabase();
+  } catch (error) {
+    console.error('Failed to reset database:', error);
+    throw error;
+  }
+}, 10000);

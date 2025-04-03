@@ -41,6 +41,45 @@ export function createApp(): Application {
   // Security setup (includes CORS, helmet, rate limiting)
   security.setupSecurity(app);
 
+  // Response time middleware (after security, before routes)
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const start = Date.now();
+
+    // Function to set response time header
+    const setResponseTime = () => {
+      const duration = Date.now() - start;
+      if (!res.headersSent) {
+        res.setHeader('X-Response-Time', `${duration}ms`);
+      }
+    };
+
+    // Patch response methods
+    const methods = ['send', 'json', 'sendFile', 'sendStatus', 'end'];
+    methods.forEach(method => {
+      const original = (res as any)[method];
+      (res as any)[method] = function(...args: any[]): Response {
+        setResponseTime();
+        return original.apply(res, args);
+      };
+    });
+
+    // Handle errors and normal responses
+    res.on('finish', setResponseTime);
+    res.on('close', setResponseTime);
+    res.on('error', setResponseTime);
+
+    // Handle errors in error middleware
+    const originalError = res.emit;
+    res.emit = function(type: string, ...args: any[]): boolean {
+      if (type === 'error') {
+        setResponseTime();
+      }
+      return originalError.call(res, type, ...args);
+    };
+
+    next();
+  });
+
   // Compression middleware
   app.use(compression());
 
@@ -62,20 +101,6 @@ export function createApp(): Application {
       timestamp: new Date().toISOString(),
       uptime: process.uptime()
     });
-  });
-
-  // Response time middleware
-  app.use((req: Request, res: ResponseWithTimer, next: NextFunction) => {
-    res.startTime = Date.now();
-    res.on('finish', () => {
-      const duration = Date.now() - (res.startTime || Date.now());
-      try {
-        res.set('X-Response-Time', `${duration}ms`);
-      } catch (error) {
-        // Headers already sent, ignore
-      }
-    });
-    next();
   });
 
   // API Routes
@@ -113,6 +138,20 @@ export function createApp(): Application {
           next(new AppError(500, 'Error loading application'));
         }
       });
+    });
+  }
+
+  // 404 handler for API routes
+  app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+    const error = new AppError(404, 'API endpoint not found');
+    next(error);
+  });
+
+  // 404 handler for all other routes in production
+  if (!environment.isDevelopment()) {
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      const error = new AppError(404, 'Page not found');
+      next(error);
     });
   }
 

@@ -1,5 +1,6 @@
 import { createTestClient, TestClient } from '../../utils/setup';
 import { HealthCheckResponse } from '../../../types/api';
+import { validateResponseTime } from '../../utils/testUtils';
 
 describe('Health Check API', () => {
   let api: TestClient;
@@ -12,6 +13,7 @@ describe('Health Check API', () => {
     it('should return healthy status', async () => {
       const response = await api
         .get('/health')
+        .set('Accept', 'application/json')
         .expect(200)
         .expect('Content-Type', /application\/json/);
 
@@ -28,14 +30,9 @@ describe('Health Check API', () => {
       
       // Validate uptime is positive
       expect(body.uptime).toBeGreaterThan(0);
-    });
 
-    it('should include response time header', async () => {
-      const response = await api
-        .get('/health')
-        .expect(200);
-
-      expect(response.headers['x-response-time']).toMatch(/^\d+ms$/);
+      // Validate response time header
+      validateResponseTime(response);
     });
   });
 });

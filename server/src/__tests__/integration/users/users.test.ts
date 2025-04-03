@@ -1,6 +1,11 @@
 import { createTestClient, TestClient } from '../../utils/setup';
-import { UserProfile } from '../../../types/api';
-import { testUsers, authenticatedRequest, validateErrorResponse } from '../../utils/testUtils';
+import { 
+  testUsers, 
+  authenticatedRequest, 
+  validateErrorResponse,
+  validateResponseTime,
+  validateUserProfile
+} from '../../utils/testUtils';
 
 describe('Users API', () => {
   let api: TestClient;
@@ -13,6 +18,7 @@ describe('Users API', () => {
     it('should return 401 when not authenticated', async () => {
       const response = await api
         .get('/api/users/me')
+        .set('Accept', 'application/json')
         .expect(401);
 
       validateErrorResponse(response);
@@ -21,6 +27,7 @@ describe('Users API', () => {
     it('should return 401 with invalid token', async () => {
       const response = await api
         .get('/api/users/me')
+        .set('Accept', 'application/json')
         .set('Authorization', 'Bearer invalid-token')
         .expect(401);
 
@@ -33,18 +40,8 @@ describe('Users API', () => {
       expect(response.status).toBe(200);
       expect(response.headers['content-type']).toMatch(/application\/json/);
 
-      const body = response.body as UserProfile;
-      expect(body).toMatchObject({
-        id: testUsers.regular.sub,
-        email: testUsers.regular.email,
-        name: testUsers.regular.name,
-        picture: testUsers.regular.picture
-      });
-    });
-
-    it('should include response time header', async () => {
-      const response = await authenticatedRequest(api, 'get', '/api/users/me');
-      expect(response.headers['x-response-time']).toMatch(/^\d+ms$/);
+      validateUserProfile(response, testUsers.regular);
+      validateResponseTime(response);
     });
   });
 });
