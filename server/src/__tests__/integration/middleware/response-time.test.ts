@@ -88,7 +88,8 @@ describe('Response Time Middleware', () => {
       })
     );
 
-    const results = await Promise.all(requests);
+    type TestResult = { response: any; delay: number; actualDuration: number };
+    const results = await Promise.all(requests) as TestResult[];
 
     // Verify each response
     results.forEach((result: { response: any; delay: number; actualDuration: number }) => {
