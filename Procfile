@@ -1,1 +1,1 @@
-web: cd client && rm -rf dist node_modules && npm install --omit=dev && npm run build && cd ../server && rm -rf dist node_modules && npm install --omit=dev && npm start
+web: cd client && rm -rf dist node_modules && npm install --omit=dev && npm run build && cd ../server && rm -rf dist node_modules && npm install && npm run build && npm prune --omit=dev && npm start
