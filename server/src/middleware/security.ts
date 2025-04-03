@@ -139,16 +139,18 @@ export const setupSecurity = (app: Application): void => {
     next();
   });
 
-  // Validate content types
-  app.use((req: Request, res: Response, next: NextFunction) => {
+  // Validate content types for API routes
+  const validateContentType = (req: Request, res: Response, next: NextFunction): void => {
     if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
       const contentType = req.headers['content-type'];
       if (!contentType || !contentType.includes('application/json')) {
-        return res.status(415).json({
+        res.status(415).json({
           error: 'Unsupported Media Type - API only accepts application/json'
         });
+        return;
       }
     }
     next();
-  });
+  };
+  app.use('/api', validateContentType);
 };
