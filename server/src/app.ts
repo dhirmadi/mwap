@@ -3,7 +3,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import path from 'path';
 import compression from 'compression';
 import environment from './config/environment';
-import * as security from './middleware/security';
+import { setupSecurity } from './middleware/security';
 import { errorHandler } from './middleware/errors';
 import routes from './routes';
 
@@ -39,7 +39,7 @@ export function createApp(): Application {
   const app = express();
 
   // Security setup (includes CORS, helmet, rate limiting)
-  security.setupSecurity(app);
+  setupSecurity(app);
 
   // Response time middleware (after security, before routes)
   app.use((req: Request, res: Response, next: NextFunction) => {
