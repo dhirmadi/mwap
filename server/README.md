@@ -22,8 +22,11 @@ Express.js server with MongoDB and Auth0 integration.
 
 2. **Environment Setup**
    ```bash
-   # Copy example environment file
+   # Development environment
    cp .env.example .env
+   
+   # Test environment (if running tests)
+   cp .env.test.example .env.test
 
    # Fill in the values:
    PORT=54014
