@@ -9,7 +9,7 @@ import { TenantRequestPage } from './pages/TenantRequestPage';
 import { TenantSelectPage } from './pages/TenantSelectPage';
 
 // Authenticated Pages
-import { TenantDashboardPage } from './pages/TenantDashboardPage';
+import TenantDashboardPage from './pages/TenantDashboardPage';
 import { TenantMembersPage } from './pages/TenantMembersPage';
 import { InvitePage } from './pages/InvitePage';
 import { PendingTenantsPage } from './pages/PendingTenantsPage';

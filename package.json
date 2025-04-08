@@ -68,9 +68,5 @@
     "**/.env*": [
       "secretlint"
     ]
-  },
-  "scripts": {
-    "prepare": "husky install",
-    "secretlint": "secretlint"
   }
 }
