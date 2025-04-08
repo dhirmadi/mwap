@@ -84,7 +84,8 @@
       },
       "env": {
         "VITE_API_URL": {
-          "generator": "https://${HEROKU_APP_NAME}.herokuapp.com/api"
+          "required": true,
+          "description": "API URL for the frontend, will be set by setup-review.sh"
         },
         "NODE_ENV": {
           "value": "production"
