@@ -36,7 +36,11 @@ export function useAuth() {
   // Get access token with error handling and caching
   const getToken = useCallback(async () => {
     try {
-      return await getAccessTokenSilently();
+      return await getAccessTokenSilently({
+        authorizationParams: {
+          scope: 'openid profile email'
+        }
+      });
     } catch (error) {
       console.error('Error getting access token:', error);
       // Handle token errors (e.g., expired session)

@@ -33,8 +33,12 @@ export function useTenantBootstrap(): BootstrapResult {
       setIsLoading(true);
       setError(null);
 
-      // Get JWT token
-      const token = await getAccessTokenSilently();
+      // Get JWT token without refresh token
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          scope: 'openid profile email'
+        }
+      });
 
       // Fetch user profile
       const response = await fetch('/api/me', {
