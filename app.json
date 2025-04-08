@@ -1,6 +1,6 @@
 {
   "name": "mwap",
-  "description": "Modular Web Application Platform",
+  "description": "Modular Web Application Platform - Review App",
   "env": {
     "NODE_ENV": {
       "value": "production"
