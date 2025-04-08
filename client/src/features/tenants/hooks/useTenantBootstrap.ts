@@ -23,7 +23,7 @@ interface BootstrapResult {
  * @returns Object containing redirect path and loading/error states
  */
 export function useTenantBootstrap(): BootstrapResult {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [redirectTo, setRedirectTo] = useState<string>('/');
@@ -77,10 +77,12 @@ export function useTenantBootstrap(): BootstrapResult {
     }
   }, [getAccessTokenSilently]);
 
-  // Execute bootstrap on mount
+  // Execute bootstrap when authenticated
   useEffect(() => {
-    bootstrap();
-  }, [bootstrap]);
+    if (isAuthenticated) {
+      bootstrap();
+    }
+  }, [isAuthenticated, bootstrap]);
 
   return {
     redirectTo,
