@@ -5,9 +5,7 @@ const getApiUrl = () => {
   return import.meta.env.VITE_API_URL;
 };
 
-export const useApi = () => {
-  const { getAccessTokenSilently } = useAuth0();
-  
+export const createApiClient = (getAccessToken: () => Promise<string>) => {
   const api = axios.create({
     baseURL: getApiUrl(),
     timeout: 10000,
@@ -20,7 +18,7 @@ export const useApi = () => {
   // Add auth token to requests
   api.interceptors.request.use(async (config) => {
     try {
-      const token = await getAccessTokenSilently();
+      const token = await getAccessToken();
       config.headers.Authorization = `Bearer ${token}`;
       return config;
     } catch (error) {
@@ -57,4 +55,9 @@ export const useApi = () => {
   );
 
   return api;
+};
+
+export const useApi = () => {
+  const { getAccessTokenSilently } = useAuth0();
+  return createApiClient(getAccessTokenSilently);
 };

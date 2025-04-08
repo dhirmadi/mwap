@@ -1,5 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useApi } from '../../../services/api';
 
 interface Tenant {
   tenantId: string;
@@ -23,7 +24,8 @@ interface BootstrapResult {
  * @returns Object containing redirect path and loading/error states
  */
 export function useTenantBootstrap(): BootstrapResult {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { isAuthenticated } = useAuth0();
+  const api = useApi();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [redirectTo, setRedirectTo] = useState<string>('/');
@@ -33,22 +35,8 @@ export function useTenantBootstrap(): BootstrapResult {
       setIsLoading(true);
       setError(null);
 
-      // Get JWT token
-      const token = await getAccessTokenSilently();
-
       // Fetch user profile
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user profile');
-      }
-
-      const profile: UserProfile = await response.json();
+      const { data: profile } = await api.get<UserProfile>('/users/me');
 
       // Determine redirect path based on profile
       if (profile.isSuperAdmin) {
@@ -75,7 +63,7 @@ export function useTenantBootstrap(): BootstrapResult {
     } finally {
       setIsLoading(false);
     }
-  }, [getAccessTokenSilently]);
+  }, [api]);
 
   // Execute bootstrap when authenticated
   useEffect(() => {
