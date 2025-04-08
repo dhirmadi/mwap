@@ -51,31 +51,6 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
    - Environment variable management
    - CORS and security headers
 
-#### 🚧 In Progress
-1. **Profile Builder**
-   - User profile creation
-   - Profile editing
-   - Profile validation
-   - Profile privacy settings
-2. **User Experience**
-   - Form validations
-   - Responsive design
-   - Accessibility improvements
-   - Performance optimization
-   - User feedback system
-
-#### 📋 Pending Features
-1. **Advanced Features**
-   - Analytics dashboard
-   - Audit logging
-   - Search functionality
-   - User preferences
-
-2. **Infrastructure**
-   - Monitoring setup
-   - Performance optimization
-   - Backup strategy
-   - Scaling configuration
 
 ## 🔧 Technical Stack
 
@@ -169,16 +144,14 @@ Backend Variables:
 ## 📈 Next Steps
 
 ### Short Term (1-2 Weeks)
-1. Testing Infrastructure
-   - Set up Jest and React Testing Library
-   - Implement API endpoint testing
-   - Add GitHub Actions for CI/CD
-   - Set up test coverage reporting
-2. Error Handling & Logging
-   - Implement centralized error handling
-   - Add structured logging (Winston)
-   - Set up error monitoring (Sentry)
-   - Add request ID tracking
+1. Tenant Management
+   - Setup tenant backend
+   - setup tenant front end
+2. Cloud storage
+   - build abstraction layer for accessing cloud storage providers
+   - Add Dropbox as storage provider
+   - Add Google Drive as Storage providers
+   - Add Microsoft Drive as storage provider
 
 ### Medium Term (2-4 Weeks)
 1. Security Enhancements
