@@ -1,9 +1,9 @@
-import express from 'express';
-import { checkJwt } from '../middleware/auth';
-import { User } from '../models/user.model';
-import { asyncHandler } from '../utils/async-handler';
-import { ApiError } from '../utils/errors';
-import { logger } from '../utils/logger';
+const express = require('express');
+const { checkJwt } = require('../middleware/auth');
+const { User } = require('../models/user.model');
+const { asyncHandler } = require('../utils/async-handler');
+const { ApiError } = require('../utils/errors');
+const { logger } = require('../utils/logger');
 
 const router = express.Router();
 
@@ -118,4 +118,4 @@ router.get('/me', checkJwt, asyncHandler(async (req, res) => {
   }
 }));
 
-export default router;
+module.exports = router;

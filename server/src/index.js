@@ -6,7 +6,7 @@ const connectDB = require('./config/db');
 const env = require('./config/environment');
 const setupSecurity = require('./middleware/security');
 const { errorHandler } = require('./middleware/errors');
-const routes = require('./routes').default;
+const routes = require('./routes');
 
 const app = express();
 
