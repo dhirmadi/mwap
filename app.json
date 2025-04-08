@@ -1,49 +1,7 @@
 {
   "name": "mwap",
   "description": "Modular Web Application Platform - Review App",
-  "stack": "heroku-24",
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    }
-  ],
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "eco"
-    }
-  },
-  "scripts": {
-    "postdeploy": "bash ./scripts/setup-review.sh"
-  },
   "env": {
-    "AUTH0_DOMAIN": {
-      "required": true
-    },
-    "AUTH0_CLIENT_ID": {
-      "required": true
-    },
-    "AUTH0_CLIENT_SECRET": {
-      "required": true
-    },
-    "AUTH0_AUDIENCE": {
-      "required": true
-    },
-    "VITE_AUTH0_DOMAIN": {
-      "required": true
-    },
-    "VITE_AUTH0_CLIENT_ID": {
-      "required": true
-    },
-    "VITE_AUTH0_AUDIENCE": {
-      "required": true
-    },
-    "MONGO_URI": {
-      "required": true
-    },
-    "MONGO_CLIENT_ENCRYPTION_KEY": {
-      "required": true
-    },
     "NODE_ENV": {
       "value": "production"
     },
@@ -53,15 +11,102 @@
     "LOG_LEVEL": {
       "value": "debug"
     },
+    "STATUS_CHECK_INTERVAL": {
+      "value": "30000"
+    },
+    "WEB_MEMORY": {
+      "value": "512"
+    },
+    "AUTH0_DOMAIN": {
+      "required": true,
+      "description": "Auth0 domain for backend authentication"
+    },
+    "AUTH0_CLIENT_ID": {
+      "required": true,
+      "description": "Auth0 client ID for backend authentication"
+    },
+    "AUTH0_CLIENT_SECRET": {
+      "required": true,
+      "description": "Auth0 client secret for backend authentication"
+    },
+    "AUTH0_AUDIENCE": {
+      "required": true,
+      "description": "Auth0 API identifier"
+    },
+    "MONGO_URI": {
+      "required": true,
+      "description": "MongoDB connection string"
+    },
     "MONGO_ENCRYPTION_KEY_NAME": {
       "value": "review_data_key"
+    },
+    "MONGO_CLIENT_ENCRYPTION_KEY": {
+      "required": true,
+      "description": "MongoDB client-side encryption key"
+    },
+    "VITE_AUTH0_DOMAIN": {
+      "required": true,
+      "description": "Auth0 domain for frontend authentication"
+    },
+    "VITE_AUTH0_CLIENT_ID": {
+      "required": true,
+      "description": "Auth0 client ID for frontend authentication"
+    },
+    "VITE_AUTH0_AUDIENCE": {
+      "required": true,
+      "description": "Auth0 API identifier for frontend"
     }
   },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "bash ./scripts/setup-review.sh"
+  },
+  "stack": "heroku-24",
   "environments": {
     "review": {
       "addons": [],
+      "scripts": {
+        "postdeploy": "bash ./scripts/setup-review.sh"
+      },
       "env": {
-        "NODE_ENV": "production"
+        "NODE_ENV": {
+          "value": "production"
+        },
+        "NPM_CONFIG_PRODUCTION": {
+          "value": "false"
+        },
+        "LOG_LEVEL": {
+          "value": "debug"
+        },
+        "STATUS_CHECK_INTERVAL": {
+          "value": "30000"
+        },
+        "WEB_MEMORY": {
+          "value": "512"
+        },
+        "MONGO_ENCRYPTION_KEY_NAME": {
+          "value": "review_data_key"
+        }
+      }
+    },
+    "test": {
+      "scripts": {
+        "test": "npm run test:ci"
+      },
+      "env": {
+        "NODE_ENV": "test",
+        "NPM_CONFIG_PRODUCTION": "false",
+        "CI": "true"
       }
     }
   }
