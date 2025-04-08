@@ -60,7 +60,7 @@ if (!env.isDevelopment()) {
     }
   };
 
-  const clientPath = path.join(__dirname, '../../client/dist');
+  const clientPath = path.join(__dirname, '../public');
   
   // Serve static files
   app.use(express.static(clientPath, staticOptions));
