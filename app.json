@@ -17,6 +17,10 @@
     "WEB_MEMORY": {
       "value": "512"
     },
+    "PORT": {
+      "required": true,
+      "description": "Port for the server to listen on"
+    },
     "AUTH0_DOMAIN": {
       "required": true,
       "description": "Auth0 domain for backend authentication"
