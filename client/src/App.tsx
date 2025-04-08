@@ -1,75 +1,46 @@
-import { AppShell, Container, Group, Title, Button, Menu } from '@mantine/core';
-import { useAuth0 } from '@auth0/auth0-react';
-import { IconLogout } from '@tabler/icons-react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Home } from './pages/Home';
+import { Layout } from './components/Layout';
+import { RequireAuth } from './components/RequireAuth';
+
+// Public/Onboarding Pages
+import { JoinTenantPage } from './pages/JoinTenantPage';
+import { TenantRequestPage } from './pages/TenantRequestPage';
+import { TenantSelectPage } from './pages/TenantSelectPage';
+
+// Authenticated Pages
+import { TenantDashboardPage } from './pages/TenantDashboardPage';
+import { TenantMembersPage } from './pages/TenantMembersPage';
+import { InvitePage } from './pages/InvitePage';
+import { PendingTenantsPage } from './pages/PendingTenantsPage';
+import { AllTenantsPage } from './pages/AllTenantsPage';
 
 function App() {
-  const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
-
   return (
     <Router>
-      <AppShell
-        header={{ height: 60 }}
-        padding="md"
-      >
-        <AppShell.Header>
-          <Container size="lg">
-            <Group h="100%" px="md" justify="space-between">
-              <Group>
-                <Title order={3} component={Link} to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  MWAP
-                </Title>
-              </Group>
+      <Routes>
+        {/* Public/Onboarding Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/join-tenant" element={<JoinTenantPage />} />
+        <Route path="/request-tenant" element={<TenantRequestPage />} />
+        <Route path="/tenant-select" element={<TenantSelectPage />} />
 
-              {isAuthenticated ? (
-                <Group>
-                  <Menu>
-                    <Menu.Target>
-                      <Button variant="subtle">
-                        <Group>
-                          {user?.picture && (
-                            <img
-                              src={user.picture}
-                              alt={user.name}
-                              style={{
-                                width: '24px',
-                                height: '24px',
-                                borderRadius: '50%',
-                                objectFit: 'cover',
-                              }}
-                            />
-                          )}
-                          {user?.name}
-                        </Group>
-                      </Button>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                      <Menu.Item
-                        onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-                        leftSection={<IconLogout size="1rem" />}
-                        color="red"
-                      >
-                        Logout
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                </Group>
-              ) : (
-                <Button onClick={() => loginWithRedirect()}>
-                  Login
-                </Button>
-              )}
-            </Group>
-          </Container>
-        </AppShell.Header>
+        {/* Authenticated Routes - Protected and Wrapped in Layout */}
+        <Route element={
+          <RequireAuth>
+            <Layout />
+          </RequireAuth>
+        }>
+          {/* Tenant Routes */}
+          <Route path="/dashboard" element={<TenantDashboardPage />} />
+          <Route path="/tenants/:tenantId/members" element={<TenantMembersPage />} />
+          <Route path="/tenants/:tenantId/invite" element={<InvitePage />} />
 
-        <AppShell.Main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-          </Routes>
-        </AppShell.Main>
-      </AppShell>
+          {/* Admin Routes */}
+          <Route path="/admin/tenants/pending" element={<PendingTenantsPage />} />
+          <Route path="/admin/tenants" element={<AllTenantsPage />} />
+        </Route>
+      </Routes>
     </Router>
   );
 }
