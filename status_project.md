@@ -11,8 +11,9 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
 - **Review Apps**: Automatically deployed for pull requests
 
 ### Active Branch
-- Branch: `profilebuilder`
-- Latest Commit: "Removed profile feature for simpler architecture"
+- Branch: `tenantclient`
+- Latest Commit: "Fix API URL interpolation in review apps"
+- Status: Implementing multi-tenant client features
 
 ### Implementation Progress
 
@@ -45,11 +46,15 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
      - Automatic token handling
      - Error interceptors
      - Environment awareness
+     - Refresh token support
+     - Proper error recovery
    - Loading and error states
    - Protected route infrastructure
    - Role-based navigation
    - Tenant context management
    - Auth flow with redirect handling
+   - Multi-tenant dashboard
+   - Tenant-aware API integration
 
 4. **Backend**
    - Express.js server setup
@@ -61,9 +66,15 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
 5. **Deployment**
    - Heroku staging environment
    - Production environment configuration
-   - Review apps with secure configuration
+   - Review apps with:
+     - Secure configuration
+     - Automatic environment setup
+     - Dynamic API URL configuration
+     - Proper buildpack management
    - Environment variable management
    - CORS and security headers
+   - Automated deployment pipeline
+   - Review app cleanup
 
 
 ## 🔧 Technical Stack
@@ -117,6 +128,52 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
 - Secure variable inheritance
 - Regular security audits
 - Dependency updates
+
+## 🔄 Review Apps Status
+
+### Configuration
+- **Naming Pattern**: `mwap-{branch}-{random_id}`
+- **Lifecycle**: Automatically created and destroyed
+- **Environment**: Inherits from staging with branch-specific overrides
+
+### Required Setup
+1. **Buildpacks**:
+   - `heroku/nodejs` for full-stack deployment
+   - Automatically configured via `app.json`
+
+2. **Environment Variables**:
+   - Auth0 configuration
+   - MongoDB connection
+   - API URLs (dynamically set)
+   - Feature flags
+   - Logging settings
+
+3. **Post-deploy Actions**:
+   - Environment validation
+   - Database initialization
+   - Security checks
+
+### Common Issues
+1. **API URL Configuration**:
+   - Must use `${HEROKU_APP_NAME}` in `app.json`
+   - Requires proper interpolation in setup script
+   - Check `VITE_API_URL` setting
+
+2. **Environment Setup**:
+   - Missing variables can cause silent failures
+   - Check `setup-review.sh` execution
+   - Verify buildpack installation
+
+3. **Authentication**:
+   - Auth0 configuration must match main app
+   - Check token refresh settings
+   - Verify callback URLs
+
+### Monitoring
+- GitHub deployment status
+- Heroku build logs
+- Application error tracking
+- Environment variable validation
 
 ## 🚦 Environment Variables Status
 
@@ -206,14 +263,30 @@ Backend Variables:
    - Form validation incomplete
    - Limited accessibility features
    - Animation transitions needed
+   - Tenant switching UX needs work
+   - Role-based feature flags needed
+
 2. Backend needs enhancement
    - No search functionality
    - Limited validation
    - Basic profile management
+   - Tenant data isolation needs review
+   - API rate limiting per tenant
+   - Audit logging for tenant actions
+
 3. Testing coverage is minimal
    - No unit tests
    - No integration tests
    - No end-to-end tests
+   - No tenant isolation tests
+   - Missing API contract tests
+
+4. Review App Deployment
+   - Environment variable inheritance
+   - Dynamic API URL configuration
+   - Auth0 callback URL management
+   - Buildpack initialization
+   - Database seeding for testing
 
 ## 📊 Performance Metrics
 - Build time: ~2 minutes
@@ -222,12 +295,30 @@ Backend Variables:
 - Database queries: ~100ms average
 
 ## 🔄 Recent Updates
-1. Implemented protected route infrastructure
-2. Added role-based navigation system
-3. Created tenant context management
-4. Added placeholder pages for key features
-5. Enhanced authentication flow with proper redirects
-6. Completed tenant backend implementation
+1. Centralized API client implementation
+   - Type-safe integration
+   - Automatic token handling
+   - Error interceptors
+   - Environment awareness
+   - Refresh token support
+
+2. Review App Improvements
+   - Fixed API URL interpolation
+   - Enhanced environment setup
+   - Added deployment documentation
+   - Improved error handling
+
+3. Multi-tenant Features
+   - Tenant dashboard implementation
+   - Role-based UI components
+   - Tenant context management
+   - User profile integration
+
+4. Documentation Updates
+   - Added API documentation
+   - Updated deployment guides
+   - Enhanced troubleshooting guides
+   - Review app setup instructions
 
 ## 📝 Documentation Status
 - README.md updated
