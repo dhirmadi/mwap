@@ -37,7 +37,7 @@ export function useTenantBootstrap(): BootstrapResult {
       const token = await getAccessTokenSilently();
 
       // Fetch user profile
-      const response = await fetch('/api/me', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
