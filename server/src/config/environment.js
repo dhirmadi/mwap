@@ -103,19 +103,24 @@ class Environment {
       return;
     }
 
-    const required = [
-      'mongodb.uri',
-      'mongodb.encryptionKey',
-      'auth0.domain',
-      'auth0.clientId',
-      'auth0.clientSecret',
-      'auth0.audience'
-    ];
+    console.log('Environment validation starting...');
+    console.log('Node ENV:', process.env.NODE_ENV);
+    console.log('Environment Name:', this.getEnvironmentName());
 
-    const missing = required.filter(key => {
-      const value = key.split('.').reduce((obj, k) => obj?.[k], this);
-      return !value;
-    });
+    // Map environment variables to their internal paths
+    const requiredVars = {
+      'MONGO_URI': 'mongodb.uri',
+      'MONGO_CLIENT_ENCRYPTION_KEY': 'mongodb.encryptionKey',
+      'AUTH0_DOMAIN': 'auth0.domain',
+      'AUTH0_CLIENT_ID': 'auth0.clientId',
+      'AUTH0_CLIENT_SECRET': 'auth0.clientSecret',
+      'AUTH0_AUDIENCE': 'auth0.audience'
+    };
+
+    // Check if any required variables are missing
+    const missing = Object.entries(requiredVars)
+      .filter(([envVar, _]) => !process.env[envVar])
+      .map(([_, configPath]) => configPath);
 
     if (missing.length > 0) {
       throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
