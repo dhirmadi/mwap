@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface Tenant {
   tenantId: string;
@@ -78,9 +78,9 @@ export function useTenantBootstrap(): BootstrapResult {
   }, [getAccessTokenSilently]);
 
   // Execute bootstrap on mount
-  useState(() => {
+  useEffect(() => {
     bootstrap();
-  });
+  }, [bootstrap]);
 
   return {
     redirectTo,
