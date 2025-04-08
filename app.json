@@ -73,7 +73,7 @@
     "review": {
       "addons": [],
       "scripts": {
-        "postdeploy": "npm run setup-review"
+        "postdeploy": "bash ./scripts/setup-review.sh"
       },
       "env": {
         "VITE_API_URL": {
