@@ -42,11 +42,14 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
         redirect_uri: window.location.origin,
         audience,
         scope: 'openid profile email offline_access',
+        response_type: 'code',
+        prompt: 'consent',
       }}
       // Enable optimal caching strategy for tokens
       cacheLocation="localstorage"
       // Enable automatic token renewal
       useRefreshTokens={true}
+      useRefreshTokensFallback={true}
       // Handle redirect after login
       onRedirectCallback={onRedirectCallback}
     >
