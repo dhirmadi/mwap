@@ -40,7 +40,11 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
    - React + TypeScript setup with Vite
    - Mantine UI components integration
    - Responsive layout foundation
-   - Type-safe API integration
+   - Centralized API client with:
+     - Type-safe integration
+     - Automatic token handling
+     - Error interceptors
+     - Environment awareness
    - Loading and error states
    - Protected route infrastructure
    - Role-based navigation
@@ -229,4 +233,11 @@ Backend Variables:
 - README.md updated
 - Security documentation added
 - Environment setup guide updated
+- API documentation added (see `/docs/api.md`)
+  - API client usage guide
+  - Available services and endpoints
+  - Error handling patterns
+  - Best practices and examples
+  - Security considerations
+  - Testing guidelines
 - Deployment guide pending
