@@ -5,7 +5,7 @@ import { Navbar } from '../features/tenants/components/Navbar';
  * Authenticated layout component that includes the global navigation bar
  * and wraps all authenticated page content.
  */
-export function Layout() {
+export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Global Navigation */}

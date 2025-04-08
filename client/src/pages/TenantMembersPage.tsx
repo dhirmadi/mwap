@@ -3,7 +3,7 @@ import { MemberList } from '../features/tenants/components/MemberList';
 import { InviteForm } from '../features/tenants/components/InviteForm';
 import { TenantRole } from '../features/tenants/types/tenant.types';
 
-export const TenantMembersPage = () => {
+export default function TenantMembersPage() {
   // In a real app, you'd get these from context or state management
   const tenantId = localStorage.getItem('currentTenantId');
   const userRole = localStorage.getItem('currentTenantRole') as TenantRole;

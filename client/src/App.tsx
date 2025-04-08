@@ -1,19 +1,19 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Home } from './pages/Home';
-import { Layout } from './components/Layout';
-import { RequireAuth } from './components/RequireAuth';
+import Home from './pages/Home';
+import Layout from './components/Layout';
+import RequireAuth from './components/RequireAuth';
 
 // Public/Onboarding Pages
-import { JoinTenantPage } from './pages/JoinTenantPage';
-import { TenantRequestPage } from './pages/TenantRequestPage';
-import { TenantSelectPage } from './pages/TenantSelectPage';
+import JoinTenantPage from './pages/JoinTenantPage';
+import TenantRequestPage from './pages/TenantRequestPage';
+import TenantSelectPage from './pages/TenantSelectPage';
 
 // Authenticated Pages
 import TenantDashboardPage from './pages/TenantDashboardPage';
-import { TenantMembersPage } from './pages/TenantMembersPage';
-import { InvitePage } from './pages/InvitePage';
-import { PendingTenantsPage } from './pages/PendingTenantsPage';
-import { AllTenantsPage } from './pages/AllTenantsPage';
+import TenantMembersPage from './pages/TenantMembersPage';
+import InvitePage from './pages/InvitePage';
+import PendingTenantsPage from './pages/PendingTenantsPage';
+import AllTenantsPage from './pages/AllTenantsPage';
 
 function App() {
   return (

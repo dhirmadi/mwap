@@ -11,7 +11,7 @@ interface RequireAuthProps {
  * Component that protects routes requiring authentication.
  * Handles loading states, errors, and redirects unauthenticated users.
  */
-export function RequireAuth({ children }: RequireAuthProps) {
+export default function RequireAuth({ children }: RequireAuthProps) {
   const {
     isAuthenticated,
     isLoading,

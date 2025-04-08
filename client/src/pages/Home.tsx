@@ -4,7 +4,7 @@ import { useTenantBootstrap } from '../features/tenants/hooks/useTenantBootstrap
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export function Home() {
+export default function Home() {
   const { isAuthenticated, isLoading: authLoading, error: authError, login, logout, user } = useAuth();
   const { redirectTo, isLoading: bootstrapLoading, error: bootstrapError } = useTenantBootstrap();
   const navigate = useNavigate();
