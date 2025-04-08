@@ -1,0 +1,8 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+[remote "origin"]
+	url = /workspace/mwap/.
+	fetch = +refs/*:refs/*
+	mirror = true

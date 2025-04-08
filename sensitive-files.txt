@@ -1,0 +1,15 @@
+.env
+.env.development
+.env.production
+.env.test
+.env.local
+server/.env
+server/.env.development
+server/.env.production
+server/.env.test
+server/.env.local
+client/.env
+client/.env.development
+client/.env.production
+client/.env.test
+client/.env.local
