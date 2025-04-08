@@ -80,7 +80,7 @@
       },
       "env": {
         "VITE_API_URL": {
-          "value": "https://$HEROKU_APP_NAME.herokuapp.com/api"
+          "generator": "https://${HEROKU_APP_NAME}.herokuapp.com/api"
         },
         "NODE_ENV": {
           "value": "production"

@@ -4,10 +4,14 @@ set -e
 # Set up environment variables for the review app
 echo "Setting up review app environment..."
 
-# Ensure API URL is set
+# Ensure API URL is set and properly interpolated
 if [ -z "$VITE_API_URL" ]; then
-  echo "Error: VITE_API_URL is not set"
-  exit 1
+  if [ -z "$HEROKU_APP_NAME" ]; then
+    echo "Error: Neither VITE_API_URL nor HEROKU_APP_NAME is set"
+    exit 1
+  fi
+  VITE_API_URL="https://${HEROKU_APP_NAME}.herokuapp.com/api"
+  echo "Setting VITE_API_URL to: $VITE_API_URL"
 fi
 
 # Create client .env file
