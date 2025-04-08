@@ -10,7 +10,7 @@
     "start": "cd server && npm start",
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && npm install --production=false && npm run build",
-    "build:server": "cd server && npm install",
+    "build:server": "cd server && npm install --production=false",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "dev:client": "cd client && npm run dev",
     "dev:server": "cd server && npm run dev",
@@ -28,9 +28,10 @@
     "setup:server": "cd server && npm install",
     "setup-review": "scripts/setup-review.sh",
     "heroku-prebuild": "chmod +x scripts/setup-env.sh scripts/setup-review.sh",
-    "heroku-postbuild": "npm run build:client && cd server && npm install --production=false",
+    "heroku-postbuild": "npm run build",
     "validate": "npm run lint && npm run test",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "secretlint": "secretlint"
   },
   "cacheDirectories": [
     "client/node_modules",
