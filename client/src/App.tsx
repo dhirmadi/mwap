@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Layout from './components/Layout';
+import AdminLayout from './components/AdminLayout';
 import RequireAuth from './components/RequireAuth';
+import RequireSuperAdmin from './components/RequireSuperAdmin';
 
 // Public/Onboarding Pages
 import JoinTenantPage from './pages/JoinTenantPage';
@@ -25,20 +27,27 @@ function App() {
         <Route path="/request-tenant" element={<TenantRequestPage />} />
         <Route path="/tenant-select" element={<TenantSelectPage />} />
 
-        {/* Authenticated Routes - Protected and Wrapped in Layout */}
+        {/* Admin Routes - Protected and Wrapped in AdminLayout */}
+        <Route element={
+          <RequireAuth>
+            <RequireSuperAdmin>
+              <AdminLayout />
+            </RequireSuperAdmin>
+          </RequireAuth>
+        }>
+          <Route path="/admin/tenants/pending" element={<PendingTenantsPage />} />
+          <Route path="/admin/tenants" element={<AllTenantsPage />} />
+        </Route>
+
+        {/* Tenant Routes - Protected and Wrapped in Layout */}
         <Route element={
           <RequireAuth>
             <Layout />
           </RequireAuth>
         }>
-          {/* Tenant Routes */}
           <Route path="/dashboard" element={<TenantDashboardPage />} />
           <Route path="/tenants/:tenantId/members" element={<TenantMembersPage />} />
           <Route path="/tenants/:tenantId/invite" element={<InvitePage />} />
-
-          {/* Admin Routes */}
-          <Route path="/admin/tenants/pending" element={<PendingTenantsPage />} />
-          <Route path="/admin/tenants" element={<AllTenantsPage />} />
         </Route>
       </Routes>
     </Router>
