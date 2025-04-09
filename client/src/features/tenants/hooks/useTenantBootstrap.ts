@@ -44,43 +44,49 @@ export function useTenantBootstrap(): BootstrapResult {
         signal: abortController.current.signal
       });
 
-      console.debug('User profile response:', response);
-
       const profile = response.data;
       
       // Check for malformed response
       if (!profile) {
-        console.warn('No profile data in response:', response);
+        console.warn('Bootstrap failed: No profile data in response:', response);
         setRedirectTo('/error');
         setIsLoading(false);
         return;
       }
 
-      // Store isSuperAdmin status with safe default
-      localStorage.setItem('isSuperAdmin', JSON.stringify(!!profile.isSuperAdmin));
-
-      // Check super admin status first
+      // [1] SUPER ADMIN CHECK FIRST
       if (profile.isSuperAdmin) {
-        console.debug('User is super admin, redirecting to admin dashboard');
+        console.debug('Bootstrap: Super admin detected, redirecting to admin dashboard');
+        localStorage.setItem('isSuperAdmin', 'true');
+        
+        // Clear any tenant-specific data
+        localStorage.removeItem('currentTenantId');
+        localStorage.removeItem('currentTenantName');
+        localStorage.removeItem('currentTenantRole');
+        localStorage.removeItem('currentTenantStatus');
+        
         setRedirectTo('/admin/tenants/pending');
         setIsLoading(false);
         return;
       }
 
-      // Now check tenant array for regular users
+      // [2] NON-SUPER ADMIN FLOW
+      console.debug('Bootstrap: Regular user detected');
+      localStorage.setItem('isSuperAdmin', 'false');
+
       if (!Array.isArray(profile.tenants)) {
-        console.warn('Malformed tenants array in profile:', profile);
+        console.warn('Bootstrap: Invalid tenants array:', profile.tenants);
         setRedirectTo('/join-tenant');
         setIsLoading(false);
         return;
       }
 
-      // Regular user flow
+      // [3] TENANT ROUTING
       if (profile.tenants.length === 0) {
-        // Users with no tenants go to onboarding
+        console.debug('Bootstrap: User has no tenants');
         setRedirectTo('/onboarding');
       } else if (profile.tenants.length === 1) {
-        // Users with single tenant are automatically placed in that context
+        console.debug('Bootstrap: Single tenant user');
         const tenant = profile.tenants[0];
         localStorage.setItem('currentTenantId', tenant.tenantId);
         localStorage.setItem('currentTenantName', tenant.name);
@@ -88,9 +94,17 @@ export function useTenantBootstrap(): BootstrapResult {
         localStorage.setItem('currentTenantStatus', tenant.status);
         setRedirectTo(`/tenant/${tenant.tenantId}/dashboard`);
       } else {
-        // Users with multiple tenants choose one
+        console.debug('Bootstrap: Multi-tenant user');
         setRedirectTo('/tenant-select');
       }
+
+      // Log final bootstrap state
+      console.debug('Bootstrap complete:', {
+        isSuperAdmin: profile.isSuperAdmin,
+        tenantCount: profile.tenants.length,
+        redirectTo,
+        email: profile.email
+      });
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error occurred'));
       setRedirectTo('/error');
