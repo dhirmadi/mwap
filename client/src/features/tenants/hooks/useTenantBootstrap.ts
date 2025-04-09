@@ -49,9 +49,9 @@ export function useTenantBootstrap(): BootstrapResult {
       const profile = response.data;
       
       // Check for malformed response
-      if (!profile || !Array.isArray(profile.tenants)) {
-        console.warn('Malformed user profile response:', profile);
-        setRedirectTo('/join-tenant');
+      if (!profile) {
+        console.warn('No profile data in response:', response);
+        setRedirectTo('/error');
         setIsLoading(false);
         return;
       }
@@ -59,11 +59,24 @@ export function useTenantBootstrap(): BootstrapResult {
       // Store isSuperAdmin status with safe default
       localStorage.setItem('isSuperAdmin', JSON.stringify(!!profile.isSuperAdmin));
 
-      // Determine redirect path based on profile
+      // Check super admin status first
       if (profile.isSuperAdmin) {
-        // Super admins go to admin dashboard
-        setRedirectTo('/admin');
-      } else if (profile.tenants.length === 0) {
+        console.debug('User is super admin, redirecting to admin dashboard');
+        setRedirectTo('/admin/tenants/pending');
+        setIsLoading(false);
+        return;
+      }
+
+      // Now check tenant array for regular users
+      if (!Array.isArray(profile.tenants)) {
+        console.warn('Malformed tenants array in profile:', profile);
+        setRedirectTo('/join-tenant');
+        setIsLoading(false);
+        return;
+      }
+
+      // Regular user flow
+      if (profile.tenants.length === 0) {
         // Users with no tenants go to onboarding
         setRedirectTo('/onboarding');
       } else if (profile.tenants.length === 1) {

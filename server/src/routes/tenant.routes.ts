@@ -4,12 +4,22 @@ import { asyncHandler } from '../utils/async-handler';
 
 const router = Router();
 
+// Add debug logging to tenant request handler
+const requestTenantWithLogging = async (req, res, next) => {
+  console.log('Tenant creation requested by:', req.user?.auth0Id);
+  return TenantController.requestTenant(req, res, next);
+};
+
 // Public tenant routes (still requires authentication)
-router.post('/tenants/request', asyncHandler(TenantController.requestTenant));
+router.post('/request', asyncHandler(requestTenantWithLogging));
 
 // Admin-only routes
-router.get('/admin/tenants/pending', asyncHandler(TenantController.listPendingTenants));
-router.post('/admin/tenants/:id/approve', asyncHandler(TenantController.approveTenant));
-router.post('/admin/tenants/:id/archive', asyncHandler(TenantController.archiveTenant));
+router.get('/pending', asyncHandler(TenantController.listPendingTenants));
+router.post('/:id/approve', asyncHandler(TenantController.approveTenant));
+router.post('/:id/archive', asyncHandler(TenantController.archiveTenant));
 
-export const tenantRoutes = router;
+// Export both names for compatibility
+module.exports = {
+  tenantRouter: router,
+  tenantRoutes: router
+};
