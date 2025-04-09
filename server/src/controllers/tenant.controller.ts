@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { Tenant, User } from '../models';
 import { AppError } from '../utils/errors';
+import { cacheService } from '../services/cache.service';
 
 export class TenantController {
   /**
@@ -49,6 +50,17 @@ export class TenantController {
           role: 'admin'
         }
       }
+    });
+
+    // Invalidate user's tenant cache
+    await cacheService.invalidateUserTenants(user._id.toString());
+
+    // Cache new tenant data
+    await cacheService.cacheTenant(tenant._id.toString(), {
+      id: tenant._id,
+      name: tenant.name,
+      status: tenant.status,
+      owner: user._id
     });
 
     res.status(201).json({
@@ -103,6 +115,17 @@ export class TenantController {
     tenant.status = 'active';
     await tenant.save();
 
+    // Invalidate tenant cache
+    await cacheService.invalidateTenant(tenant._id.toString());
+
+    // Cache updated tenant data
+    await cacheService.cacheTenant(tenant._id.toString(), {
+      id: tenant._id,
+      name: tenant.name,
+      status: tenant.status,
+      owner: tenant.owner
+    });
+
     res.json({
       message: 'Tenant approved successfully',
       tenant: {
@@ -137,6 +160,19 @@ export class TenantController {
     tenant.archivedAt = new Date();
     tenant.archivedReason = reason;
     await tenant.save();
+
+    // Invalidate tenant cache
+    await cacheService.invalidateTenant(tenant._id.toString());
+
+    // Cache updated tenant data
+    await cacheService.cacheTenant(tenant._id.toString(), {
+      id: tenant._id,
+      name: tenant.name,
+      status: tenant.status,
+      owner: tenant.owner,
+      archivedAt: tenant.archivedAt,
+      archivedReason: tenant.archivedReason
+    });
 
     res.json({
       message: 'Tenant archived successfully',
