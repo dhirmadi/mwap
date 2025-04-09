@@ -1,6 +1,7 @@
 const express = require('express');
 const { checkJwt } = require('../middleware/auth');
 const { User } = require('../models/user.model');
+const { SuperAdmin } = require('../models/super-admin.model');
 const { asyncHandler } = require('../utils/async-handler');
 const { ApiError } = require('../utils/errors');
 const { logger } = require('../utils/logger');
@@ -18,7 +19,7 @@ function validateAuth0Data(auth: any): void {
 }
 
 // Transform user data to API response format
-function transformUserToResponse(user: any, auth0Data: any) {
+async function transformUserToResponse(user: any, auth0Data: any) {
   try {
     const userObj = user.toJSON();
     
@@ -27,12 +28,19 @@ function transformUserToResponse(user: any, auth0Data: any) {
       logger.warn('User missing email field', { userId: user._id });
     }
 
+    // Check if user is a super admin
+    const isSuperAdmin = await SuperAdmin.exists({ auth0Id: auth0Data.sub });
+    logger.debug('Super admin check:', { 
+      auth0Id: auth0Data.sub, 
+      isSuperAdmin: !!isSuperAdmin 
+    });
+
     return {
       id: auth0Data.sub,
       email: userObj.email,
       name: userObj.name || auth0Data.name,
       picture: auth0Data.picture,
-      isSuperAdmin: userObj.tenants.some(t => t.role === 'admin'),
+      isSuperAdmin: !!isSuperAdmin,
       tenants: userObj.tenants.map(t => ({
         tenantId: t.tenantId._id.toString(),
         role: t.role,
@@ -100,7 +108,7 @@ router.get('/me', checkJwt, asyncHandler(async (req, res) => {
     });
 
     // Transform and validate response
-    const response = transformUserToResponse(user, req.auth);
+    const response = await transformUserToResponse(user, req.auth);
 
     // Log performance metrics
     const duration = Date.now() - startTime;
