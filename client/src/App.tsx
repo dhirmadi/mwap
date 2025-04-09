@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Layout from './components/Layout';
 import AdminLayout from './components/AdminLayout';
+import OnboardingLayout from './components/OnboardingLayout';
 import RequireAuth from './components/RequireAuth';
 import RequireSuperAdmin from './components/RequireSuperAdmin';
 
@@ -21,11 +22,19 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public/Onboarding Routes */}
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/join-tenant" element={<JoinTenantPage />} />
-        <Route path="/request-tenant" element={<TenantRequestPage />} />
-        <Route path="/tenant-select" element={<TenantSelectPage />} />
+
+        {/* Onboarding Routes - Protected and Wrapped in OnboardingLayout */}
+        <Route element={
+          <RequireAuth>
+            <OnboardingLayout />
+          </RequireAuth>
+        }>
+          <Route path="/join-tenant" element={<JoinTenantPage />} />
+          <Route path="/request-tenant" element={<TenantRequestPage />} />
+          <Route path="/tenant-select" element={<TenantSelectPage />} />
+        </Route>
 
         {/* Admin Routes - Protected and Wrapped in AdminLayout */}
         <Route element={
