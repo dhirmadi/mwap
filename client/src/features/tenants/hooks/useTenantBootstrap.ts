@@ -29,10 +29,12 @@ export function useTenantBootstrap(): BootstrapResult {
       // Fetch user profile
       const { data: profile } = await api.get<UserProfile>('/users/me');
 
+      // Store isSuperAdmin status
+      localStorage.setItem('isSuperAdmin', JSON.stringify(profile.isSuperAdmin));
+
       // Determine redirect path based on profile
       if (profile.isSuperAdmin) {
         // Super admins go to admin dashboard
-        localStorage.setItem('isSuperAdmin', 'true');
         setRedirectTo('/admin');
       } else if (profile.tenants.length === 0) {
         // Users with no tenants go to onboarding

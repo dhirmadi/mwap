@@ -22,15 +22,25 @@ export function useTenantContext(): TenantContext {
     const tenantId = localStorage.getItem('currentTenantId');
     const tenantName = localStorage.getItem('currentTenantName');
     const role = localStorage.getItem('currentTenantRole') as TenantRole;
-    const isSuperAdminFlag = localStorage.getItem('isSuperAdmin') === 'true';
+    
+    // Get isSuperAdmin directly from localStorage, default to false
+    let isSuperAdmin = false;
+    try {
+      const storedValue = localStorage.getItem('isSuperAdmin');
+      if (storedValue !== null) {
+        isSuperAdmin = JSON.parse(storedValue);
+        // Ensure boolean type
+        isSuperAdmin = Boolean(isSuperAdmin);
+      }
+    } catch (error) {
+      console.error('Error parsing isSuperAdmin from localStorage:', error);
+      // Keep default false value
+    }
 
-    // Determine role flags
+    // Determine role flags for tenant context
     const isAdmin = role === 'admin';
     const isDeputy = role === 'deputy';
     const isContributor = role === 'contributor';
-
-    // Super admin is determined by the flag and no active tenant context
-    const isSuperAdmin = isSuperAdminFlag && !tenantId;
 
     return {
       tenantId,
