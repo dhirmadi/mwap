@@ -2,16 +2,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useApi } from '../../../services/api';
 
-interface Tenant {
-  tenantId: string;
-  name: string;
-  role: 'admin' | 'deputy' | 'contributor';
-}
-
-interface UserProfile {
-  isSuperAdmin: boolean;
-  tenants: Tenant[];
-}
+import { UserProfile } from '../types/tenant.types';
 
 interface BootstrapResult {
   redirectTo: string;
@@ -52,6 +43,7 @@ export function useTenantBootstrap(): BootstrapResult {
         localStorage.setItem('currentTenantId', tenant.tenantId);
         localStorage.setItem('currentTenantName', tenant.name);
         localStorage.setItem('currentTenantRole', tenant.role);
+        localStorage.setItem('currentTenantStatus', tenant.status);
         setRedirectTo(`/tenant/${tenant.tenantId}/dashboard`);
       } else {
         // Users with multiple tenants choose one
