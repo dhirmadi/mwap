@@ -34,11 +34,10 @@ function transformUserToResponse(user: any, auth0Data: any) {
       picture: auth0Data.picture,
       isSuperAdmin: userObj.tenants.some(t => t.role === 'admin'),
       tenants: userObj.tenants.map(t => ({
-        tenantId: t.tenantId.toString(),
+        tenantId: t.tenantId._id.toString(),
         role: t.role,
-        // Include additional tenant info if available
-        name: t.name,
-        status: t.status
+        name: t.tenantId.name,
+        status: t.tenantId.status
       }))
     };
   } catch (error) {
@@ -61,9 +60,10 @@ router.get('/me', checkJwt, asyncHandler(async (req, res) => {
     validateAuth0Data(req.auth);
     const auth0Id = req.auth.sub;
 
-    // Find existing user
+    // Find existing user with populated tenant details
     let user = await User.findOne({ auth0Id })
       .select('+email.value') // Explicitly select encrypted email field
+      .populate('tenants.tenantId', 'name status') // Populate tenant details
       .lean()
       .exec();
 
@@ -87,6 +87,17 @@ router.get('/me', checkJwt, asyncHandler(async (req, res) => {
         throw new ApiError('Failed to create user profile', 500);
       }
     }
+
+    // Log tenant data for debugging
+    logger.debug('User tenant data before transform:', {
+      userId: user._id,
+      tenants: user.tenants.map(t => ({
+        tenantId: t.tenantId?._id,
+        name: t.tenantId?.name,
+        role: t.role,
+        status: t.tenantId?.status
+      }))
+    });
 
     // Transform and validate response
     const response = transformUserToResponse(user, req.auth);
