@@ -95,8 +95,19 @@ const gracefulShutdown = () => {
 process.on('SIGTERM', gracefulShutdown);
 process.on('SIGINT', gracefulShutdown);
 
-// Connect to database
-connectDB();
+// Import seeds
+const { runSeeds } = require('./seeds');
+
+// Connect to database and run seeds
+(async () => {
+  try {
+    await connectDB();
+    await runSeeds();
+  } catch (error) {
+    console.error('Error during startup:', error);
+    process.exit(1);
+  }
+})();
 
 // Start server
 const server = app.listen(env.server.port, () => {
