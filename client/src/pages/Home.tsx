@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const { isAuthenticated, isLoading: authLoading, error: authError, login, logout, user } = useAuth();
-  const { redirectTo, isLoading: bootstrapLoading, error: bootstrapError } = useTenantBootstrap();
+  const { redirectTo, isLoading: bootstrapLoading, error: bootstrapError, retry: retryBootstrap } = useTenantBootstrap();
   const navigate = useNavigate();
 
   // Handle redirect when bootstrap completes
@@ -67,7 +67,7 @@ export default function Home() {
             Please try again. If the problem persists, contact support.
           </Text>
           <Group>
-            <Button onClick={() => window.location.reload()} color="blue">
+            <Button onClick={retryBootstrap} color="blue">
               Retry
             </Button>
             <Button 

@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useApi } from '../../../services/api';
 
 import { UserProfile } from '../types/tenant.types';
@@ -8,6 +8,7 @@ interface BootstrapResult {
   redirectTo: string;
   isLoading: boolean;
   error: Error | null;
+  retry: () => void;
 }
 
 /**
@@ -20,14 +21,26 @@ export function useTenantBootstrap(): BootstrapResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [redirectTo, setRedirectTo] = useState<string>('/');
+  const bootstrapAttempted = useRef(false);
+  const abortController = useRef<AbortController>();
 
   const bootstrap = useCallback(async () => {
     try {
+      // Cancel any existing request
+      if (abortController.current) {
+        abortController.current.abort();
+      }
+      
+      // Create new abort controller for this request
+      abortController.current = new AbortController();
+      
       setIsLoading(true);
       setError(null);
 
-      // Fetch user profile
-      const { data: profile } = await api.get<UserProfile>('/users/me');
+      // Fetch user profile with abort signal
+      const { data: profile } = await api.get<UserProfile>('/users/me', {
+        signal: abortController.current.signal
+      });
 
       // Store isSuperAdmin status
       localStorage.setItem('isSuperAdmin', JSON.stringify(profile.isSuperAdmin));
@@ -61,6 +74,22 @@ export function useTenantBootstrap(): BootstrapResult {
 
   // Execute bootstrap when authenticated
   useEffect(() => {
+    if (isAuthenticated && !bootstrapAttempted.current) {
+      bootstrapAttempted.current = true;
+      bootstrap();
+    }
+
+    return () => {
+      // Cleanup: abort any pending request when component unmounts
+      if (abortController.current) {
+        abortController.current.abort();
+      }
+    };
+  }, [isAuthenticated, bootstrap]);
+
+  // Expose retry function to manually trigger bootstrap
+  const retry = useCallback(() => {
+    bootstrapAttempted.current = false;
     if (isAuthenticated) {
       bootstrap();
     }
@@ -70,5 +99,6 @@ export function useTenantBootstrap(): BootstrapResult {
     redirectTo,
     isLoading,
     error,
+    retry,
   };
 }
