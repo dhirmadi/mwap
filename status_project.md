@@ -155,9 +155,9 @@ MWAP (Modular Web Application Platform) is a full-stack web application built wi
 
 ### Common Issues
 1. **API URL Configuration**:
-   - Must use `${HEROKU_APP_NAME}` in `app.json`
-   - Requires proper interpolation in setup script
-   - Check `VITE_API_URL` setting
+   - Do NOT use generator in app.json (generators are only for random secrets)
+   - Use setup-review.sh to set dynamic URLs
+   - VITE_API_URL should be set in setup-review.sh using HEROKU_APP_NAME
 
 2. **Environment Setup**:
    - Missing variables can cause silent failures
@@ -295,30 +295,30 @@ Backend Variables:
 - Database queries: ~100ms average
 
 ## 🔄 Recent Updates
-1. Centralized API client implementation
-   - Type-safe integration
-   - Automatic token handling
-   - Error interceptors
-   - Environment awareness
-   - Refresh token support
+1. Module System Fixes
+   - Standardized on CommonJS for server-side code
+   - Fixed module import/export inconsistencies
+   - Resolved middleware loading issues
+   - Maintained TypeScript type safety
 
 2. Review App Improvements
-   - Fixed API URL interpolation
-   - Enhanced environment setup
-   - Added deployment documentation
-   - Improved error handling
+   - Fixed API URL configuration (removed invalid generator usage)
+   - Enhanced environment variable validation
+   - Added detailed environment logging
+   - Improved error handling and reporting
+   - Fixed static file serving configuration
 
-3. Multi-tenant Features
-   - Tenant dashboard implementation
-   - Role-based UI components
-   - Tenant context management
-   - User profile integration
+3. Environment Configuration
+   - Added environment validation logging
+   - Improved error messages for missing variables
+   - Fixed environment variable mapping
+   - Enhanced debug information
 
 4. Documentation Updates
-   - Added API documentation
-   - Updated deployment guides
-   - Enhanced troubleshooting guides
-   - Review app setup instructions
+   - Added note about app.json generator limitations
+   - Updated deployment troubleshooting guide
+   - Enhanced environment setup instructions
+   - Added module system documentation
 
 ## 📝 Documentation Status
 - README.md updated

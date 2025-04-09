@@ -88,7 +88,7 @@ A modern, full-stack web application platform built with scalability and modular
 
 ```
 mwap/
-├── client/                 # Frontend application
+├── client/                 # Frontend application (ES Modules)
 │   ├── src/
 │   │   ├── auth/          # Auth0 configuration
 │   │   ├── components/    # React components
@@ -98,18 +98,34 @@ mwap/
 │   │   └── utils/        # Utility functions
 │   └── vite.config.ts    # Vite configuration
 │
-├── server/                # Backend application
+├── server/                # Backend application (CommonJS)
 │   ├── src/
 │   │   ├── config/       # Configuration files
 │   │   ├── controllers/  # Route controllers
 │   │   ├── middleware/   # Custom middleware
 │   │   ├── models/       # Mongoose models
-│   │   ├── routes/       # Express routes
+│   │   ├── routes/       # Express routes (CommonJS)
 │   │   ├── services/     # Business logic
 │   │   └── index.js      # Entry point
 │   └── package.json
 │
 └── package.json          # Root package.json
+
+### Module System
+
+The project uses different module systems for frontend and backend:
+
+1. **Frontend (ES Modules)**
+   - Uses ES Modules (import/export)
+   - TypeScript with type safety
+   - Vite handles module bundling
+   - Modern JavaScript features
+
+2. **Backend (CommonJS)**
+   - Uses CommonJS (require/module.exports)
+   - TypeScript for type checking only
+   - No module bundling needed
+   - Node.js native modules
 ```
 
 ## 🔒 Authentication
@@ -239,19 +255,24 @@ The application uses a Heroku pipeline with review apps, staging, and production
 
 ### Review Apps
 
-Review apps are automatically created for pull requests and configured via `app.json`:
+Review apps are automatically created for pull requests and configured via `app.json` and setup scripts:
 
 1. **Environment**
-   - Dynamic API URL based on app name
-   - Secure environment variables
-   - Temporary database instances
+   - Environment variables defined in app.json
+   - Dynamic values set by setup-review.sh
+   - Secure environment variables from parent app
    - Auth0 integration
 
 2. **Configuration**
-   - `app.json` defines the environment
-   - `setup-review.sh` handles initialization
-   - Environment variables are set automatically
-   - CORS is configured for the review app domain
+   - `app.json`: Static configuration and required variables
+     - Do NOT use generator (only for random secrets)
+     - Define required variables without values
+     - Set static values where appropriate
+   - `setup-review.sh`: Dynamic configuration
+     - Sets VITE_API_URL using HEROKU_APP_NAME
+     - Configures CORS for review app domain
+     - Creates environment files
+   - Environment inheritance from parent app
 
 3. **Testing**
    - Isolated environment for each PR
