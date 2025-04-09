@@ -21,11 +21,33 @@ function validateAuth0Data(auth: any): void {
 // Transform user data to API response format
 async function transformUserToResponse(user: any, auth0Data: any) {
   try {
-    const userObj = user.toJSON();
+    // Handle both Mongoose documents and lean objects
+    const userObj = typeof user.toJSON === 'function' ? user.toJSON() : user;
     
-    // Validate required fields
-    if (!userObj.email) {
-      logger.warn('User missing email field', { userId: user._id });
+    // Debug log the raw user object structure
+    logger.debug('Raw user object:', {
+      userId: userObj._id,
+      hasEmail: !!userObj.email,
+      hasTenants: !!userObj.tenants,
+      tenantsIsArray: Array.isArray(userObj.tenants),
+      tenantsLength: userObj.tenants?.length
+    });
+
+    // Validate and normalize tenants array
+    const tenants = Array.isArray(userObj.tenants) ? userObj.tenants : [];
+    
+    // Log warning if tenants array is missing or malformed
+    if (!userObj.tenants) {
+      logger.warn('User tenants array is missing', { 
+        userId: userObj._id,
+        auth0Id: auth0Data.sub 
+      });
+    } else if (!Array.isArray(userObj.tenants)) {
+      logger.warn('User tenants is not an array', { 
+        userId: userObj._id,
+        auth0Id: auth0Data.sub,
+        tenantsType: typeof userObj.tenants 
+      });
     }
 
     // Check if user is a super admin
@@ -35,23 +57,38 @@ async function transformUserToResponse(user: any, auth0Data: any) {
       isSuperAdmin: !!isSuperAdmin 
     });
 
+    // Safely transform tenant data with null coalescing
+    const transformedTenants = tenants.map(t => {
+      // Log warning if tenant or tenantId is malformed
+      if (!t.tenantId) {
+        logger.warn('Tenant missing tenantId', {
+          userId: userObj._id,
+          tenant: t
+        });
+      }
+
+      return {
+        tenantId: t.tenantId?._id?.toString() ?? t.tenantId?.toString() ?? '',
+        role: t.role ?? 'contributor',
+        name: t.tenantId?.name ?? 'Unknown Tenant',
+        status: t.tenantId?.status ?? 'pending'
+      };
+    });
+
+    // Construct the response with safe fallbacks
     return {
       id: auth0Data.sub,
-      email: userObj.email,
-      name: userObj.name || auth0Data.name,
-      picture: auth0Data.picture,
+      email: userObj.email?.value ?? userObj.email ?? auth0Data.email ?? '',
+      name: userObj.name ?? auth0Data.name ?? 'Unknown User',
+      picture: auth0Data.picture ?? null,
       isSuperAdmin: !!isSuperAdmin,
-      tenants: userObj.tenants.map(t => ({
-        tenantId: t.tenantId._id.toString(),
-        role: t.role,
-        name: t.tenantId.name,
-        status: t.tenantId.status
-      }))
+      tenants: transformedTenants
     };
   } catch (error) {
     logger.error('Error transforming user data', {
       error: error.message,
-      userId: user._id,
+      userId: user?._id,
+      auth0Id: auth0Data?.sub,
       stack: error.stack
     });
     throw new ApiError('Error processing user data', 500);
