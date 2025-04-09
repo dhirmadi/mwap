@@ -1,6 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useApi } from '../../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 import { UserProfile } from '../types/tenant.types';
 
@@ -18,6 +19,7 @@ interface BootstrapResult {
 export function useTenantBootstrap(): BootstrapResult {
   const { isAuthenticated } = useAuth0();
   const api = useApi();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [redirectTo, setRedirectTo] = useState<string>('/');
@@ -37,13 +39,25 @@ export function useTenantBootstrap(): BootstrapResult {
       setIsLoading(true);
       setError(null);
 
-      // Fetch user profile with abort signal
-      const { data: profile } = await api.get<UserProfile>('/users/me', {
+      // Fetch user profile with abort signal and safe response handling
+      const response = await api.get<UserProfile>('/users/me', {
         signal: abortController.current.signal
       });
 
-      // Store isSuperAdmin status
-      localStorage.setItem('isSuperAdmin', JSON.stringify(profile.isSuperAdmin));
+      console.debug('User profile response:', response);
+
+      const profile = response.data;
+      
+      // Check for malformed response
+      if (!profile || !Array.isArray(profile.tenants)) {
+        console.warn('Malformed user profile response:', profile);
+        setRedirectTo('/join-tenant');
+        setIsLoading(false);
+        return;
+      }
+
+      // Store isSuperAdmin status with safe default
+      localStorage.setItem('isSuperAdmin', JSON.stringify(!!profile.isSuperAdmin));
 
       // Determine redirect path based on profile
       if (profile.isSuperAdmin) {
