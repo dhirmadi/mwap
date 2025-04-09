@@ -43,6 +43,7 @@ function YourComponent() {
 
 Located in `src/features/tenants/services/userApi.ts`
 
+#### Get Current User Profile
 ```typescript
 const { data } = await api.get<UserProfile>('/users/me');
 ```
@@ -50,13 +51,26 @@ const { data } = await api.get<UserProfile>('/users/me');
 Response type:
 ```typescript
 interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
-  picture?: string;
-  isSuperAdmin: boolean;
-  tenants: Tenant[];
+  id: string;          // Auth0 user ID
+  email: string;       // User's email address
+  name: string;        // Display name
+  picture?: string;    // Profile picture URL from Auth0
+  isSuperAdmin: boolean; // Super admin status from backend
+  tenants: Array<{     // List of tenant memberships
+    tenantId: string;  // MongoDB ObjectId as string
+    name: string;      // Tenant display name
+    role: 'admin' | 'deputy' | 'contributor'; // User's role in this tenant
+    status: 'active' | 'pending' | 'archived'; // Tenant status
+  }>;
 }
+```
+
+Notes:
+- Requires valid Auth0 token
+- `isSuperAdmin` is determined by the `superadmins` collection
+- Tenant information is populated from the database
+- Returns `404` if user not found
+- Creates new user record if Auth0 user not in database
 ```
 
 ### Tenant Service
@@ -226,14 +240,49 @@ When adding new endpoints:
 1. **Authentication**:
    - All API calls automatically include the Auth0 token
    - Protected routes require valid tokens
+   - Token validation uses Auth0's JWKS endpoint
 
-2. **CORS**:
+2. **Authorization**:
+   - Super admin access controlled by `superadmins` collection
+   - Tenant roles: admin, deputy, contributor
+   - Role-based access control per tenant
+   - Tenant isolation enforced at database level
+
+3. **CORS**:
    - API only accepts requests from allowed origins
    - Set proper CORS headers in development
+   - Review apps use dynamic CORS configuration
 
-3. **Data Validation**:
+4. **Data Validation**:
    - Validate request data before sending
    - Handle response data safely
+   - Type safety with TypeScript interfaces
+
+## Authorization Levels
+
+### Super Admin
+- Determined by presence in `superadmins` collection
+- Has access to global admin features
+- Can manage all tenants
+- Not tied to tenant roles
+
+### Tenant Admin
+- Can manage tenant settings
+- Can invite members
+- Can assign roles
+- Limited to specific tenant
+
+### Tenant Deputy
+- Can manage tenant content
+- Can view member list
+- Cannot modify roles
+- Limited to specific tenant
+
+### Tenant Contributor
+- Basic tenant access
+- Cannot modify settings
+- Cannot view member list
+- Limited to specific tenant
 
 ## Testing API Calls
 
