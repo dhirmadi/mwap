@@ -13,7 +13,7 @@
     "build": "npm run clean && tsc",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "clean": "rimraf dist",
+    "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "prestart": "npm run build"
   },
