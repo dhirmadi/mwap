@@ -1,8 +1,9 @@
 import { AppShell, Container, Group, Title, Button, Menu } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
-import { IconLogout } from '@tabler/icons-react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { IconLogout, IconUser } from '@tabler/icons-react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Home } from './pages/Home';
+import { Profile } from './pages/Profile';
 
 function App() {
   const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
@@ -46,6 +47,13 @@ function App() {
                     </Menu.Target>
                     <Menu.Dropdown>
                       <Menu.Item
+                        component={Link}
+                        to="/user/profile"
+                        leftSection={<IconUser size="1rem" />}
+                      >
+                        Profile
+                      </Menu.Item>
+                      <Menu.Item
                         onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
                         leftSection={<IconLogout size="1rem" />}
                         color="red"
@@ -67,6 +75,7 @@ function App() {
         <AppShell.Main>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/user/profile" element={<Profile />} />
           </Routes>
         </AppShell.Main>
       </AppShell>
