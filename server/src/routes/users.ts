@@ -1,10 +1,10 @@
-const express = require('express');
-const { checkJwt } = require('../middleware/auth');
-const { User } = require('../models/user.model');
-const { SuperAdmin } = require('../models/super-admin.model');
-const { asyncHandler } = require('../utils/async-handler');
-const { ApiError } = require('../utils/errors');
-const { logger } = require('../utils/logger');
+import express, { Request, Response } from 'express';
+import { checkJwt, AuthRequest } from '../middleware/auth.js';
+import { User } from '../models/user.model.js';
+import { SuperAdmin } from '../models/super-admin.model.js';
+import { asyncHandler } from '../utils/async-handler.js';
+import { ApiError } from '../utils/errors.js';
+import { logger } from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -174,4 +174,4 @@ router.get('/me', checkJwt, asyncHandler(async (req, res) => {
   }
 }));
 
-module.exports = router;
+export default router;

@@ -301,6 +301,7 @@ Review apps are automatically created for pull requests and configured via `app.
 - [Project Status](./status_project.md)
 - [Contributing Guidelines](./CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
+- [ESM Migration Guide](./docs/esm-migration.md)
 
 ## 🔐 Security
 

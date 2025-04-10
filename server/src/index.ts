@@ -1,12 +1,17 @@
-require('dotenv').config();
-const express = require('express');
-const path = require('path');
-const compression = require('compression');
-const connectDB = require('./config/db');
-const env = require('./config/environment');
-const setupSecurity = require('./middleware/security');
-const { errorHandler } = require('./middleware/errors');
-const routes = require('./routes');
+import 'dotenv/config';
+import express, { Request, Response, NextFunction } from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import compression from 'compression';
+import { connectDB } from './config/db.js';
+import * as env from './config/environment.js';
+import { setupSecurity } from './middleware/security.js';
+import { errorHandler } from './middleware/errors.js';
+import routes from './routes/index.js';
+
+// ESM __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 

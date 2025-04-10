@@ -2,15 +2,17 @@
   "name": "nwap-mini-server",
   "version": "1.0.0",
   "description": "NWAP Mini Project - Backend",
-  "main": "src/index.js",
+  "type": "module",
+  "main": "src/index.ts",
   "engines": {
     "node": "20.x",
     "npm": "10.x"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "lint": "eslint .",
+    "start": "node --loader ts-node/esm src/index.ts",
+    "dev": "nodemon --exec node --loader ts-node/esm src/index.ts",
+    "build": "tsc",
+    "lint": "eslint . --ext .ts",
     "format": "prettier --write ."
   },
   "dependencies": {
