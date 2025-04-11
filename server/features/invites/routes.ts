@@ -1,6 +1,23 @@
 import { Router } from 'express';
-export const router = Router();
+import { InviteController } from './controller';
+import { withAuth } from '../../middleware/auth';
+import { requireProjectRole } from '../../middleware/tenant';
 
-router.get('/health', (req, res) => {
-  res.json({ ok: true });
-});
+const router = Router();
+
+// Create invite code (requires admin/deputy role)
+router.post(
+  '/invites',
+  withAuth(),
+  requireProjectRole(['admin', 'deputy']),
+  InviteController.createInvite
+);
+
+// Redeem invite code (requires authentication)
+router.post(
+  '/invites/redeem',
+  withAuth(),
+  InviteController.redeemInvite
+);
+
+export { router };
