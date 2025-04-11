@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { InviteCodeModel } from './schema';
-import { ProjectRole } from '../projects/schema';
+import { ProjectRole, ProjectModel } from '../projects/schema';
 
 // Validation schemas
 const createInviteSchema = z.object({
@@ -47,23 +47,98 @@ export class InviteController {
    */
   static async redeemInvite(req: Request, res: Response) {
     try {
+      if (!req.auth?.sub) {
+        return res.status(401).json({
+          message: 'User not authenticated'
+        });
+      }
+
+      const userId = req.auth.sub;
+
       // Validate request body
       const { code } = redeemInviteSchema.parse(req.body);
 
-      // Stub: Redeem invite code
+      // Find and validate invite code
+      const invite = await InviteCodeModel.findOne({ code });
+      if (!invite) {
+        return res.status(404).json({
+          message: 'Invalid invite code'
+        });
+      }
+
+      // Check if invite is expired
+      if (invite.expiresAt < new Date()) {
+        return res.status(400).json({
+          message: 'Invite code has expired'
+        });
+      }
+
+      // Check if invite is already redeemed
+      if (invite.redeemedBy) {
+        return res.status(400).json({
+          message: 'Invite code has already been redeemed'
+        });
+      }
+
+      // Find project and validate
+      const project = await ProjectModel.findById(invite.projectId);
+      if (!project) {
+        return res.status(404).json({
+          message: 'Project not found'
+        });
+      }
+
+      if (project.archived) {
+        return res.status(400).json({
+          message: 'Cannot join archived project'
+        });
+      }
+
+      // Check if user is already a member
+      const existingMember = project.members.find(member => 
+        member.userId.toString() === userId
+      );
+      if (existingMember) {
+        return res.status(400).json({
+          message: 'User is already a member of this project'
+        });
+      }
+
+      // Add user to project members
+      project.members.push({
+        userId: userId as any, // Auth0 ID is string, but Mongoose expects ObjectId
+        role: invite.role
+      });
+      await project.save();
+
+      // Mark invite as redeemed
+      invite.redeemedBy = userId as any; // Auth0 ID is string, but Mongoose expects ObjectId
+      await invite.save();
+
       return res.status(200).json({
         message: 'Invite code redeemed successfully',
-        projectId: 'stub-project-id',
-        role: ProjectRole.CONTRIBUTOR
+        project: {
+          id: project._id,
+          name: project.name,
+          role: invite.role,
+          members: project.members.map(member => ({
+            userId: member.userId,
+            role: member.role
+          }))
+        }
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({
-          message: 'Invalid invite code',
+          message: 'Invalid invite code format',
           errors: error.errors
         });
       }
-      return res.status(500).json({ message: 'Internal server error' });
+      console.error('Error redeeming invite:', error);
+      return res.status(500).json({
+        message: 'Error redeeming invite code',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 }
