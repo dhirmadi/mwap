@@ -7,11 +7,60 @@ export class TenantController {
    * @requires requireNoTenant - User must not already have a tenant
    */
   static async createTenant(req: Request, res: Response) {
-    // Stub: Create tenant for authenticated user
-    return res.status(201).json({
-      message: 'Tenant created successfully',
-      tenantId: 'stub-tenant-id'
-    });
+    try {
+      if (!req.auth?.sub) {
+        return res.status(401).json({
+          message: 'User not authenticated'
+        });
+      }
+
+      const userId = req.auth.sub;
+
+      // Check if user already owns a tenant
+      const existingTenant = await TenantModel.findOne({
+        ownerId: userId,
+        archived: false
+      });
+
+      if (existingTenant) {
+        return res.status(400).json({
+          message: 'User already owns a tenant'
+        });
+      }
+
+      // Validate request body
+      const { name } = req.body;
+      if (!name || typeof name !== 'string' || name.trim().length === 0) {
+        return res.status(400).json({
+          message: 'Invalid tenant name'
+        });
+      }
+
+      // Create new tenant
+      const tenant = await TenantModel.create({
+        ownerId: userId,
+        name: name.trim(),
+        createdAt: new Date(),
+        archived: false
+      });
+
+      return res.status(201).json({
+        message: 'Tenant created successfully',
+        tenant: {
+          id: tenant._id,
+          name: tenant.name,
+          ownerId: tenant.ownerId,
+          createdAt: tenant.createdAt,
+          archived: tenant.archived
+        }
+      });
+    } catch (error) {
+      console.error('Error creating tenant:', error);
+      return res.status(500).json({
+        message: 'Error creating tenant',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   }
 
   /**
