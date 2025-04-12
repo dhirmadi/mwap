@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
+import { TenantModel } from '../tenant/schema';
+import { ProjectModel } from '../projects/schema';
 
 // Validation schema for pagination
 const paginationSchema = z.object({
@@ -88,12 +90,63 @@ export class SuperAdminController {
    * @requires requireSuperAdmin - Only super admins can archive tenants
    */
   static async archiveTenant(req: Request, res: Response) {
-    const { id } = req.params;
+    try {
+      if (!req.auth?.sub) {
+        return res.status(401).json({
+          message: 'User not authenticated'
+        });
+      }
 
-    // Stub: Archive tenant and all its projects
-    return res.status(200).json({
-      message: 'Tenant and all associated projects archived successfully',
-      tenantId: id
-    });
+      const { id: tenantId } = req.params;
+
+      // Find tenant and validate
+      const tenant = await TenantModel.findById(tenantId);
+      if (!tenant) {
+        return res.status(404).json({
+          message: 'Tenant not found'
+        });
+      }
+
+      // Check if tenant is already archived
+      if (tenant.archived) {
+        return res.status(400).json({
+          message: 'Tenant is already archived'
+        });
+      }
+
+      // Archive tenant
+      tenant.archived = true;
+      await tenant.save();
+
+      // Archive all tenant's projects
+      await ProjectModel.updateMany(
+        { tenantId: tenant._id, archived: false },
+        { archived: true }
+      );
+
+      // Get count of archived projects
+      const archivedProjectsCount = await ProjectModel.countDocuments({
+        tenantId: tenant._id,
+        archived: true
+      });
+
+      return res.status(200).json({
+        message: 'Tenant and all associated projects archived successfully',
+        tenant: {
+          id: tenant._id,
+          name: tenant.name,
+          ownerId: tenant.ownerId,
+          archived: tenant.archived,
+          createdAt: tenant.createdAt
+        },
+        archivedProjectsCount
+      });
+    } catch (error) {
+      console.error('Error archiving tenant:', error);
+      return res.status(500).json({
+        message: 'Error archiving tenant',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   }
 }

@@ -71,12 +71,71 @@ export class ProjectController {
    * @requires requireProjectRole('admin') - Only admins can delete project
    */
   static async deleteProject(req: Request, res: Response) {
-    const { id } = req.params;
+    try {
+      if (!req.auth?.sub) {
+        return res.status(401).json({
+          message: 'User not authenticated'
+        });
+      }
 
-    // Stub: Soft-delete project
-    return res.status(200).json({
-      message: 'Project deleted successfully',
-      projectId: id
-    });
+      const currentUserId = req.auth.sub;
+      const { id: projectId } = req.params;
+
+      // Find project and validate
+      const project = await ProjectModel.findById(projectId);
+      if (!project) {
+        return res.status(404).json({
+          message: 'Project not found'
+        });
+      }
+
+      // Check if project is already archived
+      if (project.archived) {
+        return res.status(400).json({
+          message: 'Project is already archived'
+        });
+      }
+
+      // Get current user's role
+      const currentMember = project.members.find(
+        member => member.userId.toString() === currentUserId
+      );
+      if (!currentMember) {
+        return res.status(403).json({
+          message: 'Not a member of this project'
+        });
+      }
+
+      // Only admin can archive project
+      if (currentMember.role !== 'admin') {
+        return res.status(403).json({
+          message: 'Only project admin can archive the project'
+        });
+      }
+
+      // Soft-delete project
+      project.archived = true;
+      await project.save();
+
+      return res.status(200).json({
+        message: 'Project archived successfully',
+        project: {
+          id: project._id,
+          name: project.name,
+          archived: project.archived,
+          createdAt: project.createdAt,
+          members: project.members.map(member => ({
+            userId: member.userId,
+            role: member.role
+          }))
+        }
+      });
+    } catch (error) {
+      console.error('Error archiving project:', error);
+      return res.status(500).json({
+        message: 'Error archiving project',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   }
 }
