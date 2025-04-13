@@ -1,5 +1,12 @@
 import { Request, Response } from 'express';
+import { z } from 'zod';
 import { ProjectModel } from './schema';
+
+// Validation schema for pagination
+const paginationSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20)
+});
 
 export class ProjectController {
   /**
@@ -19,19 +26,68 @@ export class ProjectController {
    * @requires requireProjectRole - Any role can list projects
    */
   static async listProjects(req: Request, res: Response) {
-    // Stub: List all projects user has access to
-    return res.status(200).json({
-      projects: [
-        {
-          id: 'stub-project-1',
-          name: 'Stub Project 1',
-          tenantId: 'stub-tenant-id',
-          members: [{ userId: 'stub-user-id', role: 'admin' }],
-          archived: false,
-          createdAt: new Date()
+    try {
+      if (!req.auth?.sub) {
+        return res.status(401).json({
+          message: 'User not authenticated'
+        });
+      }
+
+      const currentUserId = req.auth.sub;
+
+      // Validate and parse pagination parameters
+      const { page, limit } = paginationSchema.parse(req.query);
+      const skip = (page - 1) * limit;
+
+      // Find all non-archived projects where user is a member
+      const query = {
+        'members.userId': currentUserId,
+        archived: false
+      };
+
+      // Get total count for pagination
+      const total = await ProjectModel.countDocuments(query);
+
+      // Get paginated projects
+      const projects = await ProjectModel.find(query)
+        .sort({ createdAt: -1 }) // Sort by newest first
+        .skip(skip)
+        .limit(limit);
+
+      // Calculate total pages
+      const totalPages = Math.ceil(total / limit);
+
+      return res.status(200).json({
+        projects: projects.map(project => ({
+          id: project._id,
+          name: project.name,
+          tenantId: project.tenantId,
+          createdAt: project.createdAt,
+          members: project.members.map(member => ({
+            userId: member.userId,
+            role: member.role
+          }))
+        })),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages
         }
-      ]
-    });
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          message: 'Invalid pagination parameters',
+          errors: error.errors
+        });
+      }
+      console.error('Error listing projects:', error);
+      return res.status(500).json({
+        message: 'Error listing projects',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
   }
 
   /**
