@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from './useAuth';
-import { api } from '../services/api';
+import { useApi } from '../services/api';
 
 export interface Tenant {
   id: string;
@@ -10,7 +9,7 @@ export interface Tenant {
 }
 
 export function useTenant() {
-  const { getToken } = useAuth();
+  const api = useApi();
   const queryClient = useQueryClient();
 
   const {
@@ -20,13 +19,7 @@ export function useTenant() {
   } = useQuery({
     queryKey: ['tenant'],
     queryFn: async () => {
-      const token = await getToken();
-      if (!token) throw new Error('No token available');
-
-      const response = await api.get<Tenant>('/tenant/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
+      const response = await api.get<Tenant>('/tenant/me');
       console.log('[useTenant] Tenant data:', response.data);
       return response.data;
     }
@@ -34,13 +27,7 @@ export function useTenant() {
 
   const createTenant = useMutation({
     mutationFn: async (name: string) => {
-      const token = await getToken();
-      if (!token) throw new Error('No token available');
-
-      const response = await api.post<Tenant>('/tenant', { name }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
+      const response = await api.post<Tenant>('/tenant', { name });
       console.log('[useTenant] Created tenant:', response.data);
       return response.data;
     },

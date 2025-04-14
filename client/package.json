@@ -9,7 +9,6 @@
   },
   "scripts": {
     "dev": "vite",
-    "prebuild": "test -f .env.production.local && source .env.production.local || true",
     "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

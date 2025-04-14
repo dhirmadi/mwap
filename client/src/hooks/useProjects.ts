@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from './useAuth';
-import { api } from '../services/api';
+import { useApi } from '../services/api';
 
 export interface Project {
   id: string;
@@ -11,7 +10,7 @@ export interface Project {
 }
 
 export function useProjects() {
-  const { getToken } = useAuth();
+  const api = useApi();
 
   const {
     data: projects,
@@ -21,13 +20,7 @@ export function useProjects() {
   } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      const token = await getToken();
-      if (!token) throw new Error('No token available');
-
-      const response = await api.get<Project[]>('/projects', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
+      const response = await api.get<Project[]>('/projects');
       console.log('[useProjects] Projects data:', response.data);
       return response.data;
     }

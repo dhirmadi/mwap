@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from './useAuth';
-import { api } from '../services/api';
+import { useApi } from '../services/api';
 
 interface RedeemInviteResponse {
   projectId: string;
@@ -9,20 +8,13 @@ interface RedeemInviteResponse {
 }
 
 export function useInvites() {
-  const { getToken } = useAuth();
+  const api = useApi();
   const queryClient = useQueryClient();
 
   const redeemInvite = useMutation({
     mutationFn: async (code: string) => {
-      const token = await getToken();
-      if (!token) throw new Error('No token available');
-
       try {
-        const response = await api.post<RedeemInviteResponse>('/invites/redeem', 
-          { code },
-          { headers: { Authorization: `Bearer ${token}` }}
-        );
-        
+        const response = await api.post<RedeemInviteResponse>('/invites/redeem', { code });
         console.log('[RedeemInvite] Success:', response.data);
         return response.data;
       } catch (error: any) {
