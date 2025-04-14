@@ -10,7 +10,8 @@ MWAP uses Heroku's environment variables for all configuration. No local `.env` 
 - `VITE_AUTH0_DOMAIN`: Auth0 domain
 - `VITE_AUTH0_CLIENT_ID`: Auth0 client ID
 - `VITE_AUTH0_AUDIENCE`: Auth0 API audience
-- `VITE_API_URL`: API URL (automatically set for review apps)
+
+Note: API requests are automatically sent to the `/api` path on the same domain, no configuration needed.
 
 #### Backend
 - `AUTH0_DOMAIN`: Auth0 domain

@@ -1,15 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 
-const getApiUrl = () => {
-  const url = import.meta.env.VITE_API_URL;
-  if (!url) {
-    console.warn('API URL not found in environment, using default');
-    return '/api';  // fallback to relative path
-  }
-  console.log('API URL configured as:', url);
-  return url;
-};
+const getApiUrl = () => '/api';
 
 export const useApi = () => {
   const { getAccessTokenSilently } = useAuth0();
