@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../services/api';
+import axios from 'axios';
 
 export interface Tenant {
   id: string;
@@ -19,9 +20,18 @@ export function useTenant() {
   } = useQuery({
     queryKey: ['tenant'],
     queryFn: async () => {
-      const response = await api.get<Tenant>('/tenant/me');
-      console.log('[useTenant] Tenant data:', response.data);
-      return response.data;
+      try {
+        const response = await api.get<Tenant>('/tenant/me');
+        console.log('[useTenant] Tenant data:', response.data);
+        return response.data;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+          // Not an error, just no tenant
+          console.log('[useTenant] No tenant found');
+          return null;
+        }
+        throw error;
+      }
     }
   });
 
