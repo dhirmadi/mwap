@@ -41,7 +41,12 @@ The build process is handled by:
 - `package.json`: Contains build scripts
 - Heroku buildpack: heroku/nodejs
 
-No local environment files or build configuration is needed.
+The build process is fully automated and requires no setup scripts or local configuration:
+1. Heroku automatically sets up the environment
+2. The heroku-postbuild script builds the client and server
+3. The Procfile starts the application
+
+No local environment files, setup scripts, or manual configuration steps are needed.
 
 ### Troubleshooting
 
