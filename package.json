@@ -26,8 +26,6 @@
     "setup": "npm install && npm run setup:client && npm run setup:server",
     "setup:client": "cd client && npm install",
     "setup:server": "cd server && npm install",
-    "setup-review": "scripts/setup-review.sh",
-    "heroku-prebuild": "chmod +x scripts/setup-env.sh scripts/setup-review.sh",
     "heroku-postbuild": "npm run build:client && cd server && npm install --production=false",
     "validate": "npm run lint && npm run test",
     "prepare": "husky install"
