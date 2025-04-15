@@ -7,7 +7,7 @@ export const ProjectController: AsyncController = {
    * Create a new project in the tenant
    * @requires requireTenantOwner - Only tenant owner can create projects
    */
-  async createProject(req: Request, res: Response): Promise<void> {
+  createProject: async (req: Request, res: Response): Promise<void> => {
     // Stub: Create project in tenant
     return res.status(201).json({
       message: 'Project created successfully',
@@ -19,7 +19,7 @@ export const ProjectController: AsyncController = {
    * List all projects in tenant
    * @requires requireProjectRole - Any role can list projects
    */
-  async listProjects(req: Request, res: Response): Promise<void> {
+  listProjects: async (req: Request, res: Response): Promise<void> => {
     // Stub: List all projects user has access to
     return res.status(200).json({
       projects: [
@@ -39,7 +39,7 @@ export const ProjectController: AsyncController = {
    * Get project by ID
    * @requires requireProjectRole - Any role can view project
    */
-  async getProject(req: Request, res: Response): Promise<void> {
+  getProject: async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     // Stub: Return project details
@@ -57,7 +57,7 @@ export const ProjectController: AsyncController = {
    * Update project name or archive status
    * @requires requireProjectRole('admin') - Only admins can update project
    */
-  async updateProject(req: Request, res: Response): Promise<void> {
+  updateProject: async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     // Stub: Update project details
@@ -71,7 +71,7 @@ export const ProjectController: AsyncController = {
    * Delete/archive project
    * @requires requireProjectRole('admin') - Only admins can delete project
    */
-  async deleteProject(req: Request, res: Response): Promise<void> {
+  deleteProject: async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     // Stub: Soft-delete project

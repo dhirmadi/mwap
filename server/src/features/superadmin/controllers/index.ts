@@ -13,7 +13,7 @@ export const SuperAdminController: AsyncController = {
    * List all tenants with pagination
    * @requires requireSuperAdmin - Only super admins can access
    */
-  async listTenants(req: Request, res: Response): Promise<void> {
+  listTenants: async (req: Request, res: Response): Promise<void> => {
     try {
       const { page, limit } = paginationSchema.parse(req.query);
 
@@ -50,7 +50,7 @@ export const SuperAdminController: AsyncController = {
    * List all projects with pagination
    * @requires requireSuperAdmin - Only super admins can access
    */
-  async listProjects(req: Request, res: Response): Promise<void> {
+  listProjects: async (req: Request, res: Response): Promise<void> => {
     try {
       const { page, limit } = paginationSchema.parse(req.query);
 
@@ -88,7 +88,7 @@ export const SuperAdminController: AsyncController = {
    * Archive a tenant (soft-delete)
    * @requires requireSuperAdmin - Only super admins can archive tenants
    */
-  async archiveTenant(req: Request, res: Response): Promise<void> {
+  archiveTenant: async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     // Stub: Archive tenant and all its projects
