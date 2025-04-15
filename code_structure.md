@@ -24,18 +24,47 @@ mwap/
 │
 ├── server/                # Backend application
 │   ├── src/
+│   │   ├── core/         # Core functionality
+│   │   │   ├── logging/  # Logging infrastructure
+│   │   │   │   ├── config.ts   # Winston configuration
+│   │   │   │   ├── logfmt.ts   # Logfmt formatter
+│   │   │   │   └── test.ts     # Logger tests
+│   │   │   ├── middleware/     # Core middleware
+│   │   │   │   ├── auth.ts     # Authentication
+│   │   │   │   ├── error-handler.ts  # Error handling
+│   │   │   │   ├── request-logger.ts # Request logging
+│   │   │   │   ├── transform.ts      # Response transformation
+│   │   │   │   └── validation.ts     # Request validation
+│   │   │   ├── routes/         # Core routes
+│   │   │   │   ├── health.ts   # Health check endpoint
+│   │   │   │   └── index.ts    # Route aggregation
+│   │   │   ├── types/          # Core type definitions
+│   │   │   │   ├── auth.ts     # Auth types
+│   │   │   │   ├── errors.ts   # Error types
+│   │   │   │   ├── responses.ts # Response types
+│   │   │   │   └── index.ts    # Type exports
+│   │   │   └── validation/     # Validation schemas
+│   │   │       └── schemas.ts  # Zod schemas
 │   │   ├── config/       # Configuration management
 │   │   │   ├── db.ts     # Database configuration
 │   │   │   └── environment.ts # Environment configuration
-│   │   ├── middleware/   # Express middleware
-│   │   │   ├── auth.ts   # Authentication middleware
-│   │   │   ├── errors.ts # Error handling
-│   │   │   └── security.ts# Security middleware
-│   │   ├── routes/       # API routes
-│   │   │   ├── index.ts  # Route aggregation
-│   │   │   └── users.ts  # User-related routes
-│   │   ├── types/        # TypeScript type definitions
-│   │   │   └── user.ts   # User-related types
+│   │   ├── features/     # Feature modules
+│   │   │   ├── tenant/  # Tenant management
+│   │   │   │   ├── routes.ts
+│   │   │   │   ├── controller.ts
+│   │   │   │   ├── schema.ts
+│   │   │   │   └── types/
+│   │   │   │       ├── api.ts  # API types
+│   │   │   │       └── index.ts
+│   │   │   ├── projects/      # Project management
+│   │   │   │   └── types/
+│   │   │   │       ├── api.ts
+│   │   │   │       ├── roles.ts
+│   │   │   │       └── project.ts
+│   │   │   ├── invites/       # Invitation system
+│   │   │   │   └── types/
+│   │   │   │       └── api.ts
+│   │   │   └── superadmin/    # Admin features
 │   │   └── index.ts      # Server entry point
 │   └── tsconfig.json     # TypeScript configuration
 │
@@ -67,6 +96,12 @@ mwap/
   - CORS
   - Helmet
 - **Configuration**: Environment-based with validation
+- **Logging & Monitoring**:
+  - Winston logger
+  - Logfmt format
+  - Request tracking
+  - Health monitoring
+  - Memory metrics
 
 ### Infrastructure
 - **Hosting**: Heroku
@@ -110,12 +145,25 @@ mwap/
    - Security headers
    - Request validation
    - Rate limiting
+   - Request logging
+   - Response transformation
 
 3. **API Routes**
    - Modular routing system
    - Type-safe request/response
    - Protected endpoints
    - Error boundary
+   - Health check endpoint
+
+4. **Logging & Monitoring**
+   - Winston logger for Heroku
+   - Logfmt format for parsing
+   - Request ID tracking
+   - High-resolution timing
+   - Memory statistics
+   - Service uptime monitoring
+   - Type-safe logging
+   - Structured metadata
 
 ## Development Workflow
 
