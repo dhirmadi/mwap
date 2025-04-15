@@ -20,7 +20,7 @@ const customFormat = winston.format.combine(
     };
 
     // Add environment metadata
-    logData.env = env.NODE_ENV;
+    logData.env = env.getEnvironment();
     logData.service = 'mwap-server';
 
     // Add any additional metadata
@@ -43,7 +43,7 @@ export const logger = winston.createLogger({
   format: customFormat,
   defaultMeta: {
     service: 'mwap-server',
-    environment: env.NODE_ENV,
+    environment: env.getEnvironment(),
   },
   transports: [
     new winston.transports.Console({
@@ -80,12 +80,13 @@ export const safeStringify = (obj: unknown): string => {
   } catch (error) {
     return '[Unable to stringify value]';
   } finally {
-    seen.clear();
+    // Create a new WeakSet instead of clearing the existing one
+    seen = new WeakSet();
   }
 };
 
 // Set for tracking circular references
-const seen = new WeakSet();
+let seen = new WeakSet();
 
 /**
  * Log levels utility type
