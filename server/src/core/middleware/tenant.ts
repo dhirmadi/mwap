@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
-import { Auth0Request, Role, roleHierarchy, isValidRole } from '@core/middleware/types';
+import { Role, roleHierarchy, isValidRole } from '@core/middleware/types';
+import { AuthRequest } from '@core/types/express';
 import { TenantModel } from '@features/tenant/schemas';
 import { ProjectModel } from '@features/projects/schemas';
 
@@ -7,7 +8,7 @@ import { ProjectModel } from '@features/projects/schemas';
  * Middleware to ensure user doesn't already have a tenant
  */
 export function requireNoTenant() {
-  return async (req: Auth0Request, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
     // Stub: Check if user already has a tenant
     const hasTenant = false;
     if (hasTenant) {
@@ -23,7 +24,7 @@ export function requireNoTenant() {
  * Middleware to ensure user owns the tenant
  */
 export function requireTenantOwner() {
-  return async (req: Auth0Request, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { id: tenantId } = req.params;
     const userId = req.user?.sub;
 
@@ -43,7 +44,7 @@ export function requireTenantOwner() {
  * @param requiredRoles Single role or array of roles that can access
  */
 export function requireProjectRole(requiredRoles?: Role | Role[]) {
-  return async (req: Auth0Request, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { id: projectId } = req.params;
     const userId = req.user?.sub;
 
