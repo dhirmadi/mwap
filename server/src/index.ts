@@ -6,7 +6,7 @@ import { connectDB } from '@core/config/database';
 import { env } from '@core/config/environment';
 import { setupSecurity } from '@core/middleware/security';
 import { errorHandler, notFoundHandler } from '@core/middleware/error';
-import routes from './routes';
+import { router as routes } from './routes';
 import { Server } from 'http';
 
 const app = express();

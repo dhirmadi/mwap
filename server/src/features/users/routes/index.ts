@@ -34,4 +34,4 @@ router.get('/me', auth.validateToken, (req: AuthRequest, res: Response) => {
   }
 });
 
-export default router;
+export { router as userRoutes };

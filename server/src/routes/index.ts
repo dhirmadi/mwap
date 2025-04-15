@@ -1,15 +1,19 @@
 import { Router } from 'express';
-import { router as tenantRoutes } from '@features/tenant/routes';
-import { router as projectRoutes } from '@features/projects/routes';
-import { router as userRoutes } from '@features/users/routes';
-import { router as inviteRoutes } from '@features/invites/routes';
-import { router as adminRoutes } from '@features/superadmin/routes';
+import { tenantRoutes } from '@features/tenant/routes';
+import { projectRoutes } from '@features/projects/routes';
+import { userRoutes } from '@features/users/routes';
+import { inviteRoutes } from '@features/invites/routes';
+import { adminRoutes } from '@features/superadmin/routes';
 
 const router = Router();
 
 // Health check endpoint
 router.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // API routes
