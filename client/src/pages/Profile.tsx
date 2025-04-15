@@ -10,8 +10,16 @@ import {
   Divider,
   Badge,
   Card,
-  SimpleGrid
+  SimpleGrid,
+  Space
 } from '@mantine/core';
+import { TenantStatus } from '../components/TenantStatus';
+import { MyProjects } from '../components/MyProjects';
+import { RedeemInvite } from '../components/RedeemInvite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Create a client
+const queryClient = new QueryClient();
 
 export function Profile() {
   const { user, isLoading } = useAuth0();
@@ -33,63 +41,55 @@ export function Profile() {
   }
 
   return (
-    <Container size="md" py="xl">
-      <Paper shadow="sm" p="xl" radius="md">
-        <Group align="flex-start" mb="xl">
-          <Avatar 
-            src={user.picture} 
-            size="xl" 
-            radius="md"
-            alt={user.name || 'Profile picture'}
-          />
-          <Stack gap="xs">
-            <Title order={2}>{user.name}</Title>
-            <Text size="sm" c="dimmed">{user.email}</Text>
-            {user.email_verified && (
-              <Badge color="green" variant="light">Email Verified</Badge>
+    <QueryClientProvider client={queryClient}>
+      <Container size="md" py="xl">
+        {/* User Profile Section */}
+        <Paper shadow="sm" p="xl" radius="md" mb="xl">
+          <Group align="flex-start" mb="xl">
+            <Avatar 
+              src={user.picture} 
+              size="xl" 
+              radius="md"
+              alt={user.name || 'Profile picture'}
+            />
+            <Stack gap="xs">
+              <Title order={2}>{user.name}</Title>
+              <Text size="sm" c="dimmed">{user.email}</Text>
+              {user.email_verified && (
+                <Badge color="green" variant="light">Email Verified</Badge>
+              )}
+            </Stack>
+          </Group>
+
+          <SimpleGrid cols={1} spacing="md">
+            <Card withBorder padding="md">
+              <Text size="sm" fw={500} c="dimmed" mb="xs">Auth0 ID</Text>
+              <Text>{user.sub}</Text>
+            </Card>
+
+            {user.nickname && (
+              <Card withBorder padding="md">
+                <Text size="sm" fw={500} c="dimmed" mb="xs">Nickname</Text>
+                <Text>{user.nickname}</Text>
+              </Card>
             )}
-          </Stack>
-        </Group>
 
-        <Divider my="lg" />
+            {user.locale && (
+              <Card withBorder padding="md">
+                <Text size="sm" fw={500} c="dimmed" mb="xs">Locale</Text>
+                <Text>{user.locale}</Text>
+              </Card>
+            )}
+          </SimpleGrid>
+        </Paper>
 
-        <SimpleGrid cols={1} spacing="md">
-          <Card withBorder padding="md">
-            <Text size="sm" fw={500} c="dimmed" mb="xs">Auth0 ID</Text>
-            <Text>{user.sub}</Text>
-          </Card>
-
-          {user.nickname && (
-            <Card withBorder padding="md">
-              <Text size="sm" fw={500} c="dimmed" mb="xs">Nickname</Text>
-              <Text>{user.nickname}</Text>
-            </Card>
-          )}
-
-          {user.locale && (
-            <Card withBorder padding="md">
-              <Text size="sm" fw={500} c="dimmed" mb="xs">Locale</Text>
-              <Text>{user.locale}</Text>
-            </Card>
-          )}
-
-          {user.updated_at && (
-            <Card withBorder padding="md">
-              <Text size="sm" fw={500} c="dimmed" mb="xs">Last Updated</Text>
-              <Text>{new Date(user.updated_at).toLocaleString()}</Text>
-            </Card>
-          )}
-        </SimpleGrid>
-
-        <Divider my="lg" label="Raw Profile Data" labelPosition="center" />
-
-        <Card withBorder padding="md">
-          <Text size="sm" fw={500} c="dimmed" mb="xs">Complete Profile JSON</Text>
-          <Text component="pre" style={{ whiteSpace: 'pre-wrap' }}>
-            {JSON.stringify(user, null, 2)}
-          </Text>
-        </Card>
-      </Paper>
-    </Container>
+        {/* Workspace Section */}
+        <Stack spacing="xl">
+          <TenantStatus />
+          <MyProjects />
+          <RedeemInvite />
+        </Stack>
+      </Container>
+    </QueryClientProvider>
   );
 }
