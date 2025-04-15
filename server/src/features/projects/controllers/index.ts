@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { ProjectModel } from './schema';
+import { ProjectModel } from '@features/projects/schemas';
 
 export class ProjectController {
   /**

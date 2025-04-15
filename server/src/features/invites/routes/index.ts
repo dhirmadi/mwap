@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { InviteController } from './controller';
-import { withAuth } from '../../middleware/auth';
-import { requireProjectRole } from '../../middleware/tenant';
+import { InviteController } from '@features/invites/controllers';
+import { auth } from '@core/middleware/auth';
+import { requireProjectRole } from '@core/middleware/tenant';
 
 const router = Router();
 
 // Create invite code (requires admin/deputy role)
 router.post(
   '/invites',
-  withAuth(),
+  auth.validateToken,
   requireProjectRole(['admin', 'deputy']),
   InviteController.createInvite
 );
@@ -16,7 +16,7 @@ router.post(
 // Redeem invite code (requires authentication)
 router.post(
   '/invites/redeem',
-  withAuth(),
+  auth.validateToken,
   InviteController.redeemInvite
 );
 

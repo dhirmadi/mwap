@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { ProjectController } from './controller';
-import { withAuth } from '../../middleware/auth';
-import { requireTenantOwner, requireProjectRole } from '../../middleware/tenant';
+import { ProjectController } from '@features/projects/controllers';
+import { auth } from '@core/middleware/auth';
+import { requireTenantOwner, requireProjectRole } from '@core/middleware/tenant';
 
 const router = Router();
 
 // Create new project (requires tenant owner)
 router.post(
   '/projects',
-  withAuth(),
+  auth.validateToken,
   requireTenantOwner(),
   ProjectController.createProject
 );
@@ -16,7 +16,7 @@ router.post(
 // List all projects user has access to
 router.get(
   '/projects',
-  withAuth(),
+  auth.validateToken,
   requireProjectRole(),
   ProjectController.listProjects
 );
@@ -24,7 +24,7 @@ router.get(
 // Get project by ID
 router.get(
   '/projects/:id',
-  withAuth(),
+  auth.validateToken,
   requireProjectRole(),
   ProjectController.getProject
 );
@@ -32,7 +32,7 @@ router.get(
 // Update project (requires admin role)
 router.patch(
   '/projects/:id',
-  withAuth(),
+  auth.validateToken,
   requireProjectRole('admin'),
   ProjectController.updateProject
 );
@@ -40,7 +40,7 @@ router.patch(
 // Delete project (requires admin role)
 router.delete(
   '/projects/:id',
-  withAuth(),
+  auth.validateToken,
   requireProjectRole('admin'),
   ProjectController.deleteProject
 );

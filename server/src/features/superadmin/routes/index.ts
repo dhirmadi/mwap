@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { SuperAdminController } from './controller';
-import { withAuth } from '../../middleware/auth';
-import { requireSuperAdmin } from '../../middleware/admin';
+import { SuperAdminController } from '@features/superadmin/controllers';
+import { auth } from '@core/middleware/auth';
+import { requireSuperAdmin } from '@core/middleware/admin';
 
 const router = Router();
 
 // List all tenants (paginated)
 router.get(
   '/admin/tenants',
-  withAuth(),
+  auth.validateToken,
   requireSuperAdmin(),
   SuperAdminController.listTenants
 );
@@ -16,7 +16,7 @@ router.get(
 // List all projects (paginated)
 router.get(
   '/admin/projects',
-  withAuth(),
+  auth.validateToken,
   requireSuperAdmin(),
   SuperAdminController.listProjects
 );
@@ -24,7 +24,7 @@ router.get(
 // Archive tenant and all its projects
 router.patch(
   '/admin/tenant/:id/archive',
-  withAuth(),
+  auth.validateToken,
   requireSuperAdmin(),
   SuperAdminController.archiveTenant
 );

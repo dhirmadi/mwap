@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { TenantModel } from './schema';
+import { TenantModel } from '@features/tenant/schemas';
 
 export class TenantController {
   /**

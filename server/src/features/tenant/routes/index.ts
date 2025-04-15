@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { TenantController } from './controller';
-import { auth } from '../../core/middleware/auth';
+import { TenantController } from '@features/tenant/controllers';
+import { auth } from '@core/middleware/auth';
 
 const router = Router();
 

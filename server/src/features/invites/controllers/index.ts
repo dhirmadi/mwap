@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { InviteCodeModel } from './schema';
-import { ProjectRole } from '../projects/schema';
+import { InviteCodeModel } from '@features/invites/schemas';
+import { ProjectRole } from '@features/projects/schemas';
 
 // Validation schemas
 const createInviteSchema = z.object({
