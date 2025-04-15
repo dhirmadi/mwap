@@ -25,7 +25,7 @@ export const connectDB = async (): Promise<void> => {
     };
 
     if (!process.env.MONGO_URI) {
-      throw new Error('MONGODB_URI environment variable is not defined');
+      throw new Error('MONGO_URI environment variable is not defined');
     }
 
     // Connect to MongoDB
