@@ -117,7 +117,7 @@ export const paginationQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).optional(),
   limit: z.string().regex(/^\d+$/).transform(Number).optional(),
   sort: z.string().optional(),
-  order: z.enum(['asc', 'desc']).optional(),
+  order: z.enum(['asc', 'desc'] as const).optional(),
 }).refine(
   data => {
     if (data.page !== undefined && data.page < 1) return false;

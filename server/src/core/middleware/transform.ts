@@ -1,10 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { SuccessResponse, ErrorResponseBase } from '@core/types/responses';
+import { SuccessResponse, ErrorResponseBase, OrderDirection } from '@core/types/responses';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Type guard to check if a response is an error response
  */
+const isValidOrder = (value: string): value is OrderDirection => 
+  ['asc', 'desc'].includes(value);
+
 const isErrorResponse = (body: unknown): body is ErrorResponseBase => {
   return Boolean(
     body &&
@@ -74,7 +77,7 @@ export const transformResponse = (req: Request, res: Response, next: NextFunctio
           page: parsePaginationParam(page),
           limit: parsePaginationParam(limit),
           sort: typeof sort === 'string' ? sort : undefined,
-          order: typeof order === 'string' && ['asc', 'desc'].includes(order) ? order : undefined
+          order: typeof order === 'string' && isValidOrder(order) ? order : undefined
         }
       };
     }

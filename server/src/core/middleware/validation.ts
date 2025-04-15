@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
-import { ValidationErrorResponse } from '@core/types/responses';
+import { AnyZodObject, ZodError, z } from 'zod';
+import { ValidationErrorResponse, OrderDirection } from '@core/types/responses';
 import { v4 as uuidv4 } from 'uuid';
-import { paginationQuerySchema } from '@core/validation/schemas';
 
 /**
  * Creates a middleware function that validates request data against a Zod schema
@@ -38,9 +37,36 @@ export const validateRequest = (schema: AnyZodObject, target: 'body' | 'query' |
 };
 
 /**
+ * Base pagination query schema without refinements
+ */
+export const paginationQueryBaseSchema = z.object({
+  page: z.string().regex(/^\d+$/).transform(Number).optional(),
+  limit: z.string().regex(/^\d+$/).transform(Number).optional(),
+  sort: z.string().optional(),
+  order: z.enum(['asc', 'desc'] as const).optional()
+});
+
+/**
  * Middleware that validates pagination parameters
  */
-export const validatePagination = validateRequest(
-  paginationQuerySchema,
-  'query'
-);
+export const validatePagination = validateRequest(paginationQueryBaseSchema, 'query');
+
+/**
+ * Full pagination validation with refinements
+ */
+export const validatePaginationRefined = (data: unknown) => {
+  return paginationQueryBaseSchema
+    .refine(
+      data => {
+        const page = data.page as number | undefined;
+        const limit = data.limit as number | undefined;
+        if (page !== undefined && page < 1) return false;
+        if (limit !== undefined && (limit < 1 || limit > 100)) return false;
+        return true;
+      },
+      {
+        message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100"
+      }
+    )
+    .parse(data);
+};

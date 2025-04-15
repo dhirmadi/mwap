@@ -34,13 +34,16 @@ export interface DuplicateKeyErrorResponse extends Omit<ErrorResponseBase, 'erro
   };
 }
 
+// Order direction type
+export type OrderDirection = 'asc' | 'desc';
+
 // Pagination metadata interface
 export interface PaginationMeta {
   page?: number;
   limit?: number;
   total?: number;
   sort?: string;
-  order?: 'asc' | 'desc';
+  order?: OrderDirection;
 }
 
 // Base metadata interface
