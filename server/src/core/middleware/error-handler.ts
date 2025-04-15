@@ -2,6 +2,16 @@ import { ErrorRequestHandler } from 'express';
 import { AppError } from '../types/errors';
 import { env } from '../config/environment';
 
+// Declare module augmentation for Express Request
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: {
+      id: string;
+      [key: string]: any;
+    };
+  }
+}
+
 // Simple logger for now - can be replaced with a proper logging service
 const logger = {
   error: (message: string, meta: any) => {
