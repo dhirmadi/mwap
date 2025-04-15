@@ -25,12 +25,12 @@ interface ErrorResponse {
 }
 
 // Error handler middleware
-export const errorHandler: ErrorRequestHandler = (
+export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Response | void => {
   // Log error
   console.error('Error:', {
     name: err.name,
