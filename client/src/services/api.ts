@@ -1,7 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import axios from 'axios';
 
-const getApiUrl = () => '/api';
+const getApiUrl = () => import.meta.env.VITE_API_URL || '/api';
 
 export const useApi = () => {
   const { getAccessTokenSilently } = useAuth0();
