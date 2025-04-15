@@ -9,14 +9,12 @@
   },
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "npm run clean && tsc -p tsconfig.json",
-    "build:prod": "npm run clean && tsc -p tsconfig.prod.json",
+    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "build": "node scripts/build.js",
+    "deploy": "node scripts/deploy.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "clean": "rm -rf dist",
-    "prebuild": "npm run clean",
-    "prestart": "npm run build:prod"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@types/compression": "^1.7.5",
@@ -42,6 +40,7 @@
     "eslint": "^8.57.0",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
-    "ts-node-dev": "^2.0.0"
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0"
   }
 }
