@@ -1,16 +1,29 @@
 import { AppShell, Container, Group, Title, Button, Menu } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 import { IconLogout, IconUser } from '@tabler/icons-react';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 3,
+      refetchOnWindowFocus: true
+    }
+  }
+});
 
 function App() {
   const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
 
   return (
-    <Router>
-      <AppShell
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AppShell
         header={{ height: 60 }}
         padding="md"
       >
@@ -80,6 +93,7 @@ function App() {
         </AppShell.Main>
       </AppShell>
     </Router>
+    </QueryClientProvider>
   );
 }
 
