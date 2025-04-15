@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { auth } from 'express-oauth2-jwt-bearer';
+import { auth as auth0 } from 'express-oauth2-jwt-bearer';
 import { env } from '../../config/environment';
 import { AuthenticationError, AuthorizationError } from '../types/errors';
 import { User, TenantRole } from '../types';
@@ -18,13 +18,13 @@ const authConfig = {
 };
 
 // JWT validation middleware
-export const validateToken = auth(authConfig);
+const validateToken = auth0(authConfig);
 
 // Role validation middleware
-export const requireRoles = (roles: string[]) => {
+const requireRoles = (roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = req.user as User;
+      const user = (req as any).user as User;
       
       if (!user) {
         throw new AuthenticationError('User not authenticated');
@@ -44,10 +44,10 @@ export const requireRoles = (roles: string[]) => {
 };
 
 // Tenant access validation middleware
-export const validateTenantAccess = (requiredRole?: TenantRole) => {
+const validateTenantAccess = (requiredRole?: TenantRole) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = req.user as User;
+      const user = (req as any).user as User;
       const tenantId = req.params.tenantId || req.body.tenantId;
       
       if (!user) {
