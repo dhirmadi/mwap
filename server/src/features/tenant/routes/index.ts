@@ -25,7 +25,7 @@ router.patch(
   TenantController.updateTenant
 );
 
-export { router };
+export { router as tenantRoutes };
 
 router.get('/health', (req, res) => {
   res.json({ ok: true });

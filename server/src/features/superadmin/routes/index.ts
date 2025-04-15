@@ -29,4 +29,4 @@ router.patch(
   SuperAdminController.archiveTenant
 );
 
-export { router };
+export { router as adminRoutes };

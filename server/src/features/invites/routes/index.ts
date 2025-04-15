@@ -20,4 +20,4 @@ router.post(
   InviteController.redeemInvite
 );
 
-export { router };
+export { router as inviteRoutes };

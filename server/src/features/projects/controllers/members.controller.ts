@@ -60,8 +60,8 @@ export class ProjectMemberController {
       }
 
       // Stub: Check if target user has higher role
-      const targetRole = 'admin'; // This would come from DB lookup
-      const currentUserRole = 'deputy'; // This would come from middleware
+      const targetRole: ProjectRole = ProjectRole.ADMIN; // This would come from DB lookup
+      const currentUserRole: ProjectRole = ProjectRole.DEPUTY; // This would come from middleware
       if (
         targetRole === ProjectRole.ADMIN && 
         currentUserRole !== ProjectRole.ADMIN
