@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
-import { ProjectRole } from './schema';
+import { ProjectRole } from '../types';
 
 // Validation schema for role update
 const updateRoleSchema = z.object({
