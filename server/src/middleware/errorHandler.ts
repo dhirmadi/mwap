@@ -30,7 +30,7 @@ export const errorHandler: ErrorRequestHandler = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+) => {
   // Log error
   console.error('Error:', {
     name: err.name,
