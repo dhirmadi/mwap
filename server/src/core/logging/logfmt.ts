@@ -92,13 +92,23 @@ export const logfmtFormat = format((info) => {
   }
 
   // Convert the info object to logfmt format
-  const logfmt = objectToLogfmt({
+  const baseObj: Record<string, unknown> = {
     timestamp: info.timestamp || new Date().toISOString(),
     level: info.level,
     message: info.message,
-    ...info.meta,
-    ...(info.stack ? { error_stack: info.stack } : {}),
-  });
+  };
+
+  // Add metadata if it exists and is an object
+  if (info.meta && typeof info.meta === 'object' && !Array.isArray(info.meta)) {
+    Object.assign(baseObj, info.meta);
+  }
+
+  // Add stack trace if present
+  if (info.stack) {
+    baseObj.error_stack = info.stack;
+  }
+
+  const logfmt = objectToLogfmt(baseObj);
 
   // Assign the formatted string to the message property
   info[Symbol.for('message')] = logfmt;
