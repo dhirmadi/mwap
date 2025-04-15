@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import { InviteCodeModel } from '@features/invites/schemas';
 import { ProjectRole } from '@features/projects/schemas';
+import { AsyncController } from '@core/types/express';
 
 // Validation schemas
 const createInviteSchema = z.object({
@@ -14,12 +15,12 @@ const redeemInviteSchema = z.object({
   code: z.string().min(8).max(32)
 });
 
-export class InviteController {
+export const InviteController: AsyncController = {
   /**
    * Generate a new invite code for a project
    * @requires requireProjectRole('admin' | 'deputy') - Only admins/deputies can create invites
    */
-  static async createInvite(req: Request, res: Response): Promise<void> {
+  async createInvite(req: Request, res: Response): Promise<void> {
     try {
       // Validate request body
       const { projectId, role, expiresIn } = createInviteSchema.parse(req.body);
@@ -45,7 +46,7 @@ export class InviteController {
    * Redeem an invite code to join a project
    * @requires withAuth - User must be authenticated to redeem invite
    */
-  static async redeemInvite(req: Request, res: Response): Promise<void> {
+  async redeemInvite(req: Request, res: Response): Promise<void> {
     try {
       // Validate request body
       const { code } = redeemInviteSchema.parse(req.body);

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
+import { AsyncController } from '@core/types/express';
 
 // Validation schema for pagination
 const paginationSchema = z.object({
@@ -7,12 +8,12 @@ const paginationSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20)
 });
 
-export class SuperAdminController {
+export const SuperAdminController: AsyncController = {
   /**
    * List all tenants with pagination
    * @requires requireSuperAdmin - Only super admins can access
    */
-  static async listTenants(req: Request, res: Response): Promise<void> {
+  async listTenants(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit } = paginationSchema.parse(req.query);
 
@@ -49,7 +50,7 @@ export class SuperAdminController {
    * List all projects with pagination
    * @requires requireSuperAdmin - Only super admins can access
    */
-  static async listProjects(req: Request, res: Response): Promise<void> {
+  async listProjects(req: Request, res: Response): Promise<void> {
     try {
       const { page, limit } = paginationSchema.parse(req.query);
 
@@ -87,7 +88,7 @@ export class SuperAdminController {
    * Archive a tenant (soft-delete)
    * @requires requireSuperAdmin - Only super admins can archive tenants
    */
-  static async archiveTenant(req: Request, res: Response): Promise<void> {
+  async archiveTenant(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
 
     // Stub: Archive tenant and all its projects
