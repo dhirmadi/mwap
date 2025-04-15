@@ -20,7 +20,7 @@ const customFormat = winston.format.combine(
     };
 
     // Add environment metadata
-    logData.env = env.getEnvironment();
+    logData.env = env.getEnvironmentName();
     logData.service = 'mwap-server';
 
     // Add any additional metadata
@@ -43,7 +43,7 @@ export const logger = winston.createLogger({
   format: customFormat,
   defaultMeta: {
     service: 'mwap-server',
-    environment: env.getEnvironment(),
+    environment: env.getEnvironmentName(),
   },
   transports: [
     new winston.transports.Console({
