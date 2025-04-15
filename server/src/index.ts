@@ -85,7 +85,7 @@ if (!env.isDevelopment()) {
 app.use(notFoundHandler);
 
 // Error handling
-app.use(errorHandler);
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => errorHandler(err, req, res, next));
 
 let server: Server;
 

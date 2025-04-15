@@ -25,12 +25,7 @@ interface ErrorResponse {
 }
 
 // Error handler middleware
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Response | void => {
+export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // Log error
   console.error('Error:', {
     name: err.name,
@@ -60,7 +55,8 @@ export const errorHandler = (
       response.error.stack = err.stack;
     }
     
-    return res.status(err.statusCode).json(response);
+    res.status(err.statusCode).json(response);
+    return next();
   }
 
   // Handle validation errors (e.g., from express-validator)
@@ -68,14 +64,16 @@ export const errorHandler = (
     response.error.message = 'Validation Error';
     response.error.code = 'VALIDATION_ERROR';
     response.error.data = err.message;
-    return res.status(400).json(response);
+    res.status(400).json(response);
+    return next();
   }
 
   // Handle JWT errors
   if (err.name === 'UnauthorizedError') {
     response.error.message = 'Invalid or expired token';
     response.error.code = 'INVALID_TOKEN';
-    return res.status(401).json(response);
+    res.status(401).json(response);
+    return next();
   }
 
   // Include stack trace in development for unknown errors
@@ -85,6 +83,7 @@ export const errorHandler = (
 
   // Send response
   res.status(500).json(response);
+  return next();
 };
 
 // Not found handler
