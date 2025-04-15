@@ -108,10 +108,10 @@ server/
 5. Add monitoring
 
 ## 📝 Recent Updates
-- Added API documentation
-- Completed Phase 3 implementation
-- Set up middleware structure
-- Implemented role system
+- Fixed Tenant V2 implementation (see #76)
+- Improved error handling and TypeScript configuration
+- Added comprehensive deployment documentation
+- Set up proper build process for different environments
 
 ## 🐛 Known Issues
 None at this time.
@@ -142,5 +142,10 @@ None at this time.
 
 ## 🚀 Deployment Status
 - Development: Active
+- Review Apps: Active (see [deployment.md](./deployment.md))
 - Staging: Pending
 - Production: Not yet
+
+For detailed deployment information and troubleshooting, see:
+- [Deployment Guide](./deployment.md)
+- [Issue #76: Tenant V2 Implementation Fixes](https://github.com/dhirmadi/mwap/issues/76)
