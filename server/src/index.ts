@@ -2,10 +2,10 @@ import 'dotenv/config';
 import express, { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import path from 'path';
 import compression from 'compression';
-import { connectDB } from './config/db';
-import { env } from './config/environment';
-import { setupSecurity } from './middleware/security';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { connectDB } from '@core/config/database';
+import { env } from '@core/config/environment';
+import { setupSecurity } from '@core/middleware/security';
+import { errorHandler, notFoundHandler } from '@core/middleware/error';
 import routes from './routes';
 import { Server } from 'http';
 

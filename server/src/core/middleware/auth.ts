@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { auth as auth0 } from 'express-oauth2-jwt-bearer';
-import { env } from '../../config/environment';
+import { env } from '@core/config/environment';
 import { AuthenticationError, AuthorizationError } from '../types/errors';
 import { User, TenantRole } from '../types';
 
