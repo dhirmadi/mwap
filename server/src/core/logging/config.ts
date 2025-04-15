@@ -1,35 +1,24 @@
 import winston from 'winston';
 import { env } from '@core/config/environment';
 
+import { logfmtFormat } from './logfmt';
+
 /**
  * Custom format for log output
  * - Adds timestamp
  * - Adds environment metadata
- * - Formats as JSON for better parsing
+ * - Formats in logfmt format
  */
 const customFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.errors({ stack: true }),
-  winston.format.json(),
-  winston.format.printf(({ timestamp, level, message, ...meta }) => {
-    // Basic fields
-    const logData: Record<string, unknown> = {
-      timestamp,
-      level,
-      message,
-    };
-
+  winston.format((info) => {
     // Add environment metadata
-    logData.env = env.getEnvironmentName();
-    logData.service = 'mwap-server';
-
-    // Add any additional metadata
-    if (Object.keys(meta).length > 0) {
-      logData.meta = meta;
-    }
-
-    return JSON.stringify(logData);
-  })
+    info.env = env.getEnvironmentName();
+    info.service = 'mwap-server';
+    return info;
+  })(),
+  logfmtFormat()
 );
 
 /**
