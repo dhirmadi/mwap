@@ -8,13 +8,14 @@ import { ProjectModel } from '@features/projects/schemas';
  * Middleware to ensure user doesn't already have a tenant
  */
 export function requireNoTenant() {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     // Stub: Check if user already has a tenant
     const hasTenant = false;
     if (hasTenant) {
-      return res.status(403).json({
+      res.status(403).json({
         message: 'User already has a tenant'
       });
+      return;
     }
     next();
   };
@@ -24,16 +25,17 @@ export function requireNoTenant() {
  * Middleware to ensure user owns the tenant
  */
 export function requireTenantOwner() {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const { id: tenantId } = req.params;
     const userId = req.user?.sub;
 
     // Stub: Check if user owns the tenant
     const isOwner = false;
     if (!isOwner) {
-      return res.status(403).json({
+      res.status(403).json({
         message: 'Only tenant owner can perform this action'
       });
+      return;
     }
     next();
   };
@@ -44,16 +46,17 @@ export function requireTenantOwner() {
  * @param requiredRoles Single role or array of roles that can access
  */
 export function requireProjectRole(requiredRoles?: Role | Role[]) {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const { id: projectId } = req.params;
     const userId = req.user?.sub;
 
     // Stub: Get user's role in project
     const userRole = 'contributor';
     if (!isValidRole(userRole)) {
-      return res.status(403).json({
+      res.status(403).json({
         message: 'Invalid role'
       });
+      return;
     }
 
     // If specific roles required, check user has one
@@ -65,9 +68,10 @@ export function requireProjectRole(requiredRoles?: Role | Role[]) {
       );
 
       if (!hasRequiredRole) {
-        return res.status(403).json({
+        res.status(403).json({
           message: 'Insufficient permissions for this action'
         });
+        return;
       }
     }
 

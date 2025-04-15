@@ -6,15 +6,16 @@ import { SuperAdminModel } from '@features/superadmin/schemas';
  * Middleware to ensure user is a super admin
  */
 export function requireSuperAdmin() {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     const userId = req.user?.sub;
 
     // Stub: Check if user is super admin
     const isSuperAdmin = false;
     if (!isSuperAdmin) {
-      return res.status(403).json({
+      res.status(403).json({
         message: 'Only super admins can perform this action'
       });
+      return;
     }
     next();
   };
