@@ -26,12 +26,12 @@ export const connectDB = async (): Promise<void> => {
       authSource: 'admin'
     };
 
-    if (!process.env.MONGO_URI) {
-      throw new Error('MONGO_URI environment variable is not defined');
+    if (!process.env.MONGODB_URI) {
+      throw new Error('MONGODB_URI environment variable is not defined');
     }
 
     // Connect to MongoDB
-    const conn = await mongoose.connect(process.env.MONGO_URI, options);
+    const conn = await mongoose.connect(process.env.MONGODB_URI, options);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
 
     // Handle connection events
