@@ -19,7 +19,7 @@ export class InviteController {
    * Generate a new invite code for a project
    * @requires requireProjectRole('admin' | 'deputy') - Only admins/deputies can create invites
    */
-  static async createInvite(req: Request, res: Response) {
+  static async createInvite(req: Request, res: Response): Promise<void> {
     try {
       // Validate request body
       const { projectId, role, expiresIn } = createInviteSchema.parse(req.body);
@@ -45,7 +45,7 @@ export class InviteController {
    * Redeem an invite code to join a project
    * @requires withAuth - User must be authenticated to redeem invite
    */
-  static async redeemInvite(req: Request, res: Response) {
+  static async redeemInvite(req: Request, res: Response): Promise<void> {
     try {
       // Validate request body
       const { code } = redeemInviteSchema.parse(req.body);

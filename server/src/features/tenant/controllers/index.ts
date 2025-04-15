@@ -6,7 +6,7 @@ export class TenantController {
    * Create a new tenant for the authenticated user
    * @requires requireNoTenant - User must not already have a tenant
    */
-  static async createTenant(req: Request, res: Response) {
+  static async createTenant(req: Request, res: Response): Promise<void> {
     // Stub: Create tenant for authenticated user
     return res.status(201).json({
       message: 'Tenant created successfully',
@@ -17,7 +17,7 @@ export class TenantController {
   /**
    * Get the authenticated user's tenant
    */
-  static async getCurrentTenant(req: Request, res: Response) {
+  static async getCurrentTenant(req: Request, res: Response): Promise<void> {
     // Stub: Return current user's tenant
     return res.status(200).json({
       id: 'stub-tenant-id',
@@ -32,7 +32,7 @@ export class TenantController {
    * Update tenant name or archive status
    * @requires requireTenantOwner - Only tenant owner can update
    */
-  static async updateTenant(req: Request, res: Response) {
+  static async updateTenant(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
 
     // Stub: Update tenant name/archive status
