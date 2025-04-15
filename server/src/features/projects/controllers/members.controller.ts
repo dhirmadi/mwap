@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { ProjectRole } from '../types';
+import { ProjectRole, hasHigherOrEqualRole } from '../types';
 import { ValidationError, AuthorizationError } from '@core/types/errors';
 
 // Validation schema for role update
@@ -24,10 +24,10 @@ export class ProjectMemberController {
         throw new AuthorizationError('Cannot modify your own role');
       }
 
-      // Stub: Check if target role is higher than current user's role
-      const currentUserRole = 'admin'; // This would come from middleware
-      if (role === ProjectRole.ADMIN && currentUserRole !== ProjectRole.ADMIN) {
-        throw new AuthorizationError('Cannot promote to a role higher than your own');
+      // Stub: Check if current user can assign the target role
+      const currentUserRole: ProjectRole = ProjectRole.ADMIN; // This would come from middleware
+      if (!hasHigherOrEqualRole(currentUserRole, role)) {
+        throw new AuthorizationError('Cannot assign a role higher than or equal to your own');
       }
 
       // Stub: Update member role
@@ -62,11 +62,10 @@ export class ProjectMemberController {
       // Stub: Check if target user has higher role
       const targetRole: ProjectRole = ProjectRole.ADMIN; // This would come from DB lookup
       const currentUserRole: ProjectRole = ProjectRole.DEPUTY; // This would come from middleware
-      if (
-        targetRole === ProjectRole.ADMIN && 
-        currentUserRole !== ProjectRole.ADMIN
-      ) {
-        throw new AuthorizationError('Cannot remove a member with higher role');
+
+      // Check if current user has sufficient role to remove target user
+      if (!hasHigherOrEqualRole(currentUserRole, targetRole)) {
+        throw new AuthorizationError('Cannot remove a member with higher or equal role');
       }
 
       // Stub: Remove member
