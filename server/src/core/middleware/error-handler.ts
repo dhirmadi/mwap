@@ -1,30 +1,50 @@
-import { ErrorRequestHandler } from 'express';
+import { ErrorRequestHandler, Request } from 'express';
 import { AppError } from '../types/errors';
 import { env } from '../config/environment';
+import {
+  ErrorResponseBase,
+  ValidationErrorResponse,
+  DuplicateKeyErrorResponse,
+  MongoError,
+  MongoValidationError,
+  ValidatorError
+} from '../types/responses';
 
-// Declare module augmentation for Express Request
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: {
-      id: string;
-      [key: string]: any;
-    };
-  }
+// Extend Request type to include user property
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    [key: string]: unknown;
+  };
 }
 
 // Simple logger for now - can be replaced with a proper logging service
 const logger = {
-  error: (message: string, meta: any) => {
+  error: (message: string, meta: Record<string, unknown>) => {
     console.error(message, meta);
   }
 };
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, next): void => {
+// Helper function to generate request ID
+const generateRequestId = (req: AuthenticatedRequest): string => {
+  return (req.headers['x-request-id'] as string) || 
+         (req.headers['x-correlation-id'] as string) || 
+         Math.random().toString(36).substring(7);
+};
+
+// Helper function to create base error response
+const createErrorResponse = (
+  code: string,
+  message: string,
+  requestId: string,
+  data?: unknown
+): ErrorResponseBase => ({
+  error: { code, message, requestId, data }
+});
+
+export const errorHandler: ErrorRequestHandler = (err, req: AuthenticatedRequest, res, next): void => {
   try {
-    // Generate request ID if not present
-    const requestId = req.headers['x-request-id'] || 
-                     req.headers['x-correlation-id'] || 
-                     Math.random().toString(36).substring(7);
+    const requestId = generateRequestId(req);
 
     // Log error with context
     logger.error('Error:', {
@@ -42,79 +62,105 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next): void => 
 
     // Handle AppError instances
     if (err instanceof AppError) {
-      res.status(err.statusCode).json({
-        error: {
-          code: err.code,
-          message: err.message,
-          data: err.data,
-          requestId
-        }
-      });
+      res.status(err.statusCode).json(
+        createErrorResponse(err.code, err.message, requestId, err.data)
+      );
       return;
     }
 
     // Handle validation errors from express-validator
     if (err.array && typeof err.array === 'function') {
-      res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Invalid request parameters',
-          data: err.array(),
-          requestId
-        }
-      });
-      return;
+      try {
+        const validatorError = err as ValidatorError;
+        const errorData = validatorError.array();
+        
+        const response: ValidationErrorResponse = {
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid request parameters',
+            data: errorData.map(e => ({
+              field: e.field,
+              message: e.message
+            })),
+            requestId
+          }
+        };
+        
+        res.status(400).json(response);
+        return;
+      } catch (validationError) {
+        logger.error('Error processing validation error:', { error: validationError });
+        // Fall through to default error handler
+      }
     }
 
     // Handle MongoDB validation errors
     if (err.name === 'ValidationError') {
-      res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Database validation failed',
-          data: Object.values(err.errors).map((e: any) => ({
-            field: e.path,
-            message: e.message
-          })),
-          requestId
-        }
-      });
-      return;
+      try {
+        const mongoError = err as MongoValidationError;
+        const errorData = Object.entries(mongoError.errors).map(([field, error]) => ({
+          field: error.path || field,
+          message: error.message || 'Validation failed'
+        }));
+
+        const response: ValidationErrorResponse = {
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Database validation failed',
+            data: errorData,
+            requestId
+          }
+        };
+
+        res.status(400).json(response);
+        return;
+      } catch (validationError) {
+        logger.error('Error processing MongoDB validation error:', { error: validationError });
+        // Fall through to default error handler
+      }
     }
 
     // Handle MongoDB duplicate key errors
     if (err.code === 11000) {
-      res.status(409).json({
-        error: {
-          code: 'CONFLICT_ERROR',
-          message: 'Duplicate entry',
-          data: {
-            field: Object.keys(err.keyPattern)[0],
-            value: Object.values(err.keyValue)[0]
-          },
-          requestId
-        }
-      });
-      return;
+      try {
+        const mongoError = err as MongoError;
+        const field = mongoError.keyPattern ? Object.keys(mongoError.keyPattern)[0] : 'unknown';
+        const value = mongoError.keyValue ? Object.values(mongoError.keyValue)[0] : 'unknown';
+
+        const response: DuplicateKeyErrorResponse = {
+          error: {
+            code: 'CONFLICT_ERROR',
+            message: 'Duplicate entry',
+            data: { field, value },
+            requestId
+          }
+        };
+
+        res.status(409).json(response);
+        return;
+      } catch (duplicateError) {
+        logger.error('Error processing MongoDB duplicate key error:', { error: duplicateError });
+        // Fall through to default error handler
+      }
     }
 
     // Default error response
-    res.status(500).json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: env.isDevelopment() ? err.message : 'An unexpected error occurred',
+    res.status(500).json(
+      createErrorResponse(
+        'INTERNAL_ERROR',
+        env.isDevelopment() ? err.message : 'An unexpected error occurred',
         requestId
-      }
-    });
+      )
+    );
   } catch (error) {
     // Fallback error handler in case something goes wrong in our error handler
-    logger.error('Error in error handler:', error);
-    res.status(500).json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred',
-        requestId: 'internal_error'
-      }
-    });
+    logger.error('Error in error handler:', { error });
+    res.status(500).json(
+      createErrorResponse(
+        'INTERNAL_ERROR',
+        'An unexpected error occurred',
+        'internal_error'
+      )
+    );
   }
 };
