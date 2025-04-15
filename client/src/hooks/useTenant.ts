@@ -1,57 +1,104 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../services/api';
-import axios from 'axios';
+import { useApi, get, post } from '@/core/api';
+import { AppError } from '@/core/errors';
+import { 
+  Tenant, 
+  TenantResponse, 
+  CreateTenantRequest 
+} from '@/types';
 
-export interface Tenant {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
+/**
+ * Query key for tenant data
+ */
+const TENANT_QUERY_KEY = ['tenant'] as const;
+
+/**
+ * Query configuration for tenant data
+ */
+const TENANT_QUERY_CONFIG = {
+  staleTime: 5 * 60 * 1000, // 5 minutes
+  cacheTime: 30 * 60 * 1000 // 30 minutes
+} as const;
+
+/**
+ * Hook result type
+ */
+export interface UseTenantResult {
+  readonly tenant: Tenant | null;
+  readonly isLoading: boolean;
+  readonly error: AppError | null;
+  readonly createTenant: (data: CreateTenantRequest) => Promise<void>;
+  readonly isCreating: boolean;
+  readonly createError: AppError | null;
 }
 
-export function useTenant() {
+/**
+ * Hook for managing tenant data
+ * 
+ * @example
+ * ```typescript
+ * const { tenant, isLoading, error, createTenant } = useTenant();
+ * 
+ * // Get tenant data
+ * if (isLoading) return <Loading />;
+ * if (error) return <Error error={error} />;
+ * if (!tenant) return <CreateTenant onSubmit={createTenant} />;
+ * return <TenantInfo tenant={tenant} />;
+ * ```
+ */
+export function useTenant(): UseTenantResult {
   const api = useApi();
   const queryClient = useQueryClient();
 
+  // Query for getting tenant data
   const {
-    data: tenant,
+    data: tenantResponse,
     isLoading,
-    error
-  } = useQuery({
-    queryKey: ['tenant'],
+    error: queryError
+  } = useQuery<TenantResponse, AppError>({
+    queryKey: TENANT_QUERY_KEY,
     queryFn: async () => {
       try {
-        const response = await api.get<Tenant>('/tenant/me');
-        console.log('[useTenant] Tenant data:', response.data);
-        return response.data;
+        return await get<TenantResponse>(api, '/tenant/me');
       } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          // Not an error, just no tenant
-          console.log('[useTenant] No tenant found');
-          return null;
+        // Return null for 404 (no tenant)
+        if (error instanceof AppError && error.code === 'NOT_FOUND_ERROR') {
+          return { 
+            data: null,
+            meta: { requestId: 'not-found' }
+          };
         }
         throw error;
       }
-    }
+    },
+    ...TENANT_QUERY_CONFIG
   });
 
-  const createTenant = useMutation({
-    mutationFn: async (name: string) => {
-      const response = await api.post<Tenant>('/tenant', { name });
-      console.log('[useTenant] Created tenant:', response.data);
-      return response.data;
+  // Mutation for creating tenant
+  const mutation = useMutation<
+    TenantResponse,
+    AppError,
+    CreateTenantRequest
+  >({
+    mutationFn: async (data) => {
+      return await post<TenantResponse, CreateTenantRequest>(
+        api,
+        '/tenant',
+        data
+      );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tenant'] });
+      // Invalidate tenant query to refetch
+      queryClient.invalidateQueries({ queryKey: TENANT_QUERY_KEY });
     }
   });
 
   return {
-    tenant,
+    tenant: tenantResponse?.data ?? null,
     isLoading,
-    error,
-    createTenant: createTenant.mutate,
-    isCreating: createTenant.isPending,
-    createError: createTenant.error
+    error: queryError ?? null,
+    createTenant: mutation.mutate,
+    isCreating: mutation.isPending,
+    createError: mutation.error ?? null
   };
 }
