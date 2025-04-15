@@ -5,7 +5,7 @@ import compression from 'compression';
 import { connectDB } from './config/db';
 import { env } from './config/environment';
 import { setupSecurity } from './middleware/security';
-import { errorHandler } from './middleware/errors';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import routes from './routes';
 import { Server } from 'http';
 
@@ -80,6 +80,9 @@ if (!env.isDevelopment()) {
     });
   });
 }
+
+// Handle 404s
+app.use(notFoundHandler);
 
 // Error handling
 app.use(errorHandler);

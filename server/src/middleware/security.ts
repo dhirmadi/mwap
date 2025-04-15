@@ -3,6 +3,7 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { env } from '../config/environment';
+import { constants } from '../config/constants';
 
 // CORS configuration with enhanced security
 const corsOptions: cors.CorsOptions = {
@@ -12,23 +13,17 @@ const corsOptions: cors.CorsOptions = {
       return callback(null, true);
     }
 
-    // Check against allowed patterns
-    const allowedPatterns = [
-      /^http:\/\/localhost:5173$/,
-      /^https:\/\/[a-zA-Z0-9-]+\.herokuapp\.com$/
-    ];
+    // Check against allowed patterns from constants
+    const { allowedOrigins } = constants.security.cors;
 
-    if (allowedPatterns.some(pattern => pattern.test(origin))) {
+    if (allowedOrigins.some(pattern => pattern.test(origin))) {
       return callback(null, true);
     }
 
     // Log blocked requests with helpful information
     console.log('CORS blocked request:', {
       origin,
-      allowedPatterns: [
-        'http://localhost:5173',
-        'https://*.herokuapp.com'
-      ],
+      allowedPatterns: allowedOrigins.map(p => p.toString()),
       appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME
     });
     
@@ -39,7 +34,7 @@ const corsOptions: cors.CorsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['X-Response-Time'],
-  maxAge: 600 // Cache preflight requests for 10 minutes
+  maxAge: constants.security.cors.maxAge
 };
 
 // Rate limiting with different configs for production and development
@@ -120,9 +115,10 @@ export const setupSecurity = (app: Application): void => {
   app.use(cors(corsOptions));
 
   // Rate limiting for different endpoints
-  app.use('/api/auth', createLimiter(15 * 60 * 1000, 25, 'auth:')); // 25 requests per 15 minutes for auth
-  app.use('/api', createLimiter(60 * 1000, 100, 'api:')); // 100 requests per minute for API
-  app.use(createLimiter(60 * 1000, 250)); // 250 requests per minute overall
+  const { rateLimits } = constants.security;
+  app.use('/api/auth', createLimiter(rateLimits.auth.windowMs, rateLimits.auth.max, 'auth:')); // Auth endpoints
+  app.use('/api', createLimiter(rateLimits.api.windowMs, rateLimits.api.max, 'api:')); // API endpoints
+  app.use(createLimiter(rateLimits.global.windowMs, rateLimits.global.max)); // Global rate limit
 
   // Security best practices
   app.disable('x-powered-by');
