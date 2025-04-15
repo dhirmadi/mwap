@@ -26,19 +26,20 @@ export const InviteController: AsyncController = {
       const { projectId, role, expiresIn } = createInviteSchema.parse(req.body);
 
       // Stub: Create invite code
-      return res.status(201).json({
+      res.status(201).json({
         message: 'Invite code created successfully',
         code: 'STUB-INVITE-CODE',
         expiresAt: new Date(Date.now() + (expiresIn || 3600) * 1000)
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({
+        res.status(400).json({
           message: 'Invalid request data',
           errors: error.errors
         });
+      } else {
+        res.status(500).json({ message: 'Internal server error' });
       }
-      return res.status(500).json({ message: 'Internal server error' });
     }
   },
 
@@ -52,19 +53,20 @@ export const InviteController: AsyncController = {
       const { code } = redeemInviteSchema.parse(req.body);
 
       // Stub: Redeem invite code
-      return res.status(200).json({
+      res.status(200).json({
         message: 'Invite code redeemed successfully',
         projectId: 'stub-project-id',
         role: ProjectRole.CONTRIBUTOR
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({
+        res.status(400).json({
           message: 'Invalid invite code',
           errors: error.errors
         });
+      } else {
+        res.status(500).json({ message: 'Internal server error' });
       }
-      return res.status(500).json({ message: 'Internal server error' });
     }
   }
 };

@@ -8,7 +8,7 @@ export interface AuthRequest extends Request {
 export type AsyncRequestHandler = (
   req: AuthRequest,
   res: Response
-) => Promise<Response | void> | Response | void;
+) => Promise<void> | void;
 
 export type AsyncController = {
   [key: string]: AsyncRequestHandler;

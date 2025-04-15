@@ -18,7 +18,7 @@ export const SuperAdminController: AsyncController = {
       const { page, limit } = paginationSchema.parse(req.query);
 
       // Stub: Return paginated list of tenants
-      return res.status(200).json({
+      res.status(200).json({
         tenants: [
           {
             id: 'stub-tenant-1',
@@ -37,12 +37,13 @@ export const SuperAdminController: AsyncController = {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({
+        res.status(400).json({
           message: 'Invalid pagination parameters',
           errors: error.errors
         });
+      } else {
+        res.status(500).json({ message: 'Internal server error' });
       }
-      return res.status(500).json({ message: 'Internal server error' });
     }
   },
 
@@ -55,7 +56,7 @@ export const SuperAdminController: AsyncController = {
       const { page, limit } = paginationSchema.parse(req.query);
 
       // Stub: Return paginated list of projects
-      return res.status(200).json({
+      res.status(200).json({
         projects: [
           {
             id: 'stub-project-1',
@@ -75,12 +76,13 @@ export const SuperAdminController: AsyncController = {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({
+        res.status(400).json({
           message: 'Invalid pagination parameters',
           errors: error.errors
         });
+      } else {
+        res.status(500).json({ message: 'Internal server error' });
       }
-      return res.status(500).json({ message: 'Internal server error' });
     }
   },
 
@@ -92,7 +94,7 @@ export const SuperAdminController: AsyncController = {
     const { id } = req.params;
 
     // Stub: Archive tenant and all its projects
-    return res.status(200).json({
+    res.status(200).json({
       message: 'Tenant and all associated projects archived successfully',
       tenantId: id
     });

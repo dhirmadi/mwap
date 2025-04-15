@@ -9,7 +9,7 @@ export const ProjectController: AsyncController = {
    */
   createProject: async (req: Request, res: Response): Promise<void> => {
     // Stub: Create project in tenant
-    return res.status(201).json({
+    res.status(201).json({
       message: 'Project created successfully',
       projectId: 'stub-project-id'
     });
@@ -21,7 +21,7 @@ export const ProjectController: AsyncController = {
    */
   listProjects: async (req: Request, res: Response): Promise<void> => {
     // Stub: List all projects user has access to
-    return res.status(200).json({
+    res.status(200).json({
       projects: [
         {
           id: 'stub-project-1',
@@ -41,7 +41,7 @@ export const ProjectController: AsyncController = {
     const { id } = req.params;
 
     // Stub: Return project details
-    return res.status(200).json({
+    res.status(200).json({
       id,
       name: 'Stub Project',
       archived: false,
@@ -57,7 +57,7 @@ export const ProjectController: AsyncController = {
     const { id } = req.params;
 
     // Stub: Update project details
-    return res.status(200).json({
+    res.status(200).json({
       message: 'Project updated successfully',
       projectId: id
     });
@@ -71,7 +71,7 @@ export const ProjectController: AsyncController = {
     const { id } = req.params;
 
     // Stub: Soft-delete project
-    return res.status(200).json({
+    res.status(200).json({
       message: 'Project archived successfully',
       projectId: id
     });
