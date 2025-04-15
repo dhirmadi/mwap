@@ -21,9 +21,7 @@ export const connectDB = async (): Promise<void> => {
       serverSelectionTimeoutMS: 5000,
       family: 4,
       retryWrites: true,
-      w: 'majority',
-      ssl: true,
-      authSource: 'admin'
+      w: 'majority'
     };
 
     if (!process.env.MONGODB_URI) {
