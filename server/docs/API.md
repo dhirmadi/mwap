@@ -3,9 +3,47 @@
 ## API Versioning
 All API endpoints are versioned using URL prefixes. The current version is v1.
 
-Example:
+### Base URL
+- Development: `http://localhost:3000/api/v1`
+- Production: `https://api.example.com/api/v1`
+
+### Health Check
+```http
+GET /health
+
+Response 200 OK:
+{
+  "status": "healthy",
+  "timestamp": "2025-04-15T15:30:00.000Z",
+  "uptime": 3600
+}
+```
+
+### Version Redirect
+```http
+GET /api
+
+Response 302 Found:
+Location: /api/v1
+```
+
+### Example Request
 ```http
 GET /api/v1/projects/123/members
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+Content-Type: application/json
+
+Response 200 OK:
+{
+  "data": [{
+    "userId": "user123",
+    "role": "admin",
+    "joinedAt": "2025-01-01T00:00:00.000Z"
+  }],
+  "meta": {
+    "total": 1
+  }
+}
 ```
 
 ## Route Structure
@@ -58,13 +96,134 @@ interface ErrorResponse {
 ```
 
 ### Common Error Codes
-- `VALIDATION_ERROR` (400) - Invalid input data
-- `AUTHENTICATION_ERROR` (401) - Missing or invalid authentication
-- `AUTHORIZATION_ERROR` (403) - Insufficient permissions
-- `NOT_FOUND_ERROR` (404) - Resource not found
-- `CONFLICT_ERROR` (409) - Resource conflict
-- `RATE_LIMIT_ERROR` (429) - Too many requests
-- `INTERNAL_ERROR` (500) - Server error
+
+#### Validation Error (400)
+```http
+POST /api/v1/projects
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "name": ""  // Invalid: empty name
+}
+
+Response 400 Bad Request:
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request parameters",
+    "requestId": "req_123",
+    "data": [{
+      "field": "name",
+      "message": "Name is required"
+    }]
+  }
+}
+```
+
+#### Authentication Error (401)
+```http
+GET /api/v1/projects
+Authorization: Bearer invalid_token
+
+Response 401 Unauthorized:
+{
+  "error": {
+    "code": "AUTHENTICATION_ERROR",
+    "message": "Invalid or expired token",
+    "requestId": "req_124"
+  }
+}
+```
+
+#### Authorization Error (403)
+```http
+PATCH /api/v1/projects/123/members/456
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "role": "admin"
+}
+
+Response 403 Forbidden:
+{
+  "error": {
+    "code": "AUTHORIZATION_ERROR",
+    "message": "Cannot promote to a role higher than your own",
+    "requestId": "req_125"
+  }
+}
+```
+
+#### Not Found Error (404)
+```http
+GET /api/v1/projects/invalid_id
+
+Response 404 Not Found:
+{
+  "error": {
+    "code": "NOT_FOUND_ERROR",
+    "message": "Project not found",
+    "requestId": "req_126"
+  }
+}
+```
+
+#### Conflict Error (409)
+```http
+POST /api/v1/tenant
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "name": "Existing Tenant"
+}
+
+Response 409 Conflict:
+{
+  "error": {
+    "code": "CONFLICT_ERROR",
+    "message": "Tenant already exists",
+    "requestId": "req_127",
+    "data": {
+      "field": "name",
+      "value": "Existing Tenant"
+    }
+  }
+}
+```
+
+#### Rate Limit Error (429)
+```http
+GET /api/v1/projects
+
+Response 429 Too Many Requests:
+{
+  "error": {
+    "code": "RATE_LIMIT_ERROR",
+    "message": "Too many requests. Please try again in 60 seconds",
+    "requestId": "req_128",
+    "data": {
+      "retryAfter": 60
+    }
+  }
+}
+```
+
+#### Internal Error (500)
+```http
+GET /api/v1/projects
+
+Response 500 Internal Server Error:
+{
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "An unexpected error occurred",
+    "requestId": "req_129"
+  }
+}
+```
 
 ## Import Guidelines
 
@@ -105,14 +264,74 @@ Authorization: Bearer <token>
 ## Role-Based Access Control
 
 ### Project Roles
-- `admin` - Full project access
-- `deputy` - Can manage members and content
-- `contributor` - Can contribute content
+
+#### Admin
+- Full project access
+- Can manage project settings
+- Can manage all members
+- Can delete project
+- Can assign any role up to admin
+
+#### Deputy
+- Can manage project content
+- Can manage members (except admins)
+- Can assign contributor role
+- Cannot delete project
+- Cannot modify project settings
+
+#### Contributor
+- Can view project content
+- Can create and edit own content
+- Cannot manage members
+- Cannot modify project settings
 
 ### Tenant Roles
-- `OWNER` - Full tenant access
-- `ADMIN` - Can manage projects and members
-- `MEMBER` - Basic access
+
+#### Owner
+- Full tenant access
+- Can manage tenant settings
+- Can create and delete projects
+- Can manage all members
+- Can transfer ownership
+
+#### Admin
+- Can manage projects
+- Can manage members (except owner)
+- Can invite new members
+- Cannot modify tenant settings
+- Cannot transfer ownership
+
+#### Member
+- Basic access to assigned projects
+- Can view tenant information
+- Cannot manage tenant or projects
+- Cannot invite members
+
+### Role Hierarchy
+
+```typescript
+// Project role hierarchy
+const projectRoleHierarchy = {
+  'admin': 3,
+  'deputy': 2,
+  'contributor': 1
+};
+
+// Tenant role hierarchy
+const tenantRoleHierarchy = {
+  'OWNER': 3,
+  'ADMIN': 2,
+  'MEMBER': 1
+};
+```
+
+### Role Assignment Rules
+
+1. Users can only assign roles equal to or lower than their own
+2. Users cannot modify their own role
+3. Project admins can assign any project role
+4. Tenant owners can assign any tenant role
+5. Role changes are logged for audit purposes
 
 ## Rate Limiting
 
