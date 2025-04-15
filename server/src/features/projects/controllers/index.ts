@@ -13,7 +13,7 @@ export const ProjectController: AsyncController = {
       message: 'Project created successfully',
       projectId: 'stub-project-id'
     });
-  }
+  },
 
   /**
    * List all projects in tenant
@@ -26,14 +26,12 @@ export const ProjectController: AsyncController = {
         {
           id: 'stub-project-1',
           name: 'Stub Project 1',
-          tenantId: 'stub-tenant-id',
-          members: [{ userId: 'stub-user-id', role: 'admin' }],
           archived: false,
           createdAt: new Date()
         }
       ]
     });
-  }
+  },
 
   /**
    * Get project by ID
@@ -46,12 +44,10 @@ export const ProjectController: AsyncController = {
     return res.status(200).json({
       id,
       name: 'Stub Project',
-      tenantId: 'stub-tenant-id',
-      members: [{ userId: 'stub-user-id', role: 'admin' }],
       archived: false,
       createdAt: new Date()
     });
-  }
+  },
 
   /**
    * Update project name or archive status
@@ -65,7 +61,7 @@ export const ProjectController: AsyncController = {
       message: 'Project updated successfully',
       projectId: id
     });
-  }
+  },
 
   /**
    * Delete/archive project
@@ -76,8 +72,8 @@ export const ProjectController: AsyncController = {
 
     // Stub: Soft-delete project
     return res.status(200).json({
-      message: 'Project deleted successfully',
+      message: 'Project archived successfully',
       projectId: id
     });
   }
-}
+};

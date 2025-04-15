@@ -13,7 +13,7 @@ export const TenantController: AsyncController = {
       message: 'Tenant created successfully',
       tenantId: 'stub-tenant-id'
     });
-  }
+  },
 
   /**
    * Get the authenticated user's tenant
@@ -24,10 +24,10 @@ export const TenantController: AsyncController = {
       id: 'stub-tenant-id',
       name: 'Stub Tenant',
       ownerId: 'stub-user-id',
-      createdAt: new Date(),
-      archived: false
+      archived: false,
+      createdAt: new Date()
     });
-  }
+  },
 
   /**
    * Update tenant name or archive status
@@ -42,4 +42,4 @@ export const TenantController: AsyncController = {
       tenantId: id
     });
   }
-}
+};

@@ -44,7 +44,7 @@ export const SuperAdminController: AsyncController = {
       }
       return res.status(500).json({ message: 'Internal server error' });
     }
-  }
+  },
 
   /**
    * List all projects with pagination
@@ -82,7 +82,7 @@ export const SuperAdminController: AsyncController = {
       }
       return res.status(500).json({ message: 'Internal server error' });
     }
-  }
+  },
 
   /**
    * Archive a tenant (soft-delete)
@@ -97,4 +97,4 @@ export const SuperAdminController: AsyncController = {
       tenantId: id
     });
   }
-}
+};

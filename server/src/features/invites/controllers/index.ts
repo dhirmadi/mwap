@@ -40,7 +40,7 @@ export const InviteController: AsyncController = {
       }
       return res.status(500).json({ message: 'Internal server error' });
     }
-  }
+  },
 
   /**
    * Redeem an invite code to join a project
@@ -67,4 +67,4 @@ export const InviteController: AsyncController = {
       return res.status(500).json({ message: 'Internal server error' });
     }
   }
-}
+};
