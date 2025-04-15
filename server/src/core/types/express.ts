@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
+import { User } from '@core/types/auth';
+
+export interface AuthRequest extends Request {
+  user?: User;
+}
 
 export type AsyncRequestHandler = (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ) => Promise<any> | any;
 

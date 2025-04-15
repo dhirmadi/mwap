@@ -1,11 +1,12 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import { auth } from '@core/middleware/auth';
 import { User, Auth0Claims, UserProfile } from '@core/types/auth';
+import { AuthRequest } from '@core/types/express';
 
 const router = express.Router();
 
 // Basic user info endpoint
-router.get('/me', auth.validateToken, (req: Request, res: Response) => {
+router.get('/me', auth.validateToken, (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       res.status(401).json({
