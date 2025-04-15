@@ -4,13 +4,45 @@ Modern web application client built with React, TypeScript, and Vite.
 
 ## Features
 
+### Core Technologies
 - **React 18**: Latest React features and improvements
 - **TypeScript**: Full type safety and better developer experience
 - **Vite**: Fast development server and optimized builds
 - **Auth0**: Secure authentication with PKCE flow
 - **Mantine UI**: Modern UI components and theming
 - **React Router**: Client-side routing
-- **Axios**: Type-safe API client
+
+### API Infrastructure
+- **Type-Safe API Client**: 
+  - Automatic error handling
+  - Request/response type inference
+  - Retry logic with exponential backoff
+  - Auth token management
+  - Request timeout handling
+
+### Error Handling
+- **Centralized Error System**:
+  - Type-safe error hierarchy
+  - Consistent error transformation
+  - Field-level validation errors
+  - Error logging and formatting
+  - Error boundary integration
+
+### Data Management
+- **React Query Integration**:
+  - Automatic caching and revalidation
+  - Optimistic updates
+  - Background refetching
+  - Infinite queries
+  - Mutation handling
+
+### Type Safety
+- **Comprehensive Type System**:
+  - API response types
+  - Error types
+  - Component props
+  - Hook results
+  - Strict null checks
 
 ## Quick Start
 
@@ -35,6 +67,91 @@ Modern web application client built with React, TypeScript, and Vite.
    ```bash
    npm run dev
    ```
+
+## Infrastructure
+
+### API Client
+
+The application uses a centralized API client with the following features:
+
+```typescript
+// Type-safe request methods
+const api = useApi();
+const data = await get<ResponseType>(api, '/endpoint');
+const result = await post<ResponseType, RequestType>(api, '/endpoint', data);
+
+// Automatic error handling
+try {
+  await api.get('/endpoint');
+} catch (error) {
+  // Error is already transformed to AppError
+  if (error instanceof ValidationError) {
+    // Handle validation errors
+  }
+}
+
+// Retry configuration
+const api = useApi({
+  retry: {
+    count: 3,
+    delay: 1000,
+    statusCodes: [408, 429, 500, 502, 503, 504]
+  }
+});
+```
+
+### Error Handling
+
+Centralized error handling system:
+
+```typescript
+// Error hierarchy
+class AppError extends Error {}
+class ApiError extends AppError {}
+class ValidationError extends AppError {}
+class AuthError extends AppError {}
+
+// Error transformation
+const error = handleApiError(unknownError);
+console.error(formatErrorForLogging(error));
+showErrorToast(formatErrorMessage(error));
+
+// Type guards
+if (isValidationError(error)) {
+  const fieldError = error.getFieldError('field');
+}
+```
+
+### Data Management
+
+React Query integration with caching:
+
+```typescript
+// Query configuration
+const QUERY_CONFIG = {
+  tenant: {
+    staleTime: 5 * 60 * 1000,  // 5 minutes
+    cacheTime: 30 * 60 * 1000  // 30 minutes
+  }
+} as const;
+
+// Query hook
+function useTenant() {
+  return useQuery({
+    queryKey: ['tenant'],
+    queryFn: () => get<TenantResponse>(api, '/tenant/me'),
+    ...QUERY_CONFIG.tenant
+  });
+}
+
+// Mutation with cache invalidation
+const mutation = useMutation({
+  mutationFn: (data) => post<Response, Request>(api, '/endpoint', data),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['tenant'] });
+  }
+});
+```
 
 ## Auth0 Integration
 
