@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { env } from '../config/environment';
 
 // Custom error class for API errors
@@ -25,12 +25,12 @@ interface ErrorResponse {
 }
 
 // Error handler middleware
-export const errorHandler = (
+export const errorHandler: ErrorRequestHandler = (
   err: Error,
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   // Log error
   console.error('Error:', {
     name: err.name,
