@@ -1,7 +1,7 @@
 import { Response, NextFunction } from 'express';
 import { Auth0Request, Role, roleHierarchy, isValidRole } from './types';
-import { TenantModel } from '../features/tenant/schema';
-import { ProjectModel } from '../features/projects/schema';
+import { TenantModel } from '@features/tenant/schemas';
+import { ProjectModel } from '@features/projects/schemas';
 
 /**
  * Middleware to ensure user doesn't already have a tenant

@@ -1,5 +1,5 @@
 import { Schema, model, Document, Model, Types } from 'mongoose';
-import { ProjectRole } from '../projects/schema';
+import { ProjectRole } from '@features/projects/schemas';
 
 // TypeScript interfaces
 export interface InviteCode {
