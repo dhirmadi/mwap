@@ -34,15 +34,26 @@ export interface DuplicateKeyErrorResponse extends Omit<ErrorResponseBase, 'erro
   };
 }
 
+// Pagination metadata interface
+export interface PaginationMeta {
+  page?: number;
+  limit?: number;
+  total?: number;
+  sort?: string;
+  order?: 'asc' | 'desc';
+}
+
+// Base metadata interface
+export interface ResponseMetadata {
+  requestId: string;
+  pagination?: PaginationMeta;
+  [key: string]: unknown;
+}
+
 // Success response with generic data type and metadata
 export interface SuccessResponse<T> {
   data: T;
-  meta?: {
-    page?: number;
-    limit?: number;
-    total?: number;
-    [key: string]: unknown;  // More specific than any
-  };
+  meta: ResponseMetadata;
 }
 
 // Union type of all possible API responses

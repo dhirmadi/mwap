@@ -1,3 +1,5 @@
+import { ProjectMember } from './roles';
+
 export interface Project {
   id: string;
   name: string;
