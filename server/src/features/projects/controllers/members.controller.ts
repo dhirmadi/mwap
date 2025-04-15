@@ -1,6 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { ProjectRole } from '../types';
+import { ValidationError, AuthorizationError } from '@core/types/errors';
 
 // Validation schema for role update
 const updateRoleSchema = z.object({
@@ -13,28 +14,24 @@ export class ProjectMemberController {
    * @requires requireProjectRole('admin' | 'deputy') - Only admins/deputies can change roles
    * @requires validateRoleHierarchy - Cannot promote beyond own role
    */
-  static async updateMemberRole(req: Request, res: Response) {
+  static async updateMemberRole(req: Request, res: Response, next: NextFunction) {
     try {
       const { id: projectId, userId } = req.params;
       const { role } = updateRoleSchema.parse(req.body);
 
       // Stub: Check if user is trying to modify themselves
       if (userId === 'current-user-id') {
-        return res.status(403).json({
-          message: 'Cannot modify your own role'
-        });
+        throw new AuthorizationError('Cannot modify your own role');
       }
 
       // Stub: Check if target role is higher than current user's role
       const currentUserRole = 'admin'; // This would come from middleware
       if (role === ProjectRole.ADMIN && currentUserRole !== ProjectRole.ADMIN) {
-        return res.status(403).json({
-          message: 'Cannot promote to a role higher than your own'
-        });
+        throw new AuthorizationError('Cannot promote to a role higher than your own');
       }
 
       // Stub: Update member role
-      return res.status(200).json({
+      res.status(200).json({
         message: 'Member role updated successfully',
         projectId,
         userId,
@@ -42,12 +39,10 @@ export class ProjectMemberController {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          message: 'Invalid role',
-          errors: error.errors
-        });
+        next(new ValidationError('Invalid role', error.errors));
+        return;
       }
-      return res.status(500).json({ message: 'Internal server error' });
+      next(error);
     }
   }
 
@@ -55,33 +50,34 @@ export class ProjectMemberController {
    * Remove member from project
    * @requires requireProjectRole('admin' | 'deputy') - Only admins/deputies can remove members
    */
-  static async removeMember(req: Request, res: Response) {
-    const { id: projectId, userId } = req.params;
+  static async removeMember(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id: projectId, userId } = req.params;
 
-    // Stub: Check if user is trying to remove themselves
-    if (userId === 'current-user-id') {
-      return res.status(403).json({
-        message: 'Cannot remove yourself from project'
+      // Stub: Check if user is trying to remove themselves
+      if (userId === 'current-user-id') {
+        throw new AuthorizationError('Cannot remove yourself from project');
+      }
+
+      // Stub: Check if target user has higher role
+      const targetRole = 'admin'; // This would come from DB lookup
+      const currentUserRole = 'deputy'; // This would come from middleware
+      if (
+        targetRole === ProjectRole.ADMIN && 
+        currentUserRole !== ProjectRole.ADMIN
+      ) {
+        throw new AuthorizationError('Cannot remove a member with higher role');
+      }
+
+      // Stub: Remove member
+      res.status(200).json({
+        message: 'Member removed successfully',
+        projectId,
+        userId
       });
+    } catch (error) {
+      next(error);
     }
-
-    // Stub: Check if target user has higher role
-    const targetRole = 'admin'; // This would come from DB lookup
-    const currentUserRole = 'deputy'; // This would come from middleware
-    if (
-      targetRole === ProjectRole.ADMIN && 
-      currentUserRole !== ProjectRole.ADMIN
-    ) {
-      return res.status(403).json({
-        message: 'Cannot remove a member with higher role'
-      });
-    }
-
-    // Stub: Remove member
-    return res.status(200).json({
-      message: 'Member removed successfully',
-      projectId,
-      userId
-    });
   }
+}
 }

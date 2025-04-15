@@ -1,13 +1,16 @@
 import { Router } from 'express';
 import { ProjectController } from '@features/projects/controllers';
+import { ProjectMemberController } from '@features/projects/controllers/members.controller';
 import { auth } from '@core/middleware/auth';
 import { requireTenantOwner, requireProjectRole } from '@core/middleware/tenant';
 
 const router = Router();
 
+// Project Management Routes
+
 // Create new project (requires tenant owner)
 router.post(
-  '/projects',
+  '/',
   auth.validateToken,
   requireTenantOwner(),
   ProjectController.createProject
@@ -15,7 +18,7 @@ router.post(
 
 // List all projects user has access to
 router.get(
-  '/projects',
+  '/',
   auth.validateToken,
   requireProjectRole(),
   ProjectController.listProjects
@@ -23,7 +26,7 @@ router.get(
 
 // Get project by ID
 router.get(
-  '/projects/:id',
+  '/:id',
   auth.validateToken,
   requireProjectRole(),
   ProjectController.getProject
@@ -31,7 +34,7 @@ router.get(
 
 // Update project (requires admin role)
 router.patch(
-  '/projects/:id',
+  '/:id',
   auth.validateToken,
   requireProjectRole('admin'),
   ProjectController.updateProject
@@ -39,10 +42,28 @@ router.patch(
 
 // Delete project (requires admin role)
 router.delete(
-  '/projects/:id',
+  '/:id',
   auth.validateToken,
   requireProjectRole('admin'),
   ProjectController.deleteProject
 );
 
-export { router };
+// Project Member Management Routes
+
+// Update member role (requires admin/deputy role)
+router.patch(
+  '/:id/members/:userId',
+  auth.validateToken,
+  requireProjectRole(['admin', 'deputy']),
+  ProjectMemberController.updateMemberRole
+);
+
+// Remove member (requires admin/deputy role)
+router.delete(
+  '/:id/members/:userId',
+  auth.validateToken,
+  requireProjectRole(['admin', 'deputy']),
+  ProjectMemberController.removeMember
+);
+
+export { router as projectRoutes };
