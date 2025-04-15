@@ -1,1 +1,1 @@
-web: cd client && rm -rf dist node_modules && npm install && npm run build && cd ../server && rm -rf dist node_modules && npm install && npm run build && NODE_ENV=production npm start
+web: cd client && rm -rf dist node_modules && npm install && npm run build && cd ../server && rm -rf dist node_modules && npm install && NODE_ENV=production npm start
