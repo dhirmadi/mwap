@@ -1,25 +1,26 @@
 import express, { Request, Response } from 'express';
 import { auth } from '@core/middleware/auth';
-import { User } from '@core/types';
+import { User, Auth0Claims, UserProfile } from '@core/types/auth';
 
 const router = express.Router();
 
 // Basic user info endpoint
-router.get('/me', checkJwt, (req: Request, res: Response) => {
+router.get('/me', auth.validateToken, (req: Request, res: Response) => {
   try {
-    if (!req.auth) {
+    if (!req.user) {
       res.status(401).json({
         message: 'No authentication information found'
       });
       return;
     }
 
-    const auth = req.auth as unknown as Auth0Claims;
+    const user = req.user as unknown as Auth0Claims;
     const userProfile: UserProfile = {
-      id: auth.sub,
-      email: auth.email,
-      name: auth.name,
-      picture: auth.picture
+      id: user.sub,
+      email: user.email,
+      name: user.name,
+      picture: user.picture,
+      roles: ['user']
     };
 
     res.json(userProfile);
