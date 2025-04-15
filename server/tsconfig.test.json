@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node",
+      "jest",
+      "express",
+      "compression",
+      "cors",
+      "helmet",
+      "supertest"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.test.ts",
+    "src/__tests__/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

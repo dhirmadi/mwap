@@ -12,9 +12,17 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["node"],
+    "types": [
+      "node",
+      "express",
+      "jest",
+      "compression",
+      "cors",
+      "helmet"
+    ],
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.test.ts", "**/*.spec.ts", "src/__tests__/**/*"]
