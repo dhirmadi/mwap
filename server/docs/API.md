@@ -309,19 +309,51 @@ Authorization: Bearer <token>
 
 ### Role Hierarchy
 
+#### Project Roles
 ```typescript
-// Project role hierarchy
-const projectRoleHierarchy = {
-  'admin': 3,
-  'deputy': 2,
-  'contributor': 1
+export enum ProjectRole {
+  ADMIN = 'admin',
+  DEPUTY = 'deputy',
+  CONTRIBUTOR = 'contributor'
+}
+
+export const PROJECT_ROLE_HIERARCHY: Record<ProjectRole, number> = {
+  [ProjectRole.ADMIN]: 3,      // Can manage all aspects of project
+  [ProjectRole.DEPUTY]: 2,     // Can manage members except admins
+  [ProjectRole.CONTRIBUTOR]: 1  // Basic access
 };
 
-// Tenant role hierarchy
-const tenantRoleHierarchy = {
-  'OWNER': 3,
-  'ADMIN': 2,
-  'MEMBER': 1
+// Helper function for role checks
+function hasHigherOrEqualRole(userRole: ProjectRole, requiredRole: ProjectRole): boolean {
+  return PROJECT_ROLE_HIERARCHY[userRole] >= PROJECT_ROLE_HIERARCHY[requiredRole];
+}
+```
+
+Example Usage:
+```typescript
+// Check if user can modify another user's role
+if (!hasHigherOrEqualRole(currentUserRole, targetRole)) {
+  throw new AuthorizationError('Cannot modify a user with higher or equal role');
+}
+
+// Check if user can perform admin action
+if (!hasHigherOrEqualRole(userRole, ProjectRole.ADMIN)) {
+  throw new AuthorizationError('Requires admin role');
+}
+```
+
+#### Tenant Roles
+```typescript
+export enum TenantRole {
+  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER'
+}
+
+export const TENANT_ROLE_HIERARCHY: Record<TenantRole, number> = {
+  [TenantRole.OWNER]: 3,  // Full tenant control
+  [TenantRole.ADMIN]: 2,  // Project management
+  [TenantRole.MEMBER]: 1  // Basic access
 };
 ```
 
