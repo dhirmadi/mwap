@@ -1,16 +1,18 @@
 // Auth types
-export { 
+export type { 
   User,
   Auth0Claims,
-  UserProfile,
-  TenantRole
+  UserProfile
 } from './auth';
 
+// Enum exports (these should not use 'export type' as they are values)
+export { TenantRole } from './auth';
+
 // Error types
-export * from './errors';
+export type { AppError } from './errors';
 
 // Response types
-export {
+export type {
   ErrorResponseBase,
   ValidationErrorResponse,
   DuplicateKeyErrorResponse,
@@ -24,6 +26,8 @@ export {
 } from './responses';
 
 // Express types
-export {
-  CustomRequest
+export type {
+  AuthRequest,
+  AsyncRequestHandler,
+  AsyncController
 } from './express';
