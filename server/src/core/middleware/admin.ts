@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
-import { Auth0Request } from './types';
-import { SuperAdminModel } from '../features/superadmin/schema';
+import { Auth0Request } from '@core/middleware/types';
+import { SuperAdminModel } from '@features/superadmin/schemas';
 
 /**
  * Middleware to ensure user is a super admin

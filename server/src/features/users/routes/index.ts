@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
-import { checkJwt } from '../middleware/auth';
-import { UserProfile, Auth0Claims } from '../types/user';
+import { auth } from '@core/middleware/auth';
+import { User } from '@core/types';
 
 const router = express.Router();
 

@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { Auth0Request, Role, roleHierarchy, isValidRole } from './types';
+import { Auth0Request, Role, roleHierarchy, isValidRole } from '@core/middleware/types';
 import { TenantModel } from '@features/tenant/schemas';
 import { ProjectModel } from '@features/projects/schemas';
 

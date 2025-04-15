@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 export type AsyncRequestHandler = (
   req: Request,
   res: Response
-) => Promise<void> | void;
+) => Promise<any> | any;
 
 export type AsyncController = {
   [key: string]: AsyncRequestHandler;
