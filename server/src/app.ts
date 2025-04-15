@@ -4,7 +4,10 @@ import compression from 'compression';
 import { setupSecurity } from '@core/middleware/security';
 import { errorHandler, notFoundHandler } from '@core/middleware/error';
 import { requestLogger } from '@core/middleware/request-logger';
-import { routes } from '@core/routes';
+import { router as tenantRouter } from '@features/tenant/routes';
+import { router as projectsRouter } from '@features/projects/routes';
+import { router as invitesRouter } from '@features/invites/routes';
+import { router as superadminRouter } from '@features/superadmin/routes';
 
 const app = express();
 
@@ -31,7 +34,10 @@ app.get('/health', (_req, res) => {
 });
 
 // API Routes
-app.use('/api/v1', routes);
+app.use('/api/v1/tenant', tenantRouter);
+app.use('/api/v1/projects', projectsRouter);
+app.use('/api/v1/invites', invitesRouter);
+app.use('/api/v1/admin', superadminRouter);
 
 // Handle 404s
 app.use(notFoundHandler);
