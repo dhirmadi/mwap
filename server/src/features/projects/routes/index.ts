@@ -20,8 +20,7 @@ router.post(
 // List all projects user has access to
 router.get(
   '/',
-  ...auth.validateRequest,
-  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR]),
+  ...auth.validateRequest,  // Only need auth, no role check needed as the query will filter by user
   ProjectController.listProjects
 );
 
