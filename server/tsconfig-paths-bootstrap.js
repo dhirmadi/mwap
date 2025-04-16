@@ -1,20 +1,22 @@
 const tsConfigPaths = require('tsconfig-paths');
 const tsConfig = require('./tsconfig.prod.json');
 
-// Adjust the baseUrl to point to the compiled output
-const baseUrl = './dist';
-const paths = {};
+// Get the paths from tsconfig
+const { paths, baseUrl } = tsConfig.compilerOptions;
 
-// Convert paths from tsconfig to work with compiled js files
-Object.keys(tsConfig.compilerOptions.paths).forEach((alias) => {
-  const aliasPath = tsConfig.compilerOptions.paths[alias];
-  paths[alias] = aliasPath.map(path => 
-    path.replace(/^src\//, '').replace(/\.ts$/, '')
-  );
+// Convert paths to point to compiled js files
+const mappedPaths = {};
+Object.keys(paths).forEach((alias) => {
+  // Handle array of paths for each alias
+  mappedPaths[alias] = paths[alias].map(path => {
+    // Replace src with dist and remove .ts extension
+    return path.replace(/^src\//, 'dist/').replace(/\.ts$/, '');
+  });
 });
 
+// Register the paths
 tsConfigPaths.register({
-  baseUrl,
-  paths,
-  addMatchAll: false // This ensures exact path matching
+  baseUrl: '.',  // Keep the same baseUrl as tsconfig
+  paths: mappedPaths,
+  addMatchAll: false,  // Ensure exact path matching
 });

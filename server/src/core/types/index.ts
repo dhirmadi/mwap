@@ -2,14 +2,24 @@
 export type { 
   User,
   Auth0Claims,
-  UserProfile
+  UserProfile,
+  AuthRequest
 } from './auth';
 
-// Enum exports (these should not use 'export type' as they are values)
-export { TenantRole } from './auth';
+// Middleware types
+export type {
+  AsyncHandler,
+  RoleHandler,
+  AuthMiddleware,
+  ValidationMiddleware,
+  TenantMiddleware
+} from './middleware';
 
 // Error types
-export type { AppError } from './errors';
+export type { 
+  ErrorMetadata,
+  BaseError
+} from './errors';
 
 // Response types
 export type {
@@ -27,7 +37,6 @@ export type {
 
 // Express types
 export type {
-  AuthRequest,
   AsyncRequestHandler,
   AsyncController
 } from './express';

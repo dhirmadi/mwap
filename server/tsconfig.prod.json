@@ -5,20 +5,13 @@
     "declaration": false,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@core/*": ["core/*"],
-      "@features/*": ["features/*"],
-      "@utils/*": ["utils/*"],
-      "@types": ["core/types"]
-    },
-    "preserveSymlinks": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": false
+      "@core/*": ["src/core/*"],
+      "@features/*": ["src/features/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types": ["src/core/types"]
+    }
   },
   "include": [
     "src/**/*.ts"

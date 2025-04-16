@@ -22,12 +22,12 @@
     "sourceMap": true,
     "declaration": true,
     "noImplicitAny": false,
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@core/*": ["core/*"],
-      "@features/*": ["features/*"],
-      "@utils/*": ["utils/*"],
-      "@types": ["core/types"]
+      "@core/*": ["src/core/*"],
+      "@features/*": ["src/features/*"],
+      "@utils/*": ["src/utils/*"],
+      "@types": ["src/core/types"]
     }
   },
   "include": ["src/**/*"],

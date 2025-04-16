@@ -3,6 +3,8 @@ import { auth as auth0 } from 'express-oauth2-jwt-bearer';
 import { env } from '@core/config/environment';
 import { AuthenticationError, AuthorizationError } from '../errors';
 import { TenantService } from '@features/tenant/services';
+import { AuthMiddleware, AsyncHandler } from '../types/middleware';
+import { AuthRequest } from '../types/auth';
 
 // Validate Auth0 configuration
 if (!env.auth0.domain || !env.auth0.audience) {
@@ -21,10 +23,11 @@ const authConfig = {
 const validateToken = auth0(authConfig);
 
 // Role validation middleware
-const requireRoles = (roles: string[]) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+const requireRoles = (roles: string[]): AsyncHandler => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = req.user;
+      const authReq = req as AuthRequest;
+      const user = authReq.user;
       
       if (!user) {
         throw new AuthenticationError('User not authenticated');
@@ -44,10 +47,11 @@ const requireRoles = (roles: string[]) => {
 };
 
 // Tenant role validation middleware
-const validateTenantRole = (requiredRole: string) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+const validateTenantRole = (requiredRole: string): AsyncHandler => {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = req.user;
+      const authReq = req as AuthRequest;
+      const user = authReq.user;
       const tenantId = req.params.id || req.body.tenantId;
       
       if (!user) {
@@ -73,7 +77,7 @@ const validateTenantRole = (requiredRole: string) => {
       }
 
       // Check role
-      if (member.role !== requiredRole) {
+      if (member.role.toLowerCase() !== requiredRole.toLowerCase()) {
         throw new AuthorizationError(`Role ${requiredRole} required`);
       }
 
@@ -85,7 +89,7 @@ const validateTenantRole = (requiredRole: string) => {
 };
 
 // Combined auth middleware for common use cases
-export const auth = {
+export const auth: AuthMiddleware = {
   // Basic token validation
   validateToken,
 
@@ -93,8 +97,8 @@ export const auth = {
   requireRoles,
 
   // Common role combinations
-  requireAdmin: requireRoles(['ADMIN', 'SUPER_ADMIN']),
-  requireSuperAdmin: requireRoles(['SUPER_ADMIN']),
+  requireAdmin: [validateToken, requireRoles(['ADMIN', 'SUPER_ADMIN'])],
+  requireSuperAdmin: [validateToken, requireRoles(['SUPER_ADMIN'])],
 
   // Tenant role combinations
   requireTenantAdmin: [
