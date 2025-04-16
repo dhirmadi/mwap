@@ -24,19 +24,56 @@ export async function getAccessToken(): Promise<string> {
 export async function addAuthToken(
   config: AxiosRequestConfig
 ): Promise<AxiosRequestConfig> {
+  // Skip auth for health check and public endpoints
+  if (config.url?.endsWith('/health') || config.url?.includes('/public/')) {
+    return config;
+  }
+
   try {
+    // Get token from Auth0
     const token = await getAccessToken();
+    if (!token) {
+      throw new AuthError(
+        ErrorCode.UNAUTHORIZED,
+        'No auth token available'
+      );
+    }
+
+    // Check token expiration
+    if (isTokenExpired(token)) {
+      // Try to refresh token
+      const newToken = await refreshToken();
+      return {
+        ...config,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${newToken}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      };
+    }
+
+    // Add token and standard headers
     return {
       ...config,
       headers: {
         ...config.headers,
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
       }
     };
   } catch (error) {
-    // Let the request proceed without token
-    // The server will handle unauthorized requests
-    return config;
+    // Log error for debugging
+    console.error('Auth token error:', error);
+
+    // Don't silently fail - throw error to trigger auth flow
+    throw new AuthError(
+      ErrorCode.UNAUTHORIZED,
+      'Authentication required. Please log in.',
+      error
+    );
   }
 }
 

@@ -1,8 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { API_CONFIG, ApiConfig, RetryConfig, DEFAULT_RETRY_CONFIG } from './config';
-import { addAuthToken } from './auth';
+import { addAuthToken, refreshToken } from './auth';
 import { createRetryHandler } from './retry';
-import { handleApiError } from '../errors';
+import { handleApiError, AuthError, ErrorCode } from '../errors';
 
 /**
  * Extend AxiosRequestConfig to include retry count
@@ -36,7 +36,66 @@ export function createApiClient(
     // Success handler - pass through
     response => response,
     // Error handler - retry or transform error
-    createRetryHandler(client, retryConfig)
+    async (error) => {
+      // Log error for debugging
+      console.error('API Error:', {
+        url: error.config?.url,
+        status: error.response?.status,
+        data: error.response?.data
+      });
+
+      // Handle auth errors
+      if (error.response?.status === 401) {
+        // Try to refresh token and retry request
+        try {
+          const token = await refreshToken();
+          error.config.headers.Authorization = `Bearer ${token}`;
+          return client(error.config);
+        } catch (refreshError) {
+          // Token refresh failed, trigger auth flow
+          throw new AuthError(
+            ErrorCode.UNAUTHORIZED,
+            'Session expired. Please log in again.',
+            refreshError
+          );
+        }
+      }
+
+      // Handle 404 for collections as empty array
+      if (
+        error.response?.status === 404 &&
+        error.config?.method?.toLowerCase() === 'get' &&
+        Array.isArray(error.config?.data)
+      ) {
+        return {
+          data: [],
+          meta: {
+            requestId: error.response?.headers['x-request-id'],
+            pagination: {
+              total: 0,
+              page: 1,
+              limit: 10
+            }
+          }
+        };
+      }
+
+      // Handle 404 for single resources as null
+      if (
+        error.response?.status === 404 &&
+        error.config?.method?.toLowerCase() === 'get'
+      ) {
+        return {
+          data: null,
+          meta: {
+            requestId: error.response?.headers['x-request-id']
+          }
+        };
+      }
+
+      // Handle other errors with retry
+      return createRetryHandler(client, retryConfig)(error);
+    }
   );
 
   return client;
