@@ -64,7 +64,15 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
       request_id: requestId,
       method: req.method,
       path: req.path,
+      originalUrl: req.originalUrl,
+      baseUrl: req.baseUrl,
       route: req.route?.path || 'unknown',
+      routeStack: req.app._router.stack
+        .filter((r: any) => r.route || r.name === 'router')
+        .map((r: any) => ({
+          path: r.route?.path || r.regexp?.toString(),
+          methods: r.route?.methods || {}
+        })),
 
       // Client information
       ip: getClientIp(req),

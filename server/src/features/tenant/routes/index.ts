@@ -10,6 +10,22 @@ import {
 
 const router = Router();
 
+// Log all requests to tenant routes
+router.use((req, res, next) => {
+  logger.debug('Tenant route accessed', {
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    body: req.body,
+    headers: {
+      'content-type': req.headers['content-type'],
+      'authorization': req.headers.authorization ? 'present' : 'missing'
+    }
+  });
+  next();
+});
+
 // Create new tenant (requires auth)
 router.post(
   '/',
