@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { env } from '../config/environment';
+import { logger } from '@core/utils/logger';
 
 // Custom error class for API errors
 export class APIError extends Error {
@@ -88,6 +89,28 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 // Not found handler
 export const notFoundHandler = (req: Request, res: Response) => {
+  logger.warn('404 Not Found', {
+    method: req.method,
+    url: req.url,
+    path: req.path,
+    baseUrl: req.baseUrl,
+    originalUrl: req.originalUrl,
+    headers: {
+      'content-type': req.headers['content-type'],
+      'authorization': req.headers.authorization ? 'present' : 'missing',
+      'user-agent': req.headers['user-agent']
+    },
+    body: req.body,
+    query: req.query,
+    routeStack: req.app._router.stack
+      .filter((r: any) => r.route || r.name === 'router')
+      .map((r: any) => ({
+        path: r.route?.path || r.regexp?.toString(),
+        methods: r.route?.methods || {}
+      })),
+    timestamp: new Date().toISOString()
+  });
+
   res.status(404).json({
     error: {
       message: 'Resource not found',
@@ -95,6 +118,8 @@ export const notFoundHandler = (req: Request, res: Response) => {
       data: {
         path: req.path,
         method: req.method,
+        baseUrl: req.baseUrl,
+        originalUrl: req.originalUrl
       },
     },
   });
