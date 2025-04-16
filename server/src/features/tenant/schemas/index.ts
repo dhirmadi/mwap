@@ -80,3 +80,6 @@ tenantSchema.pre('save', function(next) {
 });
 
 export const TenantModel = model<TenantDocument, TenantModel>('Tenant', tenantSchema);
+
+// Export validation schemas
+export * from './validation';

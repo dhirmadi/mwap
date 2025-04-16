@@ -1,4 +1,4 @@
-import { ErrorMetadata } from '../types/errors';
+import type { ErrorMetadata } from '../types/errors/base';
 
 export class AppError extends Error {
   public readonly statusCode: number;

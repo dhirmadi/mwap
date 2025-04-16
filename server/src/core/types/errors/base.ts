@@ -1,7 +1,13 @@
+/**
+ * Metadata for error context
+ */
 export interface ErrorMetadata {
   [key: string]: unknown;
 }
 
+/**
+ * Base error class for application errors
+ */
 export class BaseError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;

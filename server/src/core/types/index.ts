@@ -16,10 +16,8 @@ export type {
 } from './middleware';
 
 // Error types
-export type { 
-  ErrorMetadata,
-  BaseError
-} from './errors';
+export type { ErrorMetadata } from './errors/base';
+export { BaseError } from './errors/base';
 
 // Response types
 export type {

@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { TenantModel } from '../schemas';
+import { TenantModel, TenantDocument } from '../schemas';
 import { CreateTenantInput, UpdateTenantInput } from '../types';
 import { 
   NotFoundError, 
