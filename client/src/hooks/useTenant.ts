@@ -59,7 +59,7 @@ export function useTenant(): UseTenantResult {
     queryKey: TENANT_QUERY_KEY,
     queryFn: async () => {
       // No error handling needed for null tenant
-      const response = await get<TenantResponse>(api, '/api/v1/tenant/me');
+      const response = await get<TenantResponse>(api, '/v1/tenant/me');
       return response;
     },
     ...TENANT_QUERY_CONFIG
@@ -74,7 +74,7 @@ export function useTenant(): UseTenantResult {
     mutationFn: async (data) => {
       return await post<TenantResponse, CreateTenantRequest>(
         api,
-        '/api/v1/tenant',
+        '/v1/tenant',
         data
       );
     },

@@ -65,7 +65,7 @@ export function useProfile(): UseProfileResult {
   } = useQuery<UserProfileResponse, AppError>({
     queryKey: PROFILE_QUERY_KEY,
     queryFn: async () => {
-      const response = await get<UserProfileResponse>(api, '/api/v1/auth/me');
+      const response = await get<UserProfileResponse>(api, '/v1/auth/me');
       return response;
     },
     ...PROFILE_QUERY_CONFIG

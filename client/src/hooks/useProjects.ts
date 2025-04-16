@@ -53,7 +53,7 @@ export function useProjects(): UseProjectsResult {
     queryKey: PROJECTS_QUERY_KEY,
     queryFn: async () => {
       // No error handling needed for empty list
-      const response = await get<ProjectListResponse>(api, '/api/v1/projects');
+      const response = await get<ProjectListResponse>(api, '/v1/projects');
       return response;
     },
     ...PROJECTS_QUERY_CONFIG
