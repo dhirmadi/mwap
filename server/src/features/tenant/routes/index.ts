@@ -14,14 +14,7 @@ const router = Router();
 router.post(
   '/tenant',
   auth.validateToken,
-  (req, res, next) => {
-    logger.debug('Tenant creation route hit', {
-      path: req.path,
-      body: req.body,
-      userId: req.user?.id
-    });
-    next();
-  },
+
   validateRequest(createTenantSchema),
   TenantController.createTenant
 );

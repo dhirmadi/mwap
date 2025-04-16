@@ -17,8 +17,7 @@ interface TenantMember {
 const tenantMemberSchema = new Schema<TenantMember>({
   userId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   role: {
     type: String,
@@ -68,12 +67,9 @@ const tenantSchema = new Schema<TenantDocument>({
   }
 });
 
-// Create compound indexes
-tenantSchema.index({ ownerId: 1, archived: 1 });
-tenantSchema.index({ 'members.userId': 1 }); // Index for member lookups
-
-// Add indexes for common queries
-tenantSchema.index({ 'members.userId': 1, archived: 1 }); // User's active/archived tenants
+// Add compound index for user's active/archived tenants
+// This index also covers simple userId lookups
+tenantSchema.index({ 'members.userId': 1, archived: 1 });
 
 export const TenantModel = model<TenantDocument, TenantModel>('Tenant', tenantSchema);
 
