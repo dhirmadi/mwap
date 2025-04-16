@@ -1,8 +1,9 @@
+import { useMemo } from 'react';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { API_CONFIG, ApiConfig, RetryConfig, DEFAULT_RETRY_CONFIG } from './config';
-import { addAuthToken, refreshToken } from './auth';
 import { createRetryHandler } from './retry';
 import { handleApiError, AuthError, ErrorCode } from '../errors';
+import { useAuth } from '../../hooks/useAuth';
 
 /**
  * Extend AxiosRequestConfig to include retry count
@@ -17,6 +18,7 @@ declare module 'axios' {
  * Create axios instance with auth and retry handling
  */
 export function createApiClient(
+  getToken: () => Promise<string | null>,
   config: Partial<ApiConfig> = {},
   retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG
 ): AxiosInstance {
@@ -29,7 +31,32 @@ export function createApiClient(
   });
 
   // Add auth token to requests
-  client.interceptors.request.use(addAuthToken);
+  client.interceptors.request.use(async (config) => {
+    // Skip auth for public endpoints
+    if (config.url?.endsWith('/health') || config.url?.includes('/public/')) {
+      return config;
+    }
+
+    try {
+      const token = await getToken();
+      if (!token) {
+        throw new AuthError(ErrorCode.UNAUTHORIZED, 'No auth token available');
+      }
+
+      return {
+        ...config,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        }
+      };
+    } catch (error) {
+      console.error('Auth error:', error);
+      throw new AuthError(ErrorCode.UNAUTHORIZED, 'Authentication required', error);
+    }
+  });
 
   // Add response interceptors
   client.interceptors.response.use(
@@ -46,9 +73,12 @@ export function createApiClient(
 
       // Handle auth errors
       if (error.response?.status === 401) {
-        // Try to refresh token and retry request
+        // Get a fresh token and retry request
         try {
-          const token = await refreshToken();
+          const token = await getToken();
+          if (!token) {
+            throw new AuthError(ErrorCode.UNAUTHORIZED, 'Failed to refresh token');
+          }
           error.config.headers.Authorization = `Bearer ${token}`;
           return client(error.config);
         } catch (refreshError) {
@@ -109,9 +139,12 @@ export function useApi(
   config: Partial<ApiConfig> = {},
   retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG
 ): AxiosInstance {
-  // Create new instance for each hook call
-  // This ensures each component has its own client
-  return createApiClient(config, retryConfig);
+  const { getToken } = useAuth();
+  
+  return useMemo(
+    () => createApiClient(getToken, config, retryConfig),
+    [getToken, config, retryConfig]
+  );
 }
 
 /**
