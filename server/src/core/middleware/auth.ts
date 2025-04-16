@@ -103,5 +103,9 @@ export const auth = {
   requireTenantMember: [
     validateToken,
     validateTenantAccess(TenantRole.MEMBER)
+  ],
+  requireTenantOwner: [
+    validateToken,
+    validateTenantAccess(TenantRole.OWNER)
   ]
 };

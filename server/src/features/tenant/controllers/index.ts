@@ -1,17 +1,11 @@
 import { Response } from 'express';
 import { AuthRequest } from '@core/types/express';
 import { AsyncController } from '@core/types/express';
-import { 
-  getTenantByOwnerId, 
-  createTenant, 
-  updateTenant, 
-  archiveTenant 
-} from '../services';
-import { 
-  ValidationError, 
-  NotFoundError, 
-  ConflictError 
-} from '@core/errors';
+import { TenantService } from '../services';
+import { ValidationError } from '@core/errors';
+
+// Create a singleton instance of TenantService
+const tenantService = new TenantService();
 
 export const TenantController: AsyncController = {
   /**
@@ -23,14 +17,11 @@ export const TenantController: AsyncController = {
       // Validate request body
       const { name } = req.body;
       if (!name) {
-        throw new ValidationError(
-          'Tenant name is required',
-          { body: req.body }
-        );
+        throw new ValidationError('Tenant name is required');
       }
 
       // Create tenant
-      const tenant = await createTenant(req.user.id, name);
+      const tenant = await tenantService.createTenant(req.user.id, { name });
 
       // Return success response
       res.status(201).json({
@@ -52,9 +43,9 @@ export const TenantController: AsyncController = {
   getCurrentTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       // Get tenant
-      const tenant = await getTenantByOwnerId(req.user.id);
+      const tenant = await tenantService.getTenantByOwnerId(req.user.id);
 
-      // Return response (null if no tenant)
+      // Return response
       res.status(200).json({
         data: tenant,
         meta: {
@@ -62,18 +53,7 @@ export const TenantController: AsyncController = {
         }
       });
     } catch (error) {
-      // Handle not found as null response
-      if (error instanceof NotFoundError) {
-        res.status(200).json({
-          data: null,
-          meta: {
-            requestId: req.id
-          }
-        });
-        return;
-      }
-
-      // Let error middleware handle other errors
+      // Let error middleware handle it
       throw error;
     }
   },
@@ -86,21 +66,14 @@ export const TenantController: AsyncController = {
     try {
       // Validate request
       const { id: tenantId } = req.params;
-      const { name, archived } = req.body;
+      const { name } = req.body;
 
-      if (!name && typeof archived !== 'boolean') {
-        throw new ValidationError(
-          'No updates provided',
-          { body: req.body }
-        );
+      if (!name) {
+        throw new ValidationError('No updates provided');
       }
 
       // Update tenant
-      const tenant = await updateTenant(
-        tenantId,
-        req.user.id,
-        { name, archived }
-      );
+      const tenant = await tenantService.updateTenant(tenantId, { name });
 
       // Return success response
       res.status(200).json({
@@ -116,16 +89,13 @@ export const TenantController: AsyncController = {
   },
 
   /**
-   * Archive tenant
-   * @requires requireTenantOwner - Only tenant owner can archive
+   * Delete tenant
+   * @requires requireTenantOwner - Only tenant owner can delete
    */
   archiveTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      // Archive tenant
-      const tenant = await archiveTenant(
-        req.params.id,
-        req.user.id
-      );
+      // Delete tenant
+      const tenant = await tenantService.deleteTenant(req.params.id);
 
       // Return success response
       res.status(200).json({

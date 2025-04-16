@@ -15,26 +15,38 @@ export class TenantService {
    */
   async createTenant(userId: string, input: CreateTenantInput) {
     try {
+      if (!Types.ObjectId.isValid(userId)) {
+        throw new ValidationError('Invalid user ID');
+      }
+
       // Check if user already has a tenant
-      const existingTenant = await TenantModel.findOne({ ownerId: userId });
+      const existingTenant = await TenantModel.findOne({ 
+        ownerId: new Types.ObjectId(userId),
+        archived: false
+      });
+
       if (existingTenant) {
-        throw new ConflictError('User already has a tenant');
+        throw new ConflictError('User already has an active tenant');
       }
 
       // Create new tenant
       const tenant = new TenantModel({
         ...input,
-        ownerId: userId,
+        ownerId: new Types.ObjectId(userId),
         members: [{ userId, role: 'owner' }]
       });
 
       await tenant.save();
       return tenant;
     } catch (error) {
-      if (error instanceof ConflictError) {
+      if (error instanceof ValidationError || error instanceof ConflictError) {
         throw error;
       }
-      logger.error('Failed to create tenant', error);
+      if (error instanceof Error) {
+        logger.error('Failed to create tenant', { error: error.message, stack: error.stack });
+      } else {
+        logger.error('Failed to create tenant', { error });
+      }
       throw new InternalServerError('Failed to create tenant');
     }
   }
@@ -48,7 +60,11 @@ export class TenantService {
         throw new ValidationError('Invalid tenant ID');
       }
 
-      const tenant = await TenantModel.findById(tenantId);
+      const tenant = await TenantModel.findOne({
+        _id: new Types.ObjectId(tenantId),
+        archived: false
+      });
+
       if (!tenant) {
         throw new NotFoundError('Tenant not found');
       }
@@ -58,7 +74,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      logger.error('Failed to get tenant', error);
+      if (error instanceof Error) {
+        logger.error('Failed to get tenant', { error: error.message, stack: error.stack });
+      } else {
+        logger.error('Failed to get tenant', { error });
+      }
       throw new InternalServerError('Failed to get tenant');
     }
   }
@@ -72,8 +92,11 @@ export class TenantService {
         throw new ValidationError('Invalid tenant ID');
       }
 
-      const tenant = await TenantModel.findByIdAndUpdate(
-        tenantId,
+      const tenant = await TenantModel.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(tenantId),
+          archived: false
+        },
         { $set: input },
         { new: true, runValidators: true }
       );
@@ -87,7 +110,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      logger.error('Failed to update tenant', error);
+      if (error instanceof Error) {
+        logger.error('Failed to update tenant', { error: error.message, stack: error.stack });
+      } else {
+        logger.error('Failed to update tenant', { error });
+      }
       throw new InternalServerError('Failed to update tenant');
     }
   }
@@ -101,7 +128,15 @@ export class TenantService {
         throw new ValidationError('Invalid tenant ID');
       }
 
-      const tenant = await TenantModel.findByIdAndDelete(tenantId);
+      const tenant = await TenantModel.findOneAndUpdate(
+        {
+          _id: new Types.ObjectId(tenantId),
+          archived: false
+        },
+        { $set: { archived: true } },
+        { new: true }
+      );
+
       if (!tenant) {
         throw new NotFoundError('Tenant not found');
       }
@@ -111,7 +146,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      logger.error('Failed to delete tenant', error);
+      if (error instanceof Error) {
+        logger.error('Failed to delete tenant', { error: error.message, stack: error.stack });
+      } else {
+        logger.error('Failed to delete tenant', { error });
+      }
       throw new InternalServerError('Failed to delete tenant');
     }
   }
@@ -125,7 +164,11 @@ export class TenantService {
         throw new ValidationError('Invalid tenant ID');
       }
 
-      const tenant = await TenantModel.findById(tenantId);
+      const tenant = await TenantModel.findOne({
+        _id: new Types.ObjectId(tenantId),
+        archived: false
+      });
+
       if (!tenant) {
         throw new NotFoundError('Tenant not found');
       }
@@ -133,6 +176,11 @@ export class TenantService {
       // Check if user is already a member
       if (tenant.members.some(member => member.userId === userId)) {
         throw new ConflictError('User is already a member of this tenant');
+      }
+
+      // Validate role
+      if (!['owner', 'admin', 'member'].includes(role)) {
+        throw new ValidationError('Invalid role. Must be one of: owner, admin, member');
       }
 
       tenant.members.push({ userId, role });
@@ -143,7 +191,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof ConflictError) {
         throw error;
       }
-      logger.error('Failed to add member to tenant', error);
+      if (error instanceof Error) {
+        logger.error('Failed to add member to tenant', { error: error.message, stack: error.stack });
+      } else {
+        logger.error('Failed to add member to tenant', { error });
+      }
       throw new InternalServerError('Failed to add member to tenant');
     }
   }
@@ -157,7 +209,11 @@ export class TenantService {
         throw new ValidationError('Invalid tenant ID');
       }
 
-      const tenant = await TenantModel.findById(tenantId);
+      const tenant = await TenantModel.findOne({
+        _id: new Types.ObjectId(tenantId),
+        archived: false
+      });
+
       if (!tenant) {
         throw new NotFoundError('Tenant not found');
       }
@@ -181,7 +237,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      logger.error('Failed to remove member from tenant', error);
+      if (error instanceof Error) {
+        logger.error('Failed to remove member from tenant', { error: error.message, stack: error.stack });
+      } else {
+        logger.error('Failed to remove member from tenant', { error });
+      }
       throw new InternalServerError('Failed to remove member from tenant');
     }
   }
@@ -205,7 +265,11 @@ export class TenantService {
       if (error instanceof ValidationError) {
         throw error;
       }
-      logger.error('Failed to get tenant by owner ID', error);
+      if (error instanceof Error) {
+        logger.error('Failed to get tenant by owner ID', { error: error.message, stack: error.stack });
+      } else {
+        logger.error('Failed to get tenant by owner ID', { error });
+      }
       throw new InternalServerError('Failed to get tenant by owner ID');
     }
   }

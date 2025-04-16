@@ -5,11 +5,11 @@ import { validateRequest } from '@core/middleware/validation';
 import { 
   createTenantSchema,
   updateTenantSchema
-} from '../validation';
+} from '../schemas';
 
 const router = Router();
 
-// Create new tenant (requires auth + no existing tenant)
+// Create new tenant (requires auth)
 router.post(
   '/tenant',
   auth.validateToken,
@@ -27,17 +27,15 @@ router.get(
 // Update tenant (requires auth + tenant ownership)
 router.patch(
   '/tenant/:id',
-  auth.validateToken,
-  auth.requireTenantOwner,
+  ...auth.requireTenantOwner,
   validateRequest(updateTenantSchema),
   TenantController.updateTenant
 );
 
-// Archive tenant (requires auth + tenant ownership)
+// Delete tenant (requires auth + tenant ownership)
 router.delete(
   '/tenant/:id',
-  auth.validateToken,
-  auth.requireTenantOwner,
+  ...auth.requireTenantOwner,
   TenantController.archiveTenant
 );
 
