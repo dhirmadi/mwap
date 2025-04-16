@@ -5,6 +5,7 @@ import { setupSecurity } from '@core/middleware/security';
 import { errorHandler, notFoundHandler } from '@core/middleware/error';
 import { requestLogger } from '@core/middleware/request-logger';
 import { v1Router } from './routes/v1';
+import { createRouter } from '@core/types/router';
 
 const app = express();
 

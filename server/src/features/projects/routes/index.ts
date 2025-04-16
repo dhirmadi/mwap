@@ -1,10 +1,10 @@
-import { Router } from 'express';
 import { ProjectController } from '@features/projects/controllers';
 import { ProjectMemberController } from '@features/projects/controllers/members.controller';
 import { auth } from '@core/middleware/auth';
 import { requireTenantOwner, requireProjectRole } from '@core/middleware/tenant';
+import { createRouter } from '@core/types/router';
 
-const router = Router();
+const router = createRouter();
 
 // Project Management Routes
 

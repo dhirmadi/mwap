@@ -1,12 +1,11 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import logger from '@core/logging/config';
-import { AuthRequest } from '@core/types/express';
 
 /**
  * Extract request ID from headers or generate new one
  */
-const getRequestId = (req: AuthRequest): string => {
+const getRequestId = (req: Request): string => {
   return (
     (req.headers['x-request-id'] as string) ||
     (req.headers['x-correlation-id'] as string) ||
@@ -28,7 +27,7 @@ const safeStringifyQuery = (query: Record<string, unknown>): string => {
 /**
  * Get client IP address from request
  */
-const getClientIp = (req: AuthRequest): string => {
+const getClientIp = (req: Request): string => {
   return (
     (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
     req.socket.remoteAddress ||
@@ -42,7 +41,7 @@ const getClientIp = (req: AuthRequest): string => {
  * - Adds request ID to response headers
  * - Uses logfmt format for easy parsing
  */
-export const requestLogger = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   // Get or generate request ID
   const requestId = getRequestId(req);
 

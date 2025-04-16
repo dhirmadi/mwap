@@ -24,7 +24,7 @@ const validateToken = auth0(authConfig);
 const requireRoles = (roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = (req as any).user as User;
+      const user = req.user;
       
       if (!user) {
         throw new AuthenticationError('User not authenticated');
@@ -47,7 +47,7 @@ const requireRoles = (roles: string[]) => {
 const validateTenantAccess = (requiredRole?: TenantRole) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = (req as any).user as User;
+      const user = req.user;
       const tenantId = req.params.tenantId || req.body.tenantId;
       
       if (!user) {

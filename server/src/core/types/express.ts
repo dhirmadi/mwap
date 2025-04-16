@@ -1,19 +1,43 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { User } from '@core/types/auth';
 
-/**
- * Extended Express Request with auth user and request ID
- */
-export interface AuthRequest extends Request {
-  user: User;  // Required after auth middleware
-  id: string;  // Request ID from middleware
+// 1. Global type extension
+declare global {
+  namespace Express {
+    interface Request {
+      user: User;
+      id: string;
+    }
+  }
 }
 
+// 2. Keep AuthRequest for backwards compatibility
+export interface AuthRequest extends Request {
+  user: User;
+  id: string;
+}
+
+// 3. Update handler types to use standard Request
 export type AsyncRequestHandler = (
-  req: AuthRequest,
-  res: Response
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => Promise<void> | void;
 
 export type AsyncController = {
   [key: string]: AsyncRequestHandler;
 };
+
+// 4. Router handler types
+export type RouterHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<void> | void;
+
+// 4. Type guard for authenticated requests
+export function isAuthenticatedRequest(
+  req: Request
+): req is Request & { user: User } {
+  return 'user' in req && req.user !== undefined;
+}
