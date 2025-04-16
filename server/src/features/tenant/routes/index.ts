@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { TenantController } from '@features/tenant/controllers';
 import { auth } from '@core/middleware/auth';
 import { validateRequest } from '@core/middleware/validation';
+import { logger } from '@core/utils/logger';
 import { 
   createTenantSchema,
   updateTenantSchema
@@ -13,6 +14,14 @@ const router = Router();
 router.post(
   '/tenant',
   auth.validateToken,
+  (req, res, next) => {
+    logger.debug('Tenant creation route hit', {
+      path: req.path,
+      body: req.body,
+      userId: req.user?.id
+    });
+    next();
+  },
   validateRequest(createTenantSchema),
   TenantController.createTenant
 );

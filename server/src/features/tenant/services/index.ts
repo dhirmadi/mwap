@@ -15,7 +15,8 @@ export class TenantService {
    */
   async createTenant(userId: string, input: CreateTenantInput) {
     try {
-      // Check if user already has a tenant
+      logger.debug('Checking for existing tenant', { userId });
+      
       const existingTenant = await TenantModel.findOne({ 
         'members.userId': userId,
         'members.role': TenantRole.OWNER,
@@ -23,10 +24,18 @@ export class TenantService {
       });
 
       if (existingTenant) {
+        logger.warn('User already has a tenant', {
+          userId,
+          existingTenantId: existingTenant._id
+        });
         throw new ConflictError('User already has an active tenant');
       }
 
-      // Create new tenant
+      logger.debug('Creating new tenant', {
+        userId,
+        name: input.name
+      });
+
       const tenant = new TenantModel({
         ...input,
         members: [{
@@ -37,6 +46,11 @@ export class TenantService {
       });
 
       await tenant.save();
+      logger.debug('Tenant saved successfully', {
+        tenantId: tenant._id,
+        userId
+      });
+
       return tenant;
     } catch (error) {
       if (error instanceof ValidationError || error instanceof ConflictError) {

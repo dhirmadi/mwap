@@ -3,6 +3,7 @@ import { AuthRequest } from '@core/types/express';
 import { AsyncController } from '@core/types/express';
 import { TenantService } from '../services';
 import { ValidationError } from '@core/errors';
+import { logger } from '@core/utils/logger';
 
 // Create a singleton instance of TenantService
 const tenantService = new TenantService();
@@ -14,24 +15,38 @@ export const TenantController: AsyncController = {
    */
   createTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
+      logger.debug('Creating tenant', {
+        userId: req.user.id,
+        body: req.body,
+        requestId: req.id
+      });
+
       // Validate request body
       const { name } = req.body;
       if (!name) {
+        logger.warn('Missing tenant name', { userId: req.user.id });
         throw new ValidationError('Tenant name is required');
       }
 
       // Create tenant
       const tenant = await tenantService.createTenant(req.user.id, { name });
+      logger.info('Tenant created successfully', {
+        tenantId: tenant._id,
+        userId: req.user.id,
+        name: tenant.name
+      });
 
       // Return success response
       res.status(201).json({
         data: tenant,
-        meta: {
-          requestId: req.id
-        }
+        meta: { requestId: req.id }
       });
     } catch (error) {
-      // Let error middleware handle it
+      logger.error('Failed to create tenant', {
+        userId: req.user?.id,
+        error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw error;
     }
   },
