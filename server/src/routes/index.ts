@@ -17,7 +17,8 @@ router.get('/health', (req, res) => {
 });
 
 // API routes
-router.use('/tenant', tenantRoutes);
+// Mount tenant routes without additional prefix since tenant routes already handle their paths
+router.use(tenantRoutes);
 router.use('/projects', projectRoutes);
 router.use('/users', userRoutes);
 router.use('/invites', inviteRoutes);

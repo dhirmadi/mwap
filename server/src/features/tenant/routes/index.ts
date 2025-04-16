@@ -21,14 +21,20 @@ router.use((req, res, next) => {
     headers: {
       'content-type': req.headers['content-type'],
       'authorization': req.headers.authorization ? 'present' : 'missing'
-    }
+    },
+    routes: router.stack
+      .filter((r: any) => r.route)
+      .map((r: any) => ({
+        path: r.route.path,
+        methods: Object.keys(r.route.methods)
+      }))
   });
   next();
 });
 
 // Create new tenant (requires auth)
 router.post(
-  '/',
+  '/tenant',
   auth.validateToken,
 
   validateRequest(createTenantSchema),
@@ -37,14 +43,14 @@ router.post(
 
 // Get current user's tenant
 router.get(
-  '/me',
+  '/tenant/me',
   auth.validateToken,
   TenantController.getCurrentTenant
 );
 
 // Update tenant (requires auth + tenant ownership)
 router.patch(
-  '/:id',
+  '/tenant/:id',
   ...auth.requireTenantOwner,
   validateRequest(updateTenantSchema),
   TenantController.updateTenant
@@ -52,7 +58,7 @@ router.patch(
 
 // Delete tenant (requires auth + tenant ownership)
 router.delete(
-  '/:id',
+  '/tenant/:id',
   ...auth.requireTenantOwner,
   TenantController.archiveTenant
 );
