@@ -4,7 +4,7 @@ import { AsyncController } from '@core/types/express';
 import { TenantService } from '../services';
 import { ValidationError } from '@core/errors';
 import { logger } from '@core/utils/logger';
-// Validation is handled by middleware
+import { createTenantSchema } from '../schemas/validation';
 
 // Create a singleton instance of TenantService
 const tenantService = new TenantService();
@@ -29,12 +29,16 @@ export const TenantController: AsyncController = {
       // Validation check
       const validationResult = createTenantSchema.safeParse(req);
       if (!validationResult.success) {
+        const errors = validationResult.error.errors.map(err => ({
+          path: err.path.join('.'),
+          message: err.message
+        }));
         logger.warn('Tenant creation validation failed', {
           userId: req.user.id,
-          errors: validationResult.error.errors,
+          errors,
           requestId: req.id
         });
-        throw new ValidationError('Invalid request data', validationResult.error);
+        throw new ValidationError('Invalid request data', { errors });
       }
 
       // Create tenant
