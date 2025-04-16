@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { auth as auth0 } from 'express-oauth2-jwt-bearer';
 import { env } from '@core/config/environment';
-import { AuthenticationError, AuthorizationError } from '../types/errors';
-import { User, TenantRole } from '../types';
+import { AuthenticationError, AuthorizationError } from '../errors';
+import { TenantService } from '@features/tenant/services';
 
 // Validate Auth0 configuration
 if (!env.auth0.domain || !env.auth0.audience) {
@@ -43,12 +43,12 @@ const requireRoles = (roles: string[]) => {
   };
 };
 
-// Tenant access validation middleware
-const validateTenantAccess = (requiredRole?: TenantRole) => {
+// Tenant role validation middleware
+const validateTenantRole = (requiredRole: string) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = req.user;
-      const tenantId = req.params.tenantId || req.body.tenantId;
+      const tenantId = req.params.id || req.body.tenantId;
       
       if (!user) {
         throw new AuthenticationError('User not authenticated');
@@ -63,13 +63,17 @@ const validateTenantAccess = (requiredRole?: TenantRole) => {
         return next();
       }
 
-      // Check tenant membership
-      if (user.tenantId !== tenantId) {
-        throw new AuthorizationError('No access to this tenant');
+      // Get tenant and check membership
+      const tenantService = new TenantService();
+      const tenant = await tenantService.getTenantById(tenantId);
+
+      const member = tenant.members.find(m => m.userId === user.sub);
+      if (!member) {
+        throw new AuthorizationError('Not a member of this tenant');
       }
 
-      // Check role if required
-      if (requiredRole && !user.roles.includes(requiredRole)) {
+      // Check role
+      if (member.role !== requiredRole) {
         throw new AuthorizationError(`Role ${requiredRole} required`);
       }
 
@@ -88,9 +92,6 @@ export const auth = {
   // Role-based access control
   requireRoles,
 
-  // Tenant access control
-  validateTenantAccess,
-
   // Common role combinations
   requireAdmin: requireRoles(['ADMIN', 'SUPER_ADMIN']),
   requireSuperAdmin: requireRoles(['SUPER_ADMIN']),
@@ -98,14 +99,14 @@ export const auth = {
   // Tenant role combinations
   requireTenantAdmin: [
     validateToken,
-    validateTenantAccess(TenantRole.ADMIN)
+    validateTenantRole('admin')
   ],
   requireTenantMember: [
     validateToken,
-    validateTenantAccess(TenantRole.MEMBER)
+    validateTenantRole('member')
   ],
   requireTenantOwner: [
     validateToken,
-    validateTenantAccess(TenantRole.OWNER)
+    validateTenantRole('owner')
   ]
 };

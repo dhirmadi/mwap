@@ -42,12 +42,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof ConflictError) {
         throw error;
       }
-      if (error instanceof Error) {
-        logger.error('Failed to create tenant', { error: error.message, stack: error.stack });
-      } else {
-        logger.error('Failed to create tenant', { error });
-      }
-      throw new InternalServerError('Failed to create tenant');
+      const metadata = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { error };
+      logger.error('Failed to create tenant', metadata);
+      throw new InternalServerError('Failed to create tenant', metadata);
     }
   }
 
@@ -74,12 +73,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      if (error instanceof Error) {
-        logger.error('Failed to get tenant', { error: error.message, stack: error.stack });
-      } else {
-        logger.error('Failed to get tenant', { error });
-      }
-      throw new InternalServerError('Failed to get tenant');
+      const metadata = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { error };
+      logger.error('Failed to get tenant', metadata);
+      throw new InternalServerError('Failed to get tenant', metadata);
     }
   }
 
@@ -110,12 +108,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      if (error instanceof Error) {
-        logger.error('Failed to update tenant', { error: error.message, stack: error.stack });
-      } else {
-        logger.error('Failed to update tenant', { error });
-      }
-      throw new InternalServerError('Failed to update tenant');
+      const metadata = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { error };
+      logger.error('Failed to update tenant', metadata);
+      throw new InternalServerError('Failed to update tenant', metadata);
     }
   }
 
@@ -146,12 +143,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      if (error instanceof Error) {
-        logger.error('Failed to delete tenant', { error: error.message, stack: error.stack });
-      } else {
-        logger.error('Failed to delete tenant', { error });
-      }
-      throw new InternalServerError('Failed to delete tenant');
+      const metadata = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { error };
+      logger.error('Failed to delete tenant', metadata);
+      throw new InternalServerError('Failed to delete tenant', metadata);
     }
   }
 
@@ -191,12 +187,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof ConflictError) {
         throw error;
       }
-      if (error instanceof Error) {
-        logger.error('Failed to add member to tenant', { error: error.message, stack: error.stack });
-      } else {
-        logger.error('Failed to add member to tenant', { error });
-      }
-      throw new InternalServerError('Failed to add member to tenant');
+      const metadata = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { error };
+      logger.error('Failed to add member to tenant', metadata);
+      throw new InternalServerError('Failed to add member to tenant', metadata);
     }
   }
 
@@ -237,12 +232,11 @@ export class TenantService {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
       }
-      if (error instanceof Error) {
-        logger.error('Failed to remove member from tenant', { error: error.message, stack: error.stack });
-      } else {
-        logger.error('Failed to remove member from tenant', { error });
-      }
-      throw new InternalServerError('Failed to remove member from tenant');
+      const metadata = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { error };
+      logger.error('Failed to remove member from tenant', metadata);
+      throw new InternalServerError('Failed to remove member from tenant', metadata);
     }
   }
 
@@ -265,12 +259,11 @@ export class TenantService {
       if (error instanceof ValidationError) {
         throw error;
       }
-      if (error instanceof Error) {
-        logger.error('Failed to get tenant by owner ID', { error: error.message, stack: error.stack });
-      } else {
-        logger.error('Failed to get tenant by owner ID', { error });
-      }
-      throw new InternalServerError('Failed to get tenant by owner ID');
+      const metadata = error instanceof Error ? 
+        { message: error.message, stack: error.stack } : 
+        { error };
+      logger.error('Failed to get tenant by owner ID', metadata);
+      throw new InternalServerError('Failed to get tenant by owner ID', metadata);
     }
   }
 }
