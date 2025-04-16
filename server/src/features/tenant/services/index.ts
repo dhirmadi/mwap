@@ -1,181 +1,212 @@
 import { Types } from 'mongoose';
-import { TenantModel, TenantDocument } from '../schemas';
+import { TenantModel } from '../schemas';
+import { CreateTenantInput, UpdateTenantInput } from '../types';
 import { 
   NotFoundError, 
   ValidationError, 
-  ConflictError 
+  ConflictError, 
+  InternalServerError 
 } from '@core/errors';
-import { generateRequestId } from '@core/utils';
+import { logger } from '@core/utils';
 
-/**
- * Get tenant by owner ID
- */
-export async function getTenantByOwnerId(
-  ownerId: string | Types.ObjectId
-): Promise<TenantDocument | null> {
-  try {
-    // Convert string ID to ObjectId if needed
-    const ownerObjectId = typeof ownerId === 'string' 
-      ? new Types.ObjectId(ownerId)
-      : ownerId;
+export class TenantService {
+  /**
+   * Create a new tenant
+   */
+  async createTenant(userId: string, input: CreateTenantInput) {
+    try {
+      // Check if user already has a tenant
+      const existingTenant = await TenantModel.findOne({ ownerId: userId });
+      if (existingTenant) {
+        throw new ConflictError('User already has a tenant');
+      }
 
-    // Find active tenant for owner
-    return await TenantModel.findOne({
-      ownerId: ownerObjectId,
-      archived: false
-    });
-  } catch (error) {
-    throw new NotFoundError(
-      'Failed to find tenant',
-      { ownerId, error }
-    );
+      // Create new tenant
+      const tenant = new TenantModel({
+        ...input,
+        ownerId: userId,
+        members: [{ userId, role: 'owner' }]
+      });
+
+      await tenant.save();
+      return tenant;
+    } catch (error) {
+      if (error instanceof ConflictError) {
+        throw error;
+      }
+      logger.error('Failed to create tenant', error);
+      throw new InternalServerError('Failed to create tenant');
+    }
   }
-}
 
-/**
- * Create new tenant
- */
-export async function createTenant(
-  ownerId: string | Types.ObjectId,
-  name: string
-): Promise<TenantDocument> {
-  try {
-    // Convert string ID to ObjectId if needed
-    const ownerObjectId = typeof ownerId === 'string'
-      ? new Types.ObjectId(ownerId)
-      : ownerId;
+  /**
+   * Get tenant by ID
+   */
+  async getTenantById(tenantId: string) {
+    try {
+      if (!Types.ObjectId.isValid(tenantId)) {
+        throw new ValidationError('Invalid tenant ID');
+      }
 
-    // Check if owner already has an active tenant
-    const existingTenant = await TenantModel.findOne({
-      ownerId: ownerObjectId,
-      archived: false
-    });
+      const tenant = await TenantModel.findById(tenantId);
+      if (!tenant) {
+        throw new NotFoundError('Tenant not found');
+      }
 
-    if (existingTenant) {
-      throw new ConflictError(
-        'User already has an active tenant',
-        { ownerId, tenantId: existingTenant._id }
-      );
+      return tenant;
+    } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError) {
+        throw error;
+      }
+      logger.error('Failed to get tenant', error);
+      throw new InternalServerError('Failed to get tenant');
     }
-
-    // Validate tenant name
-    if (!name || name.trim().length < 3) {
-      throw new ValidationError(
-        'Tenant name must be at least 3 characters',
-        { name }
-      );
-    }
-
-    // Create new tenant
-    const tenant = new TenantModel({
-      ownerId: ownerObjectId,
-      name: name.trim(),
-      createdAt: new Date(),
-      archived: false
-    });
-
-    // Save to database
-    await tenant.save();
-
-    return tenant;
-  } catch (error) {
-    // Re-throw known errors
-    if (
-      error instanceof ValidationError ||
-      error instanceof ConflictError
-    ) {
-      throw error;
-    }
-
-    // Handle database errors
-    if (error.code === 11000) {
-      throw new ConflictError(
-        'Tenant name already exists',
-        { name, error }
-      );
-    }
-
-    // Handle other errors
-    throw new Error(
-      'Failed to create tenant',
-      { cause: { ownerId, name, error } }
-    );
   }
-}
 
-/**
- * Update tenant
- */
-export async function updateTenant(
-  tenantId: string | Types.ObjectId,
-  ownerId: string | Types.ObjectId,
-  updates: {
-    name?: string;
-    archived?: boolean;
+  /**
+   * Update tenant
+   */
+  async updateTenant(tenantId: string, input: UpdateTenantInput) {
+    try {
+      if (!Types.ObjectId.isValid(tenantId)) {
+        throw new ValidationError('Invalid tenant ID');
+      }
+
+      const tenant = await TenantModel.findByIdAndUpdate(
+        tenantId,
+        { $set: input },
+        { new: true, runValidators: true }
+      );
+
+      if (!tenant) {
+        throw new NotFoundError('Tenant not found');
+      }
+
+      return tenant;
+    } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError) {
+        throw error;
+      }
+      logger.error('Failed to update tenant', error);
+      throw new InternalServerError('Failed to update tenant');
+    }
   }
-): Promise<TenantDocument> {
-  try {
-    // Convert IDs to ObjectId if needed
-    const tenantObjectId = typeof tenantId === 'string'
-      ? new Types.ObjectId(tenantId)
-      : tenantId;
-    const ownerObjectId = typeof ownerId === 'string'
-      ? new Types.ObjectId(ownerId)
-      : ownerId;
 
-    // Find and update tenant
-    const tenant = await TenantModel.findOneAndUpdate(
-      {
-        _id: tenantObjectId,
-        ownerId: ownerObjectId,
+  /**
+   * Delete tenant
+   */
+  async deleteTenant(tenantId: string) {
+    try {
+      if (!Types.ObjectId.isValid(tenantId)) {
+        throw new ValidationError('Invalid tenant ID');
+      }
+
+      const tenant = await TenantModel.findByIdAndDelete(tenantId);
+      if (!tenant) {
+        throw new NotFoundError('Tenant not found');
+      }
+
+      return tenant;
+    } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError) {
+        throw error;
+      }
+      logger.error('Failed to delete tenant', error);
+      throw new InternalServerError('Failed to delete tenant');
+    }
+  }
+
+  /**
+   * Add member to tenant
+   */
+  async addMember(tenantId: string, userId: string, role: string) {
+    try {
+      if (!Types.ObjectId.isValid(tenantId)) {
+        throw new ValidationError('Invalid tenant ID');
+      }
+
+      const tenant = await TenantModel.findById(tenantId);
+      if (!tenant) {
+        throw new NotFoundError('Tenant not found');
+      }
+
+      // Check if user is already a member
+      if (tenant.members.some(member => member.userId === userId)) {
+        throw new ConflictError('User is already a member of this tenant');
+      }
+
+      tenant.members.push({ userId, role });
+      await tenant.save();
+
+      return tenant;
+    } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof ConflictError) {
+        throw error;
+      }
+      logger.error('Failed to add member to tenant', error);
+      throw new InternalServerError('Failed to add member to tenant');
+    }
+  }
+
+  /**
+   * Remove member from tenant
+   */
+  async removeMember(tenantId: string, userId: string) {
+    try {
+      if (!Types.ObjectId.isValid(tenantId)) {
+        throw new ValidationError('Invalid tenant ID');
+      }
+
+      const tenant = await TenantModel.findById(tenantId);
+      if (!tenant) {
+        throw new NotFoundError('Tenant not found');
+      }
+
+      // Check if user is a member
+      const memberIndex = tenant.members.findIndex(member => member.userId === userId);
+      if (memberIndex === -1) {
+        throw new NotFoundError('User is not a member of this tenant');
+      }
+
+      // Don't allow removing the owner
+      if (tenant.members[memberIndex].role === 'owner') {
+        throw new ValidationError('Cannot remove tenant owner');
+      }
+
+      tenant.members.splice(memberIndex, 1);
+      await tenant.save();
+
+      return tenant;
+    } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError) {
+        throw error;
+      }
+      logger.error('Failed to remove member from tenant', error);
+      throw new InternalServerError('Failed to remove member from tenant');
+    }
+  }
+
+  /**
+   * Get tenant by owner ID
+   */
+  async getTenantByOwnerId(ownerId: string): Promise<TenantDocument | null> {
+    try {
+      if (!Types.ObjectId.isValid(ownerId)) {
+        throw new ValidationError('Invalid owner ID');
+      }
+
+      const tenant = await TenantModel.findOne({
+        ownerId: new Types.ObjectId(ownerId),
         archived: false
-      },
-      {
-        $set: {
-          ...(updates.name && { name: updates.name.trim() }),
-          ...(typeof updates.archived === 'boolean' && { archived: updates.archived }),
-          updatedAt: new Date()
-        }
-      },
-      { new: true }
-    );
+      });
 
-    if (!tenant) {
-      throw new NotFoundError(
-        'Tenant not found or not owned by user',
-        { tenantId, ownerId }
-      );
+      return tenant;
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        throw error;
+      }
+      logger.error('Failed to get tenant by owner ID', error);
+      throw new InternalServerError('Failed to get tenant by owner ID');
     }
-
-    return tenant;
-  } catch (error) {
-    // Re-throw known errors
-    if (error instanceof NotFoundError) {
-      throw error;
-    }
-
-    // Handle database errors
-    if (error.code === 11000) {
-      throw new ConflictError(
-        'Tenant name already exists',
-        { tenantId, updates, error }
-      );
-    }
-
-    // Handle other errors
-    throw new Error(
-      'Failed to update tenant',
-      { cause: { tenantId, ownerId, updates, error } }
-    );
   }
-}
-
-/**
- * Archive tenant
- */
-export async function archiveTenant(
-  tenantId: string | Types.ObjectId,
-  ownerId: string | Types.ObjectId
-): Promise<TenantDocument> {
-  return updateTenant(tenantId, ownerId, { archived: true });
 }
