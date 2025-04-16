@@ -7,18 +7,7 @@ import { adminRoutes } from '@features/superadmin/routes';
 
 const router = Router();
 
-// Health check endpoint
-router.get('/health', (req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-// API routes
-// Mount tenant routes without additional prefix since tenant routes already handle their paths
-router.use(tenantRoutes);
+router.use('/tenant', tenantRoutes);
 router.use('/projects', projectRoutes);
 router.use('/users', userRoutes);
 router.use('/invites', inviteRoutes);
