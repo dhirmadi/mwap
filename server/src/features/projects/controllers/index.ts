@@ -1,7 +1,8 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '@core/types/express';
 import { ProjectModel } from '@features/projects/schemas';
 import { AsyncController } from '@core/types/express';
+import { logger } from '@core/utils';
 
 export const ProjectController: AsyncController = {
   /**
@@ -21,38 +22,59 @@ export const ProjectController: AsyncController = {
    * Returns empty array if user has no projects (not an error)
    * @requires requireProjectRole - Any role can list projects
    */
-  listProjects: async (req: AuthRequest, res: Response): Promise<void> => {
-    const userId = req.user.id;
-    
-    // Stub: List all projects user has access to
-    const hasProjects = Math.random() > 0.5;  // Simulate random projects existence
-    
-    // Return empty array if no projects (not an error)
-    const projects = hasProjects ? [
-      {
-        id: 'stub-project-1',
-        name: 'Stub Project 1',
-        description: 'A stub project',
-        tenantId: 'stub-tenant-1',
-        createdBy: userId,
-        role: 'OWNER',
-        archived: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ] : [];
+  listProjects: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      logger.debug('Listing projects for user', { userId: req.user.id });
 
-    res.status(200).json({
-      data: projects,
-      meta: {
-        requestId: req.id,
-        pagination: {
-          total: projects.length,
-          page: 1,
-          limit: 10
+      // Find all projects where user is a member
+      const projects = await ProjectModel.find({
+        'members.userId': req.user.id,
+        archived: false
+      }).select({
+        _id: 1,
+        name: 1,
+        tenantId: 1,
+        'members.$': 1, // Only include the matching member
+        createdAt: 1,
+        archived: 1
+      });
+
+      logger.debug('Found projects for user', {
+        userId: req.user.id,
+        count: projects.length
+      });
+
+      // Transform projects to include user's role
+      const transformedProjects = projects.map(project => {
+        const member = project.members[0]; // We only got the matching member due to $ projection
+        return {
+          id: project._id,
+          name: project.name,
+          tenantId: project.tenantId,
+          role: member.role,
+          archived: project.archived,
+          createdAt: project.createdAt
+        };
+      });
+
+      res.status(200).json({
+        data: transformedProjects,
+        meta: {
+          requestId: req.id,
+          pagination: {
+            total: transformedProjects.length,
+            page: 1,
+            limit: 10
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      logger.error('Error listing projects', {
+        userId: req.user.id,
+        error
+      });
+      next(error);
+    }
   },
 
   /**

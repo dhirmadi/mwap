@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { InviteController } from '@features/invites/controllers';
 import { auth } from '@core/middleware/auth';
 import { requireProjectRole } from '@core/middleware/tenant';
+import { ProjectRole } from '@features/projects/schemas';
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const router = Router();
 router.post(
   '/invites',
   auth.validateToken,
-  requireProjectRole(['admin', 'deputy']),
+  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
   InviteController.createInvite
 );
 

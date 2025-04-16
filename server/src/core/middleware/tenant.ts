@@ -1,8 +1,9 @@
 import { Response, NextFunction } from 'express';
-import { Role, roleHierarchy, isValidRole } from '@core/middleware/types';
 import { AuthRequest } from '@core/types/express';
 import { TenantModel } from '@features/tenant/schemas';
-import { ProjectModel } from '@features/projects/schemas';
+import { ProjectModel, ProjectRole } from '@features/projects/schemas';
+import { AuthenticationError, AuthorizationError, NotFoundError } from '@core/errors';
+import { logger } from '@core/utils';
 
 /**
  * Middleware to ensure user doesn't already have a tenant
@@ -43,38 +44,53 @@ export function requireTenantOwner() {
 
 /**
  * Middleware to ensure user has required project role(s)
- * @param requiredRoles Single role or array of roles that can access
+ * @param roles Array of roles that can access the resource
  */
-export function requireProjectRole(requiredRoles?: Role | Role[]) {
+export function requireProjectRole(roles: ProjectRole[] = [ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR]) {
   return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    const { id: projectId } = req.params;
-    const userId = req.user?.sub;
-
-    // Stub: Get user's role in project
-    const userRole = 'contributor';
-    if (!isValidRole(userRole)) {
-      res.status(403).json({
-        message: 'Invalid role'
-      });
-      return;
-    }
-
-    // If specific roles required, check user has one
-    if (requiredRoles) {
-      const roles = Array.isArray(requiredRoles) ? requiredRoles : [requiredRoles];
-      const userRoleLevel = roleHierarchy[userRole];
-      const hasRequiredRole = roles.some(role => 
-        roleHierarchy[role] <= userRoleLevel
-      );
-
-      if (!hasRequiredRole) {
-        res.status(403).json({
-          message: 'Insufficient permissions for this action'
-        });
-        return;
+    try {
+      // Validate user
+      if (!req.user) {
+        logger.error('User not authenticated in requireProjectRole');
+        throw new AuthenticationError('User not authenticated');
       }
-    }
 
-    next();
+      // Get project ID from params or query
+      const projectId = req.params.id || req.query.projectId;
+      if (!projectId) {
+        logger.error('Missing project ID in requireProjectRole', { userId: req.user.id });
+        throw new AuthorizationError('Missing project ID');
+      }
+
+      // Find project and validate membership
+      const project = await ProjectModel.findById(projectId);
+      if (!project) {
+        logger.error('Project not found in requireProjectRole', { projectId, userId: req.user.id });
+        throw new NotFoundError('Project not found');
+      }
+
+      // Check member role
+      const member = project.members.find(m => m.userId.toString() === req.user.id);
+      if (!member || !roles.includes(member.role)) {
+        logger.error('User lacks required role', {
+          userId: req.user.id,
+          projectId,
+          userRole: member?.role,
+          requiredRoles: roles
+        });
+        throw new AuthorizationError('Insufficient permissions');
+      }
+
+      // Add project to request for downstream use
+      req.project = project;
+      next();
+    } catch (error) {
+      logger.error('Error in requireProjectRole middleware', {
+        userId: req.user?.id,
+        projectId: req.params.id || req.query.projectId,
+        error
+      });
+      next(error);
+    }
   };
 }

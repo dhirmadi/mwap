@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { User } from '@core/types/auth';
+import { ProjectDocument } from '@features/projects/schemas';
 
 // 1. Global type extension
 declare global {
@@ -7,6 +8,7 @@ declare global {
     interface Request {
       user: User;
       id: string;
+      project?: ProjectDocument; // Added by requireProjectRole middleware
     }
   }
 }
@@ -15,6 +17,7 @@ declare global {
 export interface AuthRequest extends Request {
   user: User;
   id: string;
+  project?: ProjectDocument; // Added by requireProjectRole middleware
 }
 
 // 3. Update handler types to use standard Request

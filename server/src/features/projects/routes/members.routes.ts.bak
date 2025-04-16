@@ -10,7 +10,7 @@ const router = Router();
 router.patch(
   '/projects/:id/members/:userId',
   auth.validateToken,
-  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
+  requireProjectRole(['admin', 'deputy']),
   ProjectMemberController.updateMemberRole
 );
 
@@ -18,7 +18,7 @@ router.patch(
 router.delete(
   '/projects/:id/members/:userId',
   auth.validateToken,
-  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
+  requireProjectRole(['admin', 'deputy']),
   ProjectMemberController.removeMember
 );
 
