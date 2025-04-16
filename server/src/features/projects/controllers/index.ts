@@ -17,35 +17,83 @@ export const ProjectController: AsyncController = {
 
   /**
    * List all projects in tenant
+   * Returns empty array if user has no projects (not an error)
    * @requires requireProjectRole - Any role can list projects
    */
   listProjects: async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user.id;
+    
     // Stub: List all projects user has access to
+    const hasProjects = Math.random() > 0.5;  // Simulate random projects existence
+    
+    // Return empty array if no projects (not an error)
+    const projects = hasProjects ? [
+      {
+        id: 'stub-project-1',
+        name: 'Stub Project 1',
+        description: 'A stub project',
+        tenantId: 'stub-tenant-1',
+        createdBy: userId,
+        role: 'OWNER',
+        archived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ] : [];
+
     res.status(200).json({
-      projects: [
-        {
-          id: 'stub-project-1',
-          name: 'Stub Project 1',
-          archived: false,
-          createdAt: new Date()
+      data: projects,
+      meta: {
+        requestId: req.id,
+        pagination: {
+          total: projects.length,
+          page: 1,
+          limit: 10
         }
-      ]
+      }
     });
   },
 
   /**
    * Get project by ID
+   * Returns 404 if project doesn't exist (this IS an error)
    * @requires requireProjectRole - Any role can view project
    */
   getProject: async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
+    const userId = req.user.id;
 
-    // Stub: Return project details
+    // Stub: Check if project exists
+    const exists = id === 'stub-project-1';  // Simulate project existence check
+
+    // Return 404 if project doesn't exist (this IS an error)
+    if (!exists) {
+      res.status(404).json({
+        error: {
+          code: 'NOT_FOUND_ERROR',
+          message: `Project ${id} not found`,
+          requestId: req.id
+        }
+      });
+      return;
+    }
+
+    // Return project details
     res.status(200).json({
-      id,
-      name: 'Stub Project',
-      archived: false,
-      createdAt: new Date()
+      data: {
+        id,
+        name: 'Stub Project',
+        description: 'A stub project',
+        tenantId: 'stub-tenant-1',
+        createdBy: userId,
+        role: 'OWNER',
+        archived: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      meta: {
+        requestId: req.id
+      }
     });
   },
 
