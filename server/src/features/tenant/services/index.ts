@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { TenantModel, TenantDocument } from '../schemas';
+import { TenantModel, TenantDocument, TenantRole } from '../schemas';
 import { CreateTenantInput, UpdateTenantInput } from '../types';
 import { 
   NotFoundError, 
@@ -15,13 +15,10 @@ export class TenantService {
    */
   async createTenant(userId: string, input: CreateTenantInput) {
     try {
-      if (!Types.ObjectId.isValid(userId)) {
-        throw new ValidationError('Invalid user ID');
-      }
-
       // Check if user already has a tenant
       const existingTenant = await TenantModel.findOne({ 
-        ownerId: new Types.ObjectId(userId),
+        'members.userId': userId,
+        'members.role': TenantRole.OWNER,
         archived: false
       });
 
@@ -32,8 +29,11 @@ export class TenantService {
       // Create new tenant
       const tenant = new TenantModel({
         ...input,
-        ownerId: new Types.ObjectId(userId),
-        members: [{ userId, role: 'owner' }]
+        members: [{
+          userId,
+          role: TenantRole.OWNER,
+          joinedAt: new Date()
+        }]
       });
 
       await tenant.save();
@@ -175,11 +175,15 @@ export class TenantService {
       }
 
       // Validate role
-      if (!['owner', 'admin', 'member'].includes(role)) {
-        throw new ValidationError('Invalid role. Must be one of: owner, admin, member');
+      if (!Object.values(TenantRole).includes(role as TenantRole)) {
+        throw new ValidationError('Invalid role. Must be one of: OWNER, ADMIN, MEMBER');
       }
 
-      tenant.members.push({ userId, role });
+      tenant.members.push({ 
+        userId, 
+        role: role as TenantRole,
+        joinedAt: new Date()
+      });
       await tenant.save();
 
       return tenant;
@@ -220,7 +224,7 @@ export class TenantService {
       }
 
       // Don't allow removing the owner
-      if (tenant.members[memberIndex].role === 'owner') {
+      if (tenant.members[memberIndex].role === TenantRole.OWNER) {
         throw new ValidationError('Cannot remove tenant owner');
       }
 

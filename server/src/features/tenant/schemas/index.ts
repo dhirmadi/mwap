@@ -1,26 +1,38 @@
 import { Schema, model, Document, Model, Types } from 'mongoose';
 
+// Tenant role enumeration
+export enum TenantRole {
+  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER'
+}
+
 // Member interface and schema
 interface TenantMember {
   userId: string;
-  role: string;
+  role: TenantRole;
+  joinedAt: Date;
 }
 
 const tenantMemberSchema = new Schema<TenantMember>({
   userId: {
     type: String,
-    required: true
+    required: true,
+    index: true
   },
   role: {
     type: String,
     required: true,
-    enum: ['owner', 'admin', 'member']
+    enum: Object.values(TenantRole)
+  },
+  joinedAt: {
+    type: Date,
+    default: Date.now
   }
 }, { _id: false });
 
 // TypeScript interfaces
 export interface Tenant {
-  ownerId: Types.ObjectId;
   name: string;
   members: TenantMember[];
   createdAt: Date;
@@ -33,12 +45,6 @@ export interface TenantModel extends Model<TenantDocument> {}
 
 // Mongoose schema
 const tenantSchema = new Schema<TenantDocument>({
-  ownerId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'User',
-    index: true // Index for faster owner lookups
-  },
   name: {
     type: String,
     required: true,
@@ -66,18 +72,8 @@ const tenantSchema = new Schema<TenantDocument>({
 tenantSchema.index({ ownerId: 1, archived: 1 });
 tenantSchema.index({ 'members.userId': 1 }); // Index for member lookups
 
-// Ensure owner is always a member with owner role
-tenantSchema.pre('save', function(next) {
-  const tenant = this;
-  const ownerExists = tenant.members.some(member => 
-    member.userId === tenant.ownerId.toString() && member.role === 'owner'
-  );
-  
-  if (!ownerExists) {
-    tenant.members.push({ userId: tenant.ownerId.toString(), role: 'owner' });
-  }
-  next();
-});
+// Add indexes for common queries
+tenantSchema.index({ 'members.userId': 1, archived: 1 }); // User's active/archived tenants
 
 export const TenantModel = model<TenantDocument, TenantModel>('Tenant', tenantSchema);
 
