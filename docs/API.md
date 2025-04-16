@@ -1,141 +1,401 @@
 # MWAP API Documentation
 
+## Base URL
+All API endpoints are prefixed with `/api/v1`. For example, `/tenant` becomes `/api/v1/tenant`.
+
 ## Authentication
 All routes require authentication using Auth0. Include the JWT token in the Authorization header:
 ```
 Authorization: Bearer <token>
 ```
 
-## Tenant Management
-### Create Tenant
+## Response Format
+All responses follow this format:
+```json
+{
+  "data": T,  // Response data of type T
+  "meta": {
+    "requestId": string,
+    "timestamp": string,
+    "pagination?: {
+      "page": number,
+      "limit": number,
+      "total": number
+    }
+  }
+}
 ```
-POST /tenant
+
+## Error Format
+Error responses follow this format:
+```json
+{
+  "error": {
+    "code": string,
+    "message": string,
+    "requestId": string,
+    "data"?: any
+  }
+}
+```
+
+## Tenant Management
+
+### Create Tenant
+```http
+POST /api/v1/tenant
 Authorization: Required
-Body: { name: string }
-Response: { tenantId: string, name: string, ... }
+
+Request:
+{
+  "name": string  // 3-50 chars, alphanumeric + spaces/hyphens/underscores
+}
+
+Response:
+{
+  "data": {
+    "id": string,
+    "name": string,
+    "members": [{
+      "userId": string,
+      "role": "OWNER",
+      "joinedAt": string
+    }],
+    "createdAt": string,
+    "archived": boolean
+  },
+  "meta": {
+    "requestId": string,
+    "timestamp": string
+  }
+}
 ```
 - One tenant per user
-- Returns 400 if user already has a tenant
+- Returns 409 if user already has a tenant
+- Name validation: 3-50 chars, alphanumeric + spaces/hyphens/underscores
 
 ### Get Current Tenant
-```
-GET /tenant/me
+```http
+GET /api/v1/tenant/me
 Authorization: Required
-Response: { id: string, name: string, ownerId: string, ... }
+
+Response:
+{
+  "data": {
+    "id": string,
+    "name": string,
+    "members": Array<Member>,
+    "createdAt": string,
+    "archived": boolean
+  },
+  "meta": {
+    "requestId": string
+  }
+}
+```
+- Returns null if user has no tenant (not an error)
+
+### Update Tenant
+```http
+PATCH /api/v1/tenant/:id
+Authorization: Required + Tenant Owner
+
+Request:
+{
+  "name": string  // Same validation as create
+}
+
+Response: Same as GET /api/v1/tenant/me
 ```
 
-## Project Management
-### Create Project
-```
-POST /projects
+### Archive Tenant
+```http
+DELETE /api/v1/tenant/:id
 Authorization: Required + Tenant Owner
-Body: { name: string }
-Response: { projectId: string, name: string, ... }
+
+Response:
+{
+  "data": {
+    "success": true
+  },
+  "meta": {
+    "requestId": string
+  }
+}
+```
+- Soft deletes by setting archived=true
+- Also archives all projects in the tenant
+
+## Project Management
+
+### Create Project
+```http
+POST /api/v1/projects
+Authorization: Required + Tenant Owner
+
+Request:
+{
+  "name": string,
+  "description"?: string
+}
+
+Response:
+{
+  "data": {
+    "id": string,
+    "name": string,
+    "description": string,
+    "tenantId": string,
+    "createdBy": string,
+    "createdAt": string,
+    "updatedAt": string,
+    "archived": boolean
+  },
+  "meta": {
+    "requestId": string
+  }
+}
 ```
 
 ### List Projects
-```
-GET /projects?page=1&limit=20
+```http
+GET /api/v1/projects
 Authorization: Required
-Response: {
-  projects: Array<Project>,
-  pagination: { page: number, limit: number, total: number }
+
+Query Parameters:
+- page?: number (default: 1)
+- limit?: number (default: 20, max: 100)
+- sort?: string
+- order?: 'asc' | 'desc'
+- archived?: boolean (default: false)
+
+Response:
+{
+  "data": [{
+    "id": string,
+    "name": string,
+    "description": string,
+    "tenantId": string,
+    "createdBy": string,
+    "role": string,  // User's role in project
+    "archived": boolean,
+    "createdAt": string,
+    "updatedAt": string
+  }],
+  "meta": {
+    "requestId": string,
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number
+    }
+  }
 }
 ```
-- Returns only non-archived projects where user is a member
-- Default page size: 20, max: 100
+- Returns only projects where user is a member
+- Excludes archived projects by default
 
 ### Get Project
-```
-GET /projects/:id
+```http
+GET /api/v1/projects/:id
 Authorization: Required + Project Member
-Response: { id: string, name: string, members: Array<Member>, ... }
+
+Response: Same as single project in List Projects
 ```
 
 ### Update Project
-```
-PATCH /projects/:id
+```http
+PATCH /api/v1/projects/:id
 Authorization: Required + Project Admin
-Body: { name?: string }
-Response: { id: string, name: string, ... }
+
+Request:
+{
+  "name"?: string,
+  "description"?: string,
+  "archived"?: boolean
+}
+
+Response: Same as Get Project
 ```
 
 ### Delete Project
-```
-DELETE /projects/:id
+```http
+DELETE /api/v1/projects/:id
 Authorization: Required + Project Admin
-Response: { message: string }
+
+Response:
+{
+  "data": {
+    "success": true
+  },
+  "meta": {
+    "requestId": string
+  }
+}
 ```
 - Soft deletes by setting archived=true
 
 ## Project Members
-### Update Member Role
+
+### List Members
+```http
+GET /api/v1/projects/:id/members
+Authorization: Required + Project Member
+
+Query Parameters:
+- page?: number (default: 1)
+- limit?: number (default: 20, max: 100)
+- sort?: string
+- order?: 'asc' | 'desc'
+
+Response:
+{
+  "data": [{
+    "userId": string,
+    "role": string,
+    "joinedAt": string
+  }],
+  "meta": {
+    "requestId": string,
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number
+    }
+  }
+}
 ```
-PATCH /projects/:id/members/:userId
+
+### Update Member Role
+```http
+PATCH /api/v1/projects/:id/members/:userId
 Authorization: Required + Project Admin/Deputy
-Body: { role: "admin" | "deputy" | "contributor" }
-Response: { members: Array<Member> }
+
+Request:
+{
+  "role": "ADMIN" | "DEPUTY" | "CONTRIBUTOR"
+}
+
+Response: Same as member object in List Members
 ```
 - Cannot modify own role
 - Cannot promote beyond own role level
+- Deputies cannot modify Admin roles
 
 ### Remove Member
-```
-DELETE /projects/:id/members/:userId
+```http
+DELETE /api/v1/projects/:id/members/:userId
 Authorization: Required + Project Admin/Deputy
-Response: { message: string }
+
+Response:
+{
+  "data": {
+    "success": true
+  },
+  "meta": {
+    "requestId": string
+  }
+}
 ```
 - Cannot remove self
 - Cannot remove members with higher role
 
-## Invites
-### Create Invite
-```
-POST /invites
-Authorization: Required + Project Admin/Deputy
-Body: {
-  projectId: string,
-  role: "admin" | "deputy" | "contributor",
-  expiresIn?: number // seconds, default: 1h, max: 24h
-}
-Response: { code: string, expiresAt: string }
-```
+## User Profile
 
-### Redeem Invite
-```
-POST /invites/redeem
+### Get Current User
+```http
+GET /api/v1/auth/me
 Authorization: Required
-Body: { code: string }
-Response: { projectId: string, role: string }
+
+Response:
+{
+  "data": {
+    "id": string,
+    "email": string,
+    "name": string,
+    "picture"?: string,
+    "roles": string[],
+    "tenantId"?: string
+  },
+  "meta": {
+    "requestId": string
+  }
+}
 ```
-- Single-use codes
-- Validates expiration
 
 ## Super Admin
-### List All Tenants
-```
-GET /admin/tenants?page=1&limit=20
-Authorization: Required + Super Admin
-Response: {
-  tenants: Array<Tenant>,
-  pagination: { page: number, limit: number, total: number }
-}
-```
 
-### List All Projects
-```
-GET /admin/projects?page=1&limit=20
+### List All Tenants
+```http
+GET /api/v1/admin/tenants
 Authorization: Required + Super Admin
-Response: {
-  projects: Array<Project>,
-  pagination: { page: number, limit: number, total: number }
+
+Query Parameters:
+- page?: number (default: 1)
+- limit?: number (default: 20, max: 100)
+- sort?: string
+- order?: 'asc' | 'desc'
+- archived?: boolean
+
+Response:
+{
+  "data": Array<Tenant>,
+  "meta": {
+    "requestId": string,
+    "pagination": {
+      "page": number,
+      "limit": number,
+      "total": number
+    }
+  }
 }
 ```
 
 ### Archive Tenant
-```
-PATCH /admin/tenant/:id/archive
+```http
+PATCH /api/v1/admin/tenant/:id/archive
 Authorization: Required + Super Admin
-Response: { message: string }
+
+Response:
+{
+  "data": {
+    "tenantId": string,
+    "success": true
+  },
+  "meta": {
+    "requestId": string
+  }
+}
 ```
 - Archives tenant and all its projects
+
+## Error Codes
+
+| Code | Status | Description |
+|------|---------|-------------|
+| VALIDATION_ERROR | 400 | Invalid request parameters |
+| AUTHENTICATION_ERROR | 401 | Missing or invalid token |
+| AUTHORIZATION_ERROR | 403 | Insufficient permissions |
+| NOT_FOUND_ERROR | 404 | Resource not found |
+| CONFLICT_ERROR | 409 | Resource already exists |
+| INTERNAL_ERROR | 500 | Server error |
+
+## Role Hierarchy
+
+### Tenant Roles
+```typescript
+enum TenantRole {
+  OWNER = 'OWNER',    // Level 3
+  ADMIN = 'ADMIN',    // Level 2
+  MEMBER = 'MEMBER'   // Level 1
+}
+```
+
+### Project Roles
+```typescript
+enum ProjectRole {
+  ADMIN = 'ADMIN',          // Level 3
+  DEPUTY = 'DEPUTY',        // Level 2
+  CONTRIBUTOR = 'CONTRIBUTOR' // Level 1
+}
+```
