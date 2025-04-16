@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
 import { TenantModel, TenantDocument, TenantRole } from '../schemas';
+import { ProjectModel } from '@features/projects/schemas';
 import { CreateTenantInput, UpdateTenantInput } from '../types';
 import { 
   NotFoundError, 
@@ -131,28 +132,51 @@ export class TenantService {
   }
 
   /**
-   * Delete tenant
+   * Archive tenant and cascade to projects
    */
-  async deleteTenant(tenantId: string) {
+  async archiveTenant(tenantId: string) {
     try {
       if (!Types.ObjectId.isValid(tenantId)) {
         throw new ValidationError('Invalid tenant ID');
       }
 
-      const tenant = await TenantModel.findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(tenantId),
-          archived: false
-        },
-        { $set: { archived: true } },
-        { new: true }
-      );
+      // Start a session for transaction
+      const session = await TenantModel.startSession();
+      let archivedTenant;
 
-      if (!tenant) {
-        throw new NotFoundError('Tenant not found');
+      try {
+        await session.withTransaction(async () => {
+          // Archive tenant
+          archivedTenant = await TenantModel.findOneAndUpdate(
+            {
+              _id: new Types.ObjectId(tenantId),
+              archived: false
+            },
+            { $set: { archived: true } },
+            { new: true, session }
+          );
+
+          if (!archivedTenant) {
+            throw new NotFoundError('Tenant not found');
+          }
+
+          // Archive all projects belonging to this tenant
+          await ProjectModel.updateMany(
+            { tenantId: new Types.ObjectId(tenantId) },
+            { $set: { archived: true } },
+            { session }
+          );
+
+          logger.debug('Archived tenant and associated projects', {
+            tenantId,
+            tenantName: archivedTenant.name
+          });
+        });
+      } finally {
+        await session.endSession();
       }
 
-      return tenant;
+      return archivedTenant!;
     } catch (error) {
       if (error instanceof ValidationError || error instanceof NotFoundError) {
         throw error;
@@ -160,8 +184,8 @@ export class TenantService {
       const metadata = error instanceof Error ? 
         { message: error.message, stack: error.stack } : 
         { error };
-      logger.error('Failed to delete tenant', metadata);
-      throw new InternalServerError('Failed to delete tenant', metadata);
+      logger.error('Failed to archive tenant', metadata);
+      throw new InternalServerError('Failed to archive tenant', metadata);
     }
   }
 

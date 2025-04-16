@@ -4,6 +4,7 @@ import { AsyncController } from '@core/types/express';
 import { TenantService } from '../services';
 import { ValidationError } from '@core/errors';
 import { logger } from '@core/utils/logger';
+import { createTenantSchema, archiveTenantSchema } from '../validation';
 
 // Create a singleton instance of TenantService
 const tenantService = new TenantService();
@@ -21,15 +22,10 @@ export const TenantController: AsyncController = {
         requestId: req.id
       });
 
-      // Validate request body
-      const { name } = req.body;
-      if (!name) {
-        logger.warn('Missing tenant name', { userId: req.user.id });
-        throw new ValidationError('Tenant name is required');
-      }
+      // Validation is handled by middleware using createTenantSchema
 
       // Create tenant
-      const tenant = await tenantService.createTenant(req.user.id, { name });
+      const tenant = await tenantService.createTenant(req.user.id, { name: req.body.name });
       logger.info('Tenant created successfully', {
         tenantId: tenant._id,
         userId: req.user.id,
@@ -109,18 +105,37 @@ export const TenantController: AsyncController = {
    */
   archiveTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      // Delete tenant
-      const tenant = await tenantService.deleteTenant(req.params.id);
+      logger.debug('Archiving tenant', {
+        tenantId: req.params.id,
+        userId: req.user.id,
+        requestId: req.id
+      });
+
+      // Archive tenant and cascade to projects
+      const tenant = await tenantService.archiveTenant(req.params.id);
+
+      logger.info('Tenant archived successfully', {
+        tenantId: tenant._id,
+        userId: req.user.id
+      });
 
       // Return success response
       res.status(200).json({
-        data: tenant,
+        data: {
+          tenantId: tenant._id,
+          success: true
+        },
         meta: {
           requestId: req.id
         }
       });
     } catch (error) {
-      // Let error middleware handle it
+      logger.error('Failed to archive tenant', {
+        tenantId: req.params.id,
+        userId: req.user.id,
+        error,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw error;
     }
   }
