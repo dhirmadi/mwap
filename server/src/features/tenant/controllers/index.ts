@@ -4,7 +4,7 @@ import { AsyncController } from '@core/types/express';
 import { TenantService } from '../services';
 import { ValidationError } from '@core/errors';
 import { logger } from '@core/utils/logger';
-import { createTenantSchema, archiveTenantSchema } from '../validation';
+// Validation is handled by middleware
 
 // Create a singleton instance of TenantService
 const tenantService = new TenantService();
@@ -52,21 +52,16 @@ export const TenantController: AsyncController = {
    * Returns null if user has no tenant (not an error)
    */
   getCurrentTenant: async (req: AuthRequest, res: Response): Promise<void> => {
-    try {
-      // Get tenant
-      const tenant = await tenantService.getTenantByOwnerId(req.user.id);
+    // Get tenant
+    const tenant = await tenantService.getTenantByOwnerId(req.user.id);
 
-      // Return response
-      res.status(200).json({
-        data: tenant,
-        meta: {
-          requestId: req.id
-        }
-      });
-    } catch (error) {
-      // Let error middleware handle it
-      throw error;
-    }
+    // Return response
+    res.status(200).json({
+      data: tenant,
+      meta: {
+        requestId: req.id
+      }
+    });
   },
 
   /**
@@ -74,29 +69,24 @@ export const TenantController: AsyncController = {
    * @requires requireTenantOwner - Only tenant owner can update
    */
   updateTenant: async (req: AuthRequest, res: Response): Promise<void> => {
-    try {
-      // Validate request
-      const { id: tenantId } = req.params;
-      const { name } = req.body;
+    // Validate request
+    const { id: tenantId } = req.params;
+    const { name } = req.body;
 
-      if (!name) {
-        throw new ValidationError('No updates provided');
-      }
-
-      // Update tenant
-      const tenant = await tenantService.updateTenant(tenantId, { name });
-
-      // Return success response
-      res.status(200).json({
-        data: tenant,
-        meta: {
-          requestId: req.id
-        }
-      });
-    } catch (error) {
-      // Let error middleware handle it
-      throw error;
+    if (!name) {
+      throw new ValidationError('No updates provided');
     }
+
+    // Update tenant
+    const tenant = await tenantService.updateTenant(tenantId, { name });
+
+    // Return success response
+    res.status(200).json({
+      data: tenant,
+      meta: {
+        requestId: req.id
+      }
+    });
   },
 
   /**
