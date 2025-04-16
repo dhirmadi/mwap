@@ -1,6 +1,6 @@
 import { Card, Text, TextInput, Button, Group, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useInvites } from '../hooks/useInvites';
+import { useInvites } from '../../hooks/useInvites';
 import { useState } from 'react';
 
 export function RedeemInvite() {

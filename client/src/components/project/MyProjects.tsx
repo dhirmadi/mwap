@@ -1,5 +1,5 @@
 import { Card, Text, Stack, Badge, Group, Skeleton } from '@mantine/core';
-import { useProjects } from '../hooks/useProjects';
+import { useProjects } from '../../hooks/useProjects';
 
 export function MyProjects() {
   const { projects, isLoading, error } = useProjects();

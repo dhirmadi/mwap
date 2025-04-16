@@ -1,6 +1,6 @@
 import { Card, Text, TextInput, Button, Group, Stack, Skeleton } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useTenant } from '../hooks/useTenant';
+import { useTenant } from '../../hooks/useTenant';
 import { useState } from 'react';
 
 export function TenantStatus() {
