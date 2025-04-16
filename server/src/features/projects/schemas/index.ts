@@ -29,8 +29,7 @@ export interface ProjectModel extends Model<ProjectDocument> {}
 const projectMemberSchema = new Schema<ProjectMember>({
   userId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   role: {
     type: String,
@@ -63,9 +62,6 @@ const projectSchema = new Schema<ProjectDocument>({
     index: true // Index for filtering archived/active projects
   }
 });
-
-// Index for members.userId lookups
-projectSchema.index({ 'members.userId': 1 });
 
 // Compound indexes for common queries
 projectSchema.index({ tenantId: 1, archived: 1 }); // Tenant's active/archived projects
