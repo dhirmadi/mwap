@@ -22,8 +22,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-// Serve static files in all non-development environments with caching
-if (!env.isDevelopment()) {
+// Serve static files in all environments
+{
   const staticOptions = {
     etag: true,
     lastModified: true,
@@ -38,6 +38,13 @@ if (!env.isDevelopment()) {
 
   const clientPath = path.join(__dirname, '../../client/dist');
   
+  logger.info('Setting up static file serving', {
+    clientPath,
+    exists: require('fs').existsSync(clientPath),
+    files: require('fs').existsSync(clientPath) ? require('fs').readdirSync(clientPath) : [],
+    dirname: __dirname
+  });
+  
   // Serve static files
   app.use(express.static(clientPath, staticOptions));
 
@@ -45,12 +52,33 @@ if (!env.isDevelopment()) {
   app.get('*', (req: Request, res: Response, next: NextFunction) => {
     // Skip API routes
     if (req.path.startsWith('/api')) {
+      logger.debug('Skipping SPA handler for API route', { path: req.path });
       return next();
     }
-    res.sendFile(path.join(clientPath, 'index.html'), (err) => {
+
+    const indexPath = path.join(clientPath, 'index.html');
+    logger.debug('Attempting to serve index.html', {
+      path: req.path,
+      indexPath,
+      exists: require('fs').existsSync(indexPath)
+    });
+
+    res.sendFile(indexPath, (err) => {
       if (err) {
-        console.error('Error sending index.html:', err);
+        logger.error('Error sending index.html', {
+          error: err instanceof Error ? {
+            message: err.message,
+            stack: err.stack
+          } : err,
+          path: req.path,
+          indexPath
+        });
         res.status(500).send('Error loading application');
+      } else {
+        logger.debug('Successfully served index.html', {
+          path: req.path,
+          indexPath
+        });
       }
     });
   });
