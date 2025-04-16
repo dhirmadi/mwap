@@ -1,37 +1,14 @@
 import 'dotenv/config';
-import express, { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
-import compression from 'compression';
 import { connectDB } from '@core/config/database';
 import { env } from '@core/config/environment';
-import { setupSecurity } from '@core/middleware/security';
-import { errorHandler, notFoundHandler } from '@core/middleware/error';
-import { router as routes } from './routes';
+import { app } from './app';
 import { Server } from 'http';
+import { logger } from '@core/utils/logger';
+import { errorHandler, notFoundHandler } from '@core/middleware/error';
 
-const app = express();
-
-// Security setup (includes CORS, helmet, rate limiting)
-setupSecurity(app);
-
-// Compression middleware
-app.use(compression());
-
-// Body parsing middleware with size limits
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-
-// Health check endpoint (no auth required)
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({
-    status: 'healthy',
-    environment: env.getEnvironmentName(),
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-// API Routes with response time header
+// Add response time header
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
   res.on('finish', () => {
@@ -44,8 +21,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   });
   next();
 });
-
-app.use('/api', routes);
 
 // Serve static files in all non-development environments with caching
 if (!env.isDevelopment()) {
@@ -110,15 +85,14 @@ connectDB();
 
 // Start server
 server = app.listen(env.server.port, () => {
-  console.log(`Server running on port ${env.server.port} (${env.getEnvironmentName()})`);
-  
-  if (env.isDevelopment()) {
-    console.log('Configuration:', {
-      environment: env.getEnvironmentName(),
-      port: env.server.port,
-      mongoDb: 'Connected',
-      auth0Domain: env.auth0.domain,
-      corsOrigin: env.security.corsOrigin,
-    });
-  }
+  logger.info('Server started', {
+    port: env.server.port,
+    environment: env.getEnvironmentName(),
+    routes: app._router.stack
+      .filter((r: any) => r.route || r.name === 'router')
+      .map((r: any) => ({
+        path: r.route?.path || r.regexp?.toString(),
+        methods: r.route?.methods || {}
+      }))
+  });
 });
