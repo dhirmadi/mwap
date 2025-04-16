@@ -113,57 +113,76 @@ mwap/
 
 ### Frontend Components
 
-1. **App.tsx**
-   - Main application shell
-   - Navigation structure
-   - Authentication state management
-   - Route definitions
+1. **Auth Module**
+   - Auth0Provider: Configuration and setup
+   - useAuth: Token and state management
+   - Protected routes with role checks
+   - Error handling and recovery
+   - Token refresh logic
 
-2. **Pages**
-   - Modular page components
-   - Each page is a standalone module
-   - Lazy loading ready
-   - TypeScript interfaces
+2. **Tenant Module**
+   - TenantStatus: Workspace management
+   - TenantForm: Creation and updates
+   - TenantContext: State management
+   - Member management
+   - Role-based access
 
-3. **Auth**
-   - Auth0 integration
-   - Protected routes
-   - User context
-   - Token management
+3. **Project Module**
+   - MyProjects: Project listing
+   - ProjectForm: Creation and updates
+   - ProjectContext: State management
+   - Member management
+   - Role validation
 
 ### Backend Components
 
-1. **Environment Management**
-   - Strong typing for all configurations
-   - Validation on startup
-   - Environment-specific settings
-   - Secure secrets handling
+1. **Auth Module**
+   - Token validation middleware
+   - User extraction from tokens
+   - Role-based access control
+   - Error handling and logging
+   - Token refresh handling
+   - Auth0 integration
 
-2. **Middleware Stack**
-   - Authentication validation
+2. **Tenant Module**
+   - Schema with string IDs
+   - Member management
+   - Role validation
+   - Optimized indexes
+   - Detailed logging
    - Error handling
+
+3. **Project Module**
+   - Schema with string IDs
+   - Member management
+   - Role validation
+   - Optimized indexes
+   - Detailed logging
+   - Error handling
+
+4. **Core Infrastructure**
+   - Error handling middleware
+   - Validation middleware
+   - Logging system
+   - Type definitions
    - Security headers
-   - Request validation
    - Rate limiting
-   - Request logging
-   - Response transformation
 
-3. **API Routes**
-   - Modular routing system
-   - Type-safe request/response
-   - Protected endpoints
-   - Error boundary
-   - Health check endpoint
+5. **Database Layer**
+   - MongoDB with Mongoose
+   - Optimized indexes
+   - Type-safe schemas
+   - Validation rules
+   - Error handling
+   - Connection management
 
-4. **Logging & Monitoring**
-   - Winston logger for Heroku
-   - Logfmt format for parsing
-   - Request ID tracking
-   - High-resolution timing
-   - Memory statistics
-   - Service uptime monitoring
-   - Type-safe logging
-   - Structured metadata
+6. **Logging & Monitoring**
+   - Structured logging
+   - Request tracking
+   - Error tracking
+   - Performance metrics
+   - Debug information
+   - Health checks
 
 ## Development Workflow
 
@@ -219,55 +238,85 @@ mwap/
 
 ## Risks and Challenges
 
-1. **Technical Debt**
-   - Testing infrastructure removed (needs reimplementation)
-   - Some 'any' types present in TypeScript
-   - Limited error handling in some areas
-   - Documentation needs regular updates
+1. **Authentication**
+   - Token refresh could be more robust
+   - Need better error messages for auth failures
+   - Need better handling of expired tokens
+   - Need to improve auth state management
 
-2. **Dependencies**
-   - Multiple external services (Auth0, MongoDB)
-   - Regular updates needed for security
-   - Service coupling considerations
-   - Cost implications for scaling
+2. **Tenant Management**
+   - Need better validation for tenant names
+   - Need to handle tenant deletion more gracefully
+   - Need proper tenant settings management
+   - Need better member role validation
 
-3. **Performance**
-   - Memory usage warnings in build process
-   - No caching implementation yet
-   - Full page reloads on navigation
-   - Large bundle potential
+3. **Project Management**
+   - Project creation needs proper tenant context
+   - Project roles need better validation
+   - Need proper project settings
+   - Need better project member management
 
-4. **Maintenance**
-   - Regular dependency updates needed
-   - Service configuration management
-   - Environment variable coordination
-   - Multiple deployment targets
+4. **Technical Debt**
+   - Some duplicate indexes still present
+   - Need to improve error handling consistency
+   - Need better logging structure
+   - Need to improve type safety in some areas
+
+5. **Testing**
+   - Need to add unit tests
+   - Need to add integration tests
+   - Need to add end-to-end tests
+   - Need proper test coverage
+
+6. **Documentation**
+   - API documentation needs improvement
+   - Need better code documentation
+   - Need better setup documentation
+   - Need deployment documentation update
 
 ## Future Improvements
 
-1. **Testing**
-   - Implement comprehensive testing suite
-   - Add integration tests
-   - Set up CI/CD testing
-   - Add test coverage reporting
+1. **Authentication**
+   - Improve token refresh mechanism
+   - Add better error messages
+   - Improve token validation
+   - Add session management
+   - Add role-based access control
 
-2. **TypeScript**
-   - Stricter type checking
-   - Remove remaining 'any' types
-   - Add proper type documentation
-   - Enhance type safety
+2. **Tenant Management**
+   - Add tenant settings
+   - Improve member management
+   - Add tenant analytics
+   - Add tenant customization
+   - Add tenant backup/restore
 
-3. **Performance**
-   - Implement caching
-   - Optimize build process
-   - Add code splitting
-   - Improve load times
+3. **Project Management**
+   - Add project templates
+   - Add project settings
+   - Add project analytics
+   - Add project sharing
+   - Add project archiving
 
-4. **Features**
-   - User management
-   - Role-based access
-   - Analytics integration
-   - Enhanced profile features
+4. **Technical Infrastructure**
+   - Add comprehensive testing
+   - Improve error handling
+   - Add performance monitoring
+   - Add caching layer
+   - Add search functionality
+
+5. **Developer Experience**
+   - Add API documentation
+   - Improve code documentation
+   - Add development guides
+   - Add contribution guidelines
+   - Add deployment guides
+
+6. **Security**
+   - Add audit logging
+   - Add security monitoring
+   - Add data encryption
+   - Add backup system
+   - Add compliance features
 
 ## Getting Started
 
