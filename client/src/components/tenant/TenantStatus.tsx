@@ -32,7 +32,7 @@ export function TenantStatus() {
     if (!newTenantName.trim()) return;
 
     try {
-      await createTenant(newTenantName.trim());
+      await createTenant({ name: newTenantName.trim() });
       notifications.show({
         title: 'Success',
         message: 'Workspace created successfully',
