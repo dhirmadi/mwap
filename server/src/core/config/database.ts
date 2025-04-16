@@ -1,5 +1,6 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 import { env } from './environment';
+import { logger } from '@core/utils/logger';
 
 interface ExtendedConnectOptions extends ConnectOptions {
   maxPoolSize?: number;
@@ -29,39 +30,85 @@ export const connectDB = async (): Promise<void> => {
     }
 
     // Connect to MongoDB
+    logger.info('Connecting to MongoDB', {
+      host: process.env.MONGO_URI?.split('@')[1]?.split('/')[0] || 'unknown',
+      options: {
+        ...options,
+        // Don't log sensitive data
+        user: undefined,
+        pass: undefined,
+        authSource: undefined
+      }
+    });
+
     const conn = await mongoose.connect(process.env.MONGO_URI, options);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    logger.info('MongoDB Connected', {
+      host: conn.connection.host,
+      port: conn.connection.port,
+      name: conn.connection.name,
+      readyState: conn.connection.readyState
+    });
 
     // Handle connection events
     mongoose.connection.on('error', (err: Error) => {
-      console.error('MongoDB connection error:', err);
+      logger.error('MongoDB connection error', {
+        error: {
+          name: err.name,
+          message: err.message,
+          stack: err.stack
+        },
+        host: mongoose.connection.host,
+        readyState: mongoose.connection.readyState
+      });
       if (!env.isDevelopment()) {
         process.exit(1);
       }
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.log('MongoDB disconnected. Attempting to reconnect...');
+      logger.warn('MongoDB disconnected. Attempting to reconnect...', {
+        host: mongoose.connection.host,
+        lastReadyState: mongoose.connection.readyState,
+        timestamp: new Date().toISOString()
+      });
     });
 
     mongoose.connection.on('reconnected', () => {
-      console.log('MongoDB reconnected');
+      logger.info('MongoDB reconnected', {
+        host: mongoose.connection.host,
+        readyState: mongoose.connection.readyState,
+        timestamp: new Date().toISOString()
+      });
     });
 
     // Graceful shutdown
     process.on('SIGINT', async () => {
       try {
+        logger.info('Closing MongoDB connection due to app termination');
         await mongoose.connection.close();
-        console.log('MongoDB connection closed through app termination');
+        logger.info('MongoDB connection closed successfully');
         process.exit(0);
       } catch (err) {
-        console.error('Error during MongoDB shutdown:', err);
+        logger.error('Error during MongoDB shutdown', {
+          error: err instanceof Error ? {
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+          } : err
+        });
         process.exit(1);
       }
     });
 
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
+    logger.error('Failed to connect to MongoDB', {
+      error: error instanceof Error ? {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      } : error,
+      mongoUri: process.env.MONGO_URI ? 'present' : 'missing'
+    });
     if (!env.isDevelopment()) {
       process.exit(1);
     }

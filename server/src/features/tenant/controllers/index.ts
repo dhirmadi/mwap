@@ -16,20 +16,36 @@ export const TenantController: AsyncController = {
    */
   createTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      logger.debug('Creating tenant', {
+      logger.debug('Creating tenant - Request received', {
         userId: req.user.id,
         body: req.body,
-        requestId: req.id
+        requestId: req.id,
+        headers: {
+          'content-type': req.headers['content-type'],
+          authorization: req.headers.authorization ? 'present' : 'missing'
+        }
       });
 
-      // Validation is handled by middleware using createTenantSchema
+      // Validation check
+      const validationResult = createTenantSchema.safeParse(req);
+      if (!validationResult.success) {
+        logger.warn('Tenant creation validation failed', {
+          userId: req.user.id,
+          errors: validationResult.error.errors,
+          requestId: req.id
+        });
+        throw new ValidationError('Invalid request data', validationResult.error);
+      }
 
       // Create tenant
       const tenant = await tenantService.createTenant(req.user.id, { name: req.body.name });
+      
       logger.info('Tenant created successfully', {
         tenantId: tenant._id,
         userId: req.user.id,
-        name: tenant.name
+        name: tenant.name,
+        requestId: req.id,
+        memberCount: tenant.members.length
       });
 
       // Return success response
@@ -40,8 +56,13 @@ export const TenantController: AsyncController = {
     } catch (error) {
       logger.error('Failed to create tenant', {
         userId: req.user?.id,
-        error,
-        stack: error instanceof Error ? error.stack : undefined
+        error: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        } : error,
+        requestId: req.id,
+        body: req.body
       });
       throw error;
     }
