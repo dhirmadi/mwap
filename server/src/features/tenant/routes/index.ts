@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { TenantController } from '@features/tenant/controllers';
 import { auth } from '@core/middleware/auth';
+import { validateRequest } from '@core/middleware/validation';
+import { 
+  createTenantSchema,
+  updateTenantSchema
+} from '../validation';
 
 const router = Router();
 
@@ -8,6 +13,7 @@ const router = Router();
 router.post(
   '/tenant',
   auth.validateToken,
+  validateRequest(createTenantSchema),
   TenantController.createTenant
 );
 
@@ -21,12 +27,26 @@ router.get(
 // Update tenant (requires auth + tenant ownership)
 router.patch(
   '/tenant/:id',
-  auth.requireTenantAdmin,
+  auth.validateToken,
+  auth.requireTenantOwner,
+  validateRequest(updateTenantSchema),
   TenantController.updateTenant
 );
 
-export { router as tenantRoutes };
+// Archive tenant (requires auth + tenant ownership)
+router.delete(
+  '/tenant/:id',
+  auth.validateToken,
+  auth.requireTenantOwner,
+  TenantController.archiveTenant
+);
 
-router.get('/health', (req, res) => {
-  res.json({ ok: true });
+// Health check (no auth required)
+router.get('/health', (_req, res) => {
+  res.json({ 
+    ok: true,
+    timestamp: new Date().toISOString()
+  });
 });
+
+export { router as tenantRoutes };
