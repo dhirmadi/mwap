@@ -9,7 +9,7 @@ export enum ProjectRole {
 
 // TypeScript interfaces
 export interface ProjectMember {
-  userId: Types.ObjectId;
+  userId: string;
   role: ProjectRole;
 }
 
@@ -28,9 +28,9 @@ export interface ProjectModel extends Model<ProjectDocument> {}
 // Mongoose schema for project member
 const projectMemberSchema = new Schema<ProjectMember>({
   userId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     required: true,
-    ref: 'User'
+    index: true
   },
   role: {
     type: String,
