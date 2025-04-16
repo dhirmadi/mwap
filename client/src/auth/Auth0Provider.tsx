@@ -16,8 +16,9 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
   const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
   const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 
-  // Validate required configuration
+  // Validate required configuration and token state
   useEffect(() => {
+    // Check configuration
     if (!domain || !clientId || !audience) {
       console.error('Missing Auth0 configuration:', { domain, clientId, audience });
       notifications.show({
@@ -25,8 +26,50 @@ export const Auth0ProviderWithConfig = ({ children }: Props) => {
         message: 'Auth0 configuration is missing. Please check environment variables.',
         color: 'red'
       });
+      return;
     }
-  }, [domain, clientId, audience]);
+
+    // Log configuration for debugging
+    console.debug('Auth0 configuration:', {
+      domain,
+      clientId,
+      audience,
+      redirectUri: window.location.origin
+    });
+
+    // Set up token validation interval
+    const validateToken = async () => {
+      try {
+        const token = await getAccessTokenSilently({
+          detailedResponse: true
+        });
+
+        console.debug('Token state:', {
+          expiresAt: new Date(token.expires_at * 1000).toISOString(),
+          scope: token.scope,
+          tokenType: token.token_type
+        });
+
+      } catch (error) {
+        console.error('Token validation failed:', error);
+        if (error instanceof Error && error.message.includes('login required')) {
+          notifications.show({
+            title: 'Session Expired',
+            message: 'Please log in again to continue.',
+            color: 'yellow'
+          });
+        }
+      }
+    };
+
+    // Run initial validation
+    validateToken();
+
+    // Set up periodic validation
+    const interval = setInterval(validateToken, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [domain, clientId, audience, getAccessTokenSilently]);
 
   // Handle redirect after authentication
   const onRedirectCallback = (appState?: AppState) => {

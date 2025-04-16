@@ -36,16 +36,53 @@ export function useAuth() {
   // Get access token with error handling and caching
   const getToken = useCallback(async () => {
     try {
-      return await getAccessTokenSilently();
-    } catch (error) {
-      console.error('Error getting access token:', error);
-      // Handle token errors (e.g., expired session)
-      if (error instanceof Error && error.message.includes('login required')) {
-        handleLogin();
+      console.debug('Getting access token...');
+      const token = await getAccessTokenSilently();
+      
+      // Validate token format and expiration
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expiresAt = payload.exp * 1000;
+        const timeUntilExpiry = expiresAt - Date.now();
+        
+        console.debug('Token validation:', {
+          expiresAt: new Date(expiresAt).toISOString(),
+          timeUntilExpiry: `${Math.round(timeUntilExpiry / 1000)}s`,
+          audience: payload.aud,
+          scope: payload.scope
+        });
+
+        if (Date.now() >= expiresAt) {
+          console.warn('Token is expired, forcing refresh');
+          throw new Error('Token expired');
+        }
+      } catch (parseError) {
+        console.error('Token validation failed:', parseError);
+        throw new Error('Invalid token format');
       }
-      return null;
+
+      return token;
+    } catch (error) {
+      console.error('Error getting access token:', {
+        error,
+        isAuthenticated,
+        user: user?.sub
+      });
+
+      // Handle specific error cases
+      if (error instanceof Error) {
+        if (error.message.includes('login required') || 
+            error.message === 'Token expired' ||
+            error.message === 'Invalid token format') {
+          console.debug('Redirecting to login...');
+          await handleLogin(window.location.pathname);
+          throw new Error('Authentication required');
+        }
+      }
+
+      throw new Error('Failed to get access token');
     }
-  }, [getAccessTokenSilently]);
+  }, [getAccessTokenSilently, isAuthenticated, user, handleLogin]);
 
   // Enhanced login handler with state management
   const handleLogin = useCallback(async (returnTo?: string) => {
