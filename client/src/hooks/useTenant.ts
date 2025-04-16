@@ -58,18 +58,9 @@ export function useTenant(): UseTenantResult {
   } = useQuery<TenantResponse, AppError>({
     queryKey: TENANT_QUERY_KEY,
     queryFn: async () => {
-      try {
-        return await get<TenantResponse>(api, '/tenant/me');
-      } catch (error) {
-        // Return null for 404 (no tenant)
-        if (error instanceof AppError && error.code === 'NOT_FOUND_ERROR') {
-          return { 
-            data: null,
-            meta: { requestId: 'not-found' }
-          };
-        }
-        throw error;
-      }
+      // No error handling needed for null tenant
+      const response = await get<TenantResponse>(api, '/tenant/me');
+      return response;
     },
     ...TENANT_QUERY_CONFIG
   });

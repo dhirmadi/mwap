@@ -17,15 +17,38 @@ export const TenantController: AsyncController = {
 
   /**
    * Get the authenticated user's tenant
+   * Returns null if user has no tenant (not an error)
    */
   getCurrentTenant: async (req: Request, res: Response): Promise<void> => {
-    // Stub: Return current user's tenant
+    const userId = req.user.id;
+    
+    // Stub: Check if user has tenant
+    const hasTenant = Math.random() > 0.5;  // Simulate random tenant existence
+    
+    if (!hasTenant) {
+      // Not an error - just no tenant yet
+      res.status(200).json({
+        data: null,
+        meta: { 
+          requestId: req.id 
+        }
+      });
+      return;
+    }
+
+    // User has tenant
     res.status(200).json({
-      id: 'stub-tenant-id',
-      name: 'Stub Tenant',
-      ownerId: 'stub-user-id',
-      archived: false,
-      createdAt: new Date()
+      data: {
+        id: 'stub-tenant-id',
+        name: 'Stub Tenant',
+        ownerId: userId,
+        settings: {},
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      meta: {
+        requestId: req.id
+      }
     });
   },
 

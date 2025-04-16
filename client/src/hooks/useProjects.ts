@@ -21,18 +21,9 @@ export function useProjects() {
   } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      try {
-        const response = await api.get<Project[]>('/projects');
-        console.log('[useProjects] Projects data:', response.data);
-        return response.data || []; // Ensure we always return an array
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 404) {
-          // Handle 404 as empty list
-          console.log('[useProjects] No projects found');
-          return [];
-        }
-        throw error;
-      }
+      // No error handling needed for empty list
+      const response = await get<ProjectListResponse>(api, '/projects');
+      return response;
     }
   });
 
