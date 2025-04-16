@@ -1,5 +1,5 @@
 import { Paper } from '@mantine/core';
-import { Auth0User } from '@/types';
+import { Auth0User } from '../../types';
 import { UserHeader } from './UserHeader';
 import { UserDetails } from './UserDetails';
 

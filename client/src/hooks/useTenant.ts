@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi, get, post } from '@/core/api';
-import { AppError } from '@/core/errors';
+import { useApi, get, post } from '../core/api';
+import { AppError } from '../core/errors';
 import { 
   Tenant, 
   TenantResponse, 
   CreateTenantRequest 
-} from '@/types';
+} from '../types';
 
 /**
  * Query key for tenant data

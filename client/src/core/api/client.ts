@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { API_CONFIG, ApiConfig, RetryConfig, DEFAULT_RETRY_CONFIG } from './config';
 import { addAuthToken } from './auth';
 import { createRetryHandler } from './retry';
-import { handleApiError } from '@/core/errors';
+import { handleApiError } from '../errors';
 
 /**
  * Extend AxiosRequestConfig to include retry count

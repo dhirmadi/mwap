@@ -1,5 +1,5 @@
 import { SimpleGrid, Card, Text } from '@mantine/core';
-import { Auth0User } from '@/types';
+import { Auth0User } from '../../types';
 
 /**
  * Props for UserDetails component

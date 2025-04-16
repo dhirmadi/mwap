@@ -1,6 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { Navigate } from 'react-router-dom';
-import { LoadingState } from '@/components/common';
+import { LoadingState } from '../common';
 
 interface PrivateRouteProps {
   children: React.ReactNode;

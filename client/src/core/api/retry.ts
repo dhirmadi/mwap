@@ -1,6 +1,6 @@
 import { AxiosError, AxiosInstance } from 'axios';
 import { RetryConfig, DEFAULT_RETRY_CONFIG } from './config';
-import { handleApiError } from '@/core/errors';
+import { handleApiError } from '../errors';
 
 /**
  * Calculate delay with exponential backoff

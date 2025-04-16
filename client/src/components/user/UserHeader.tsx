@@ -1,5 +1,5 @@
 import { Group, Avatar, Stack, Title, Text, Badge } from '@mantine/core';
-import { Auth0User } from '@/types';
+import { Auth0User } from '../../types';
 
 /**
  * Props for UserHeader component

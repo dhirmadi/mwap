@@ -1,5 +1,5 @@
 import { Stack } from '@mantine/core';
-import { Auth0User } from '@/types';
+import { Auth0User } from '../../types';
 import { PageLayout } from './PageLayout';
 import { UserProfile } from '../user/UserProfile';
 

@@ -1,6 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { AxiosRequestConfig } from 'axios';
-import { AuthError, ErrorCode } from '@/core/errors';
+import { AuthError, ErrorCode } from '../errors';
 
 /**
  * Get access token from Auth0
