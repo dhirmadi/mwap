@@ -11,8 +11,10 @@ export type AsyncHandler = (
 export type RoleHandler = (roles: string[]) => AsyncHandler;
 
 export interface AuthMiddleware {
-  // Basic token validation
+  // Basic token validation and user extraction
   validateToken: Handler;
+  extractUser: Handler;
+  validateRequest: Handler[];
 
   // Role-based access control
   requireRoles: RoleHandler;

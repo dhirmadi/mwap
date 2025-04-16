@@ -12,7 +12,7 @@ const router = Router();
 // Create new project (requires tenant owner)
 router.post(
   '/',
-  auth.validateToken,
+  ...auth.validateRequest,
   requireTenantOwner(),
   ProjectController.createProject
 );
@@ -20,7 +20,7 @@ router.post(
 // List all projects user has access to
 router.get(
   '/',
-  auth.validateToken,
+  ...auth.validateRequest,
   requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR]),
   ProjectController.listProjects
 );
@@ -28,7 +28,7 @@ router.get(
 // Get project by ID
 router.get(
   '/:id',
-  auth.validateToken,
+  ...auth.validateRequest,
   requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR]),
   ProjectController.getProject
 );
@@ -36,7 +36,7 @@ router.get(
 // Update project (requires admin role)
 router.patch(
   '/:id',
-  auth.validateToken,
+  ...auth.validateRequest,
   requireProjectRole([ProjectRole.ADMIN]),
   ProjectController.updateProject
 );
@@ -44,7 +44,7 @@ router.patch(
 // Delete project (requires admin role)
 router.delete(
   '/:id',
-  auth.validateToken,
+  ...auth.validateRequest,
   requireProjectRole([ProjectRole.ADMIN]),
   ProjectController.deleteProject
 );
@@ -54,7 +54,7 @@ router.delete(
 // Update member role (requires admin/deputy role)
 router.patch(
   '/:id/members/:userId',
-  auth.validateToken,
+  ...auth.validateRequest,
   requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
   ProjectMemberController.updateMemberRole
 );
@@ -62,7 +62,7 @@ router.patch(
 // Remove member (requires admin/deputy role)
 router.delete(
   '/:id/members/:userId',
-  auth.validateToken,
+  ...auth.validateRequest,
   requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
   ProjectMemberController.removeMember
 );

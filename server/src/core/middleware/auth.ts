@@ -4,7 +4,8 @@ import { env } from '@core/config/environment';
 import { AuthenticationError, AuthorizationError } from '../errors';
 import { TenantService } from '@features/tenant/services';
 import { AuthMiddleware, AsyncHandler } from '../types/middleware';
-import { AuthRequest } from '../types/auth';
+import { AuthRequest, User } from '../types/auth';
+import { logger } from '@core/utils/logger';
 
 // Validate Auth0 configuration
 if (!env.auth0.domain || !env.auth0.audience) {
@@ -17,6 +18,52 @@ const authConfig = {
   issuer: `https://${env.auth0.domain}/`,
   jwksUri: `https://${env.auth0.domain}/.well-known/jwks.json`,
   tokenSigningAlg: 'RS256'
+};
+
+// Extract user from token payload
+const extractUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const auth0Req = req as any;
+    const payload = auth0Req.auth?.payload;
+    
+    logger.debug('Token payload received', {
+      hasPayload: !!payload,
+      sub: payload?.sub,
+      claims: Object.keys(payload || {})
+    });
+
+    if (!payload) {
+      throw new AuthenticationError('No token payload');
+    }
+
+    // Extract user from token claims
+    const user: User = {
+      id: payload.sub,
+      sub: payload.sub,
+      email: payload.email,
+      roles: payload.roles || [],
+      tenantId: payload.tenantId
+    };
+
+    logger.debug('User extracted from token', {
+      userId: user.id,
+      email: user.email,
+      roles: user.roles
+    });
+
+    // Attach user to request
+    (req as AuthRequest).user = user;
+    next();
+  } catch (error) {
+    logger.error('Failed to extract user from token', {
+      error,
+      headers: {
+        auth: req.headers.authorization ? 'present' : 'missing',
+        contentType: req.headers['content-type']
+      }
+    });
+    next(error);
+  }
 };
 
 // JWT validation middleware
@@ -90,27 +137,32 @@ const validateTenantRole = (requiredRole: string): AsyncHandler => {
 
 // Combined auth middleware for common use cases
 export const auth: AuthMiddleware = {
-  // Basic token validation
+  // Basic token validation and user extraction
   validateToken,
+  extractUser,
+  validateRequest: [validateToken, extractUser],
 
   // Role-based access control
   requireRoles,
 
   // Common role combinations
-  requireAdmin: [validateToken, requireRoles(['ADMIN', 'SUPER_ADMIN'])],
-  requireSuperAdmin: [validateToken, requireRoles(['SUPER_ADMIN'])],
+  requireAdmin: [validateToken, extractUser, requireRoles(['ADMIN', 'SUPER_ADMIN'])],
+  requireSuperAdmin: [validateToken, extractUser, requireRoles(['SUPER_ADMIN'])],
 
   // Tenant role combinations
   requireTenantAdmin: [
     validateToken,
+    extractUser,
     validateTenantRole('admin')
   ],
   requireTenantMember: [
     validateToken,
+    extractUser,
     validateTenantRole('member')
   ],
   requireTenantOwner: [
     validateToken,
+    extractUser,
     validateTenantRole('owner')
   ]
 };
