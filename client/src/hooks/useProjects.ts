@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi, get, post } from '../core/api';
 import { AppError } from '../core/errors';
+import { API_PATHS } from '../core/api/paths';
 import { Project, ProjectListResponse, ProjectResponse } from '../types';
 
 /**
@@ -53,7 +54,7 @@ export function useProjects(): UseProjectsResult {
     queryKey: PROJECTS_QUERY_KEY,
     queryFn: async () => {
       // No error handling needed for empty list
-      const response = await get<ProjectListResponse>(api, '/v1/projects');
+      const response = await get<ProjectListResponse>(api, API_PATHS.PROJECT.LIST);
       return response;
     },
     ...PROJECTS_QUERY_CONFIG

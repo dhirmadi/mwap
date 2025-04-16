@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi, get, post } from '../core/api';
 import { AppError } from '../core/errors';
+import { API_PATHS } from '../core/api/paths';
 import { 
   Tenant, 
   TenantResponse, 
@@ -59,7 +60,7 @@ export function useTenant(): UseTenantResult {
     queryKey: TENANT_QUERY_KEY,
     queryFn: async () => {
       // No error handling needed for null tenant
-      const response = await get<TenantResponse>(api, '/v1/tenant/me');
+      const response = await get<TenantResponse>(api, API_PATHS.TENANT.CURRENT);
       return response;
     },
     ...TENANT_QUERY_CONFIG
@@ -74,7 +75,7 @@ export function useTenant(): UseTenantResult {
     mutationFn: async (data) => {
       return await post<TenantResponse, CreateTenantRequest>(
         api,
-        '/v1/tenant',
+        API_PATHS.TENANT.CREATE,
         data
       );
     },

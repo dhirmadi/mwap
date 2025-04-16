@@ -2,7 +2,7 @@
  * API configuration constants
  */
 export const API_CONFIG = {
-  BASE_URL: '/api',  // All API endpoints are under /api prefix
+  BASE_URL: import.meta.env.VITE_API_URL || '/api',  // All API endpoints are under /api prefix
   TIMEOUT: 10000,
   RETRY: {
     COUNT: 3,

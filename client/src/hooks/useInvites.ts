@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../services/api';
+import { useApi } from '../core/api';
+import { API_PATHS } from '../core/api/paths';
 
 interface RedeemInviteResponse {
   projectId: string;
@@ -14,7 +15,7 @@ export function useInvites() {
   const redeemInvite = useMutation({
     mutationFn: async (code: string) => {
       try {
-        const response = await api.post<RedeemInviteResponse>('/invites/redeem', { code });
+        const response = await api.post<RedeemInviteResponse>(API_PATHS.INVITE.REDEEM, { code });
         console.log('[RedeemInvite] Success:', response.data);
         return response.data;
       } catch (error: any) {

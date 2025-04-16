@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi, get } from '../core/api';
 import { AppError } from '../core/errors';
+import { API_PATHS } from '../core/api/paths';
 
 export interface UserProfile {
   id: string;
@@ -65,7 +66,7 @@ export function useProfile(): UseProfileResult {
   } = useQuery<UserProfileResponse, AppError>({
     queryKey: PROFILE_QUERY_KEY,
     queryFn: async () => {
-      const response = await get<UserProfileResponse>(api, '/v1/auth/me');
+      const response = await get<UserProfileResponse>(api, API_PATHS.AUTH.PROFILE);
       return response;
     },
     ...PROFILE_QUERY_CONFIG
