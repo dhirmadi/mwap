@@ -3,9 +3,9 @@ import { Stack, Text } from '@mantine/core';
 import { Auth0User } from '@/types';
 import { LoadingState } from '@/components/common';
 import { PageLayout, ProfileLayout } from '@/components/layout';
-import { TenantStatus } from '@/components/tenant/TenantStatus';
-import { MyProjects } from '@/components/project/MyProjects';
-import { RedeemInvite } from '@/components/invite/RedeemInvite';
+import { TenantStatus } from '@/components/tenant';
+import { MyProjects } from '@/components/project';
+import { RedeemInvite } from '@/components/invite';
 
 /**
  * User profile page with workspace management
