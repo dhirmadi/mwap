@@ -2,7 +2,7 @@
  * API configuration constants
  */
 export const API_CONFIG = {
-  BASE_URL: '/api',
+  BASE_URL: '',  // Base URL is empty since we include /api in the endpoint paths
   TIMEOUT: 10000,
   RETRY: {
     COUNT: 3,

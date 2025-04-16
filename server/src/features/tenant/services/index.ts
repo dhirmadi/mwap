@@ -15,35 +15,59 @@ export class TenantService {
    * Create a new tenant
    */
   async createTenant(userId: string, input: CreateTenantInput) {
+    const startTime = Date.now();
     try {
-      logger.debug('Creating tenant - Service called', { 
+      logger.info('Creating tenant - Service called', { 
         userId,
         input,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        mongooseVersion: mongoose.version,
+        nodeEnv: process.env.NODE_ENV
       });
 
       // Check MongoDB connection
-      if (mongoose.connection.readyState !== 1) {
+      const dbState = mongoose.connection.readyState;
+      if (dbState !== 1) {
+        const stateMap = {
+          0: 'disconnected',
+          1: 'connected',
+          2: 'connecting',
+          3: 'disconnecting',
+          99: 'uninitialized'
+        };
         logger.error('MongoDB not connected', {
-          readyState: mongoose.connection.readyState,
+          readyState: dbState,
+          readyStateText: stateMap[dbState],
           host: mongoose.connection.host,
-          name: mongoose.connection.name
+          name: mongoose.connection.name,
+          models: Object.keys(mongoose.models),
+          collections: Object.keys(mongoose.connection.collections)
         });
         throw new InternalServerError('Database connection error');
       }
+
+      logger.debug('Checking for existing tenant', {
+        userId,
+        query: {
+          'members.userId': userId,
+          'members.role': TenantRole.OWNER,
+          archived: false
+        }
+      });
 
       const existingTenant = await TenantModel.findOne({ 
         'members.userId': userId,
         'members.role': TenantRole.OWNER,
         archived: false
-      });
+      }).lean();
 
       if (existingTenant) {
         logger.warn('User already has a tenant', {
           userId,
           existingTenantId: existingTenant._id,
           existingTenantName: existingTenant.name,
-          memberCount: existingTenant.members.length
+          memberCount: existingTenant.members?.length,
+          createdAt: existingTenant.createdAt
         });
         throw new ConflictError('User already has an active tenant');
       }
@@ -63,25 +87,38 @@ export class TenantService {
         }]
       });
 
+      // Validate document before saving
+      const validationError = tenant.validateSync();
+      if (validationError) {
+        logger.error('Tenant validation failed', {
+          errors: validationError.errors,
+          document: tenant.toObject()
+        });
+        throw new ValidationError('Invalid tenant data', { errors: validationError.errors });
+      }
+
       // Log the document before saving
-      logger.debug('Tenant document before save', {
+      logger.debug('Tenant document ready for save', {
         document: tenant.toObject(),
         userId,
-        validationError: tenant.validateSync()
+        schema: Object.keys(TenantModel.schema.paths)
       });
 
-      await tenant.save();
+      const savedTenant = await tenant.save();
       
-      logger.debug('Tenant saved successfully', {
-        tenantId: tenant._id,
+      const endTime = Date.now();
+      logger.info('Tenant saved successfully', {
+        tenantId: savedTenant._id,
         userId,
-        name: tenant.name,
-        memberCount: tenant.members.length,
-        timestamp: new Date().toISOString()
+        name: savedTenant.name,
+        memberCount: savedTenant.members.length,
+        timestamp: new Date().toISOString(),
+        duration: endTime - startTime + 'ms'
       });
 
-      return tenant;
+      return savedTenant;
     } catch (error) {
+      const endTime = Date.now();
       if (error instanceof ValidationError || error instanceof ConflictError) {
         throw error;
       }
@@ -92,7 +129,12 @@ export class TenantService {
           stack: error.stack,
           userId,
           input,
-          mongooseError: error instanceof mongoose.Error ? error.constructor.name : undefined
+          duration: endTime - startTime + 'ms',
+          mongooseError: error instanceof mongoose.Error ? {
+            name: error.constructor.name,
+            validationErrors: (error as any).errors,
+            code: (error as any).code
+          } : undefined
         } : { error };
       logger.error('Failed to create tenant in service', metadata);
       throw new InternalServerError('Failed to create tenant', metadata);

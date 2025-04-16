@@ -16,15 +16,30 @@ export const TenantController: AsyncController = {
    */
   createTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      logger.debug('Creating tenant - Request received', {
-        userId: req.user.id,
+      logger.info('Tenant creation request received', {
+        path: req.path,
+        method: req.method,
+        userId: req.user?.id,
         body: req.body,
         requestId: req.id,
         headers: {
           'content-type': req.headers['content-type'],
-          authorization: req.headers.authorization ? 'present' : 'missing'
-        }
+          'accept': req.headers['accept'],
+          'authorization': req.headers.authorization ? 'present' : 'missing',
+          'user-agent': req.headers['user-agent']
+        },
+        query: req.query,
+        params: req.params
       });
+
+      // Validate user object
+      if (!req.user?.id) {
+        logger.error('User ID missing in request', {
+          user: req.user,
+          requestId: req.id
+        });
+        throw new ValidationError('User ID is required');
+      }
 
       // Validation check
       const validationResult = createTenantSchema.safeParse(req);
@@ -36,10 +51,17 @@ export const TenantController: AsyncController = {
         logger.warn('Tenant creation validation failed', {
           userId: req.user.id,
           errors,
-          requestId: req.id
+          requestId: req.id,
+          receivedBody: req.body
         });
         throw new ValidationError('Invalid request data', { errors });
       }
+
+      logger.debug('Validation passed, creating tenant', {
+        userId: req.user.id,
+        name: req.body.name,
+        requestId: req.id
+      });
 
       // Create tenant
       const tenant = await tenantService.createTenant(req.user.id, { name: req.body.name });
@@ -49,13 +71,17 @@ export const TenantController: AsyncController = {
         userId: req.user.id,
         name: tenant.name,
         requestId: req.id,
-        memberCount: tenant.members.length
+        memberCount: tenant.members.length,
+        timestamp: new Date().toISOString()
       });
 
       // Return success response
       res.status(201).json({
         data: tenant,
-        meta: { requestId: req.id }
+        meta: { 
+          requestId: req.id,
+          timestamp: new Date().toISOString()
+        }
       });
     } catch (error) {
       logger.error('Failed to create tenant', {
@@ -63,10 +89,13 @@ export const TenantController: AsyncController = {
         error: error instanceof Error ? {
           name: error.name,
           message: error.message,
-          stack: error.stack
+          stack: error.stack,
+          code: (error as any).code
         } : error,
         requestId: req.id,
-        body: req.body
+        body: req.body,
+        path: req.path,
+        timestamp: new Date().toISOString()
       });
       throw error;
     }
