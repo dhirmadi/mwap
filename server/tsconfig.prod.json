@@ -11,7 +11,14 @@
       "@features/*": ["features/*"],
       "@utils/*": ["utils/*"],
       "@types": ["core/types"]
-    }
+    },
+    "preserveSymlinks": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false
   },
   "include": [
     "src/**/*.ts"
