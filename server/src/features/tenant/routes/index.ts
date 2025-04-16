@@ -1,8 +1,8 @@
+import { Router } from 'express';
 import { TenantController } from '@features/tenant/controllers';
 import { auth } from '@core/middleware/auth';
-import { createRouter } from '@core/types/router';
 
-const router = createRouter();
+const router = Router();
 
 // Create new tenant (requires auth + no existing tenant)
 router.post(

@@ -10,13 +10,10 @@ import {
   ValidatorError
 } from '../types/responses';
 
-// Extend Request type to include user property
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    [key: string]: unknown;
-  };
-}
+import { User } from '../types/auth';
+
+// Use standard Request type with Express namespace extension
+type AuthenticatedRequest = Request;
 
 // Simple logger for now - can be replaced with a proper logging service
 const logger = {

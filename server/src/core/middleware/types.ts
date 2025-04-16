@@ -1,9 +1,8 @@
 import { Request } from 'express';
 import { User } from '@core/types';
 
-export interface Auth0Request extends Request {
-  user?: User;
-}
+// Use standard Request type with Express namespace extension
+export type Auth0Request = Request;
 
 export type Role = 'owner' | 'admin' | 'deputy' | 'contributor';
 

@@ -1,9 +1,9 @@
+import { Router } from 'express';
 import { ProjectMemberController } from '../controllers/members.controller';
 import { auth } from '@core/middleware/auth';
 import { requireProjectRole } from '@core/middleware/tenant';
-import { createRouter } from '@core/types/router';
 
-const router = createRouter();
+const router = Router();
 
 // Update member role (requires admin/deputy role)
 router.patch(
