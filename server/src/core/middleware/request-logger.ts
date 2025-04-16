@@ -1,11 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import logger from '@core/logging/config';
+import { AuthRequest } from '@core/types/express';
 
 /**
  * Extract request ID from headers or generate new one
  */
-const getRequestId = (req: Request): string => {
+const getRequestId = (req: AuthRequest): string => {
   return (
     (req.headers['x-request-id'] as string) ||
     (req.headers['x-correlation-id'] as string) ||
@@ -27,7 +28,7 @@ const safeStringifyQuery = (query: Record<string, unknown>): string => {
 /**
  * Get client IP address from request
  */
-const getClientIp = (req: Request): string => {
+const getClientIp = (req: AuthRequest): string => {
   return (
     (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
     req.socket.remoteAddress ||
@@ -41,12 +42,13 @@ const getClientIp = (req: Request): string => {
  * - Adds request ID to response headers
  * - Uses logfmt format for easy parsing
  */
-export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
+export const requestLogger = (req: AuthRequest, res: Response, next: NextFunction): void => {
   // Get or generate request ID
   const requestId = getRequestId(req);
 
-  // Add request ID to response headers
+  // Add request ID to response headers and request object
   res.setHeader('x-request-id', requestId);
+  req.id = requestId;
 
   // Record start time
   const startTime = process.hrtime();

@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { AuthRequest } from '@core/types/express';
 import { ProjectModel } from '@features/projects/schemas';
 import { AsyncController } from '@core/types/express';
 
@@ -7,7 +8,7 @@ export const ProjectController: AsyncController = {
    * Create a new project in the tenant
    * @requires requireTenantOwner - Only tenant owner can create projects
    */
-  createProject: async (req: Request, res: Response): Promise<void> => {
+  createProject: async (req: AuthRequest, res: Response): Promise<void> => {
     // Stub: Create project in tenant
     res.status(201).json({
       message: 'Project created successfully',
@@ -20,7 +21,7 @@ export const ProjectController: AsyncController = {
    * Returns empty array if user has no projects (not an error)
    * @requires requireProjectRole - Any role can list projects
    */
-  listProjects: async (req: Request, res: Response): Promise<void> => {
+  listProjects: async (req: AuthRequest, res: Response): Promise<void> => {
     const userId = req.user.id;
     
     // Stub: List all projects user has access to
@@ -59,7 +60,7 @@ export const ProjectController: AsyncController = {
    * Returns 404 if project doesn't exist (this IS an error)
    * @requires requireProjectRole - Any role can view project
    */
-  getProject: async (req: Request, res: Response): Promise<void> => {
+  getProject: async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
     const userId = req.user.id;
 
@@ -101,7 +102,7 @@ export const ProjectController: AsyncController = {
    * Update project name or archive status
    * @requires requireProjectRole('admin') - Only admins can update project
    */
-  updateProject: async (req: Request, res: Response): Promise<void> => {
+  updateProject: async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
 
     // Stub: Update project details
@@ -115,7 +116,7 @@ export const ProjectController: AsyncController = {
    * Delete/archive project
    * @requires requireProjectRole('admin') - Only admins can delete project
    */
-  deleteProject: async (req: Request, res: Response): Promise<void> => {
+  deleteProject: async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
 
     // Stub: Soft-delete project
