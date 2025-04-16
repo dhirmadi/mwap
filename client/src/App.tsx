@@ -2,7 +2,7 @@ import { AppShell, Container, Group, Title, Button, Menu } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 import { IconLogout, IconUser } from '@tabler/icons-react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { PrivateRoute } from '@/components/auth';
+import { PrivateRoute } from './components/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';

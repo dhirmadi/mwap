@@ -11,12 +11,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     resolve: {
-      alias: [
-        { 
-          find: '@', 
-          replacement: path.resolve(__dirname, 'src') 
-        }
-      ]
+      alias: {
+        '@': path.resolve(__dirname, 'src')
+      },
+      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
     },
     server: {
       host: true,
@@ -26,6 +24,18 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true,
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html')
+        },
+        output: {
+          manualChunks: {
+            'vendor': ['react', 'react-dom', 'react-router-dom'],
+            'auth': ['@auth0/auth0-react'],
+            'ui': ['@mantine/core', '@mantine/hooks', '@mantine/notifications']
+          }
+        }
+      }
     },
     define: {
       // Pass environment variables to the app

@@ -1,11 +1,11 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { Stack, Text } from '@mantine/core';
-import { Auth0User } from '@/types';
-import { LoadingState } from '@/components/common';
-import { PageLayout, ProfileLayout } from '@/components/layout';
-import { TenantStatus } from '@/components/tenant';
-import { MyProjects } from '@/components/project';
-import { RedeemInvite } from '@/components/invite';
+import { Auth0User } from '../types';
+import { LoadingState } from '../components/common';
+import { PageLayout, ProfileLayout } from '../components/layout';
+import { TenantStatus } from '../components/tenant';
+import { MyProjects } from '../components/project';
+import { RedeemInvite } from '../components/invite';
 
 /**
  * User profile page with workspace management
