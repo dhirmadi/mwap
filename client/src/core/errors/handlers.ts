@@ -34,10 +34,22 @@ function mapErrorCode(code?: string): ErrorCode {
 /**
  * Handles validation errors from the backend
  */
-function handleValidationError(error: ValidationErrorResponse): ValidationError {
+function handleValidationError(response: unknown): ValidationError {
+  // Try to parse as ValidationErrorResponse
+  const error = response as ValidationErrorResponse;
+  
+  // If it has the expected structure, use it
+  if (error?.error?.message && error?.error?.data) {
+    return new ValidationError(
+      error.error.message,
+      error.error.data
+    );
+  }
+
+  // Fallback for unexpected formats
   return new ValidationError(
-    error.error.message,
-    error.error.data
+    'Validation failed',
+    Array.isArray(error?.error?.data) ? error.error.data : []
   );
 }
 
@@ -97,8 +109,8 @@ export function handleApiError(error: unknown): AppError {
       return handleAuthError(status, errorResponse);
     }
 
-    // Validation error
-    if (errorResponse.error.code === 'VALIDATION_ERROR') {
+    // Validation error (either by code or status)
+    if (status === 400 || errorResponse.error.code === 'VALIDATION_ERROR') {
       return handleValidationError(data as ValidationErrorResponse);
     }
 

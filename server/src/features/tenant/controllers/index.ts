@@ -42,7 +42,7 @@ export const TenantController: AsyncController = {
       }
 
       // Validation check
-      const validationResult = createTenantSchema.safeParse(req);
+      const validationResult = createTenantSchema.safeParse(req.body);
       if (!validationResult.success) {
         const errors = validationResult.error.errors.map(err => ({
           path: err.path.join('.'),
