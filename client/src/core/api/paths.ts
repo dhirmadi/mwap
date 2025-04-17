@@ -8,6 +8,11 @@ export const API_PATHS = {
     CURRENT: '/v1/tenant/me',
     UPDATE: (id: string) => `/v1/tenant/${id}`,
     ARCHIVE: (id: string) => `/v1/tenant/${id}/archive`,
+    INTEGRATIONS: {
+      LIST: (id: string) => `/v1/tenant/${id}/integrations`,
+      ADD: (id: string) => `/v1/tenant/${id}/integrations`,
+      REMOVE: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider}`,
+    },
   },
 
   // Project endpoints

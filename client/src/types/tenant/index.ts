@@ -48,9 +48,26 @@ export interface TenantMember {
 }
 
 /**
+ * Cloud provider integration types
+ */
+export type IntegrationProvider = 'GDRIVE' | 'DROPBOX';
+
+export interface Integration {
+  provider: IntegrationProvider;
+  token: string;
+  connectedAt: string;
+}
+
+export interface AddIntegrationRequest {
+  provider: IntegrationProvider;
+  token: string;
+}
+
+/**
  * Response types
  */
 export type TenantResponse = SuccessResponse<Tenant>;
 export type TenantListResponse = SuccessResponse<Tenant[]>;
 export type TenantMemberResponse = SuccessResponse<TenantMember>;
 export type TenantMemberListResponse = SuccessResponse<TenantMember[]>;
+export type IntegrationListResponse = SuccessResponse<Integration[]>;

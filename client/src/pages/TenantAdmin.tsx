@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Title, Group, Button } from '@mantine/core';
+import { Container, Title, Group, Button, Stack } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { useTenant } from '../hooks/useTenant';
 import { LoadingState } from '../components/common';
+import { CloudIntegrations } from '../components/tenant';
 
 /**
  * Tenant admin page component
@@ -49,7 +50,9 @@ export function TenantAdmin(): JSX.Element {
         Tenant Admin: {tenant.name}
       </Title>
 
-      {/* Additional tenant management UI will be added here */}
+      <Stack spacing="xl">
+        <CloudIntegrations tenantId={tenant.id} />
+      </Stack>
     </Container>
   );
 }
