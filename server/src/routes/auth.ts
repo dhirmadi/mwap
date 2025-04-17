@@ -40,22 +40,76 @@ router.get('/:provider', (req, res) => {
 });
 
 /**
+ * Extract and validate tenant ID from OAuth state parameter
+ * @throws {AppError} If state is invalid or missing tenantId
+ */
+function extractTenantId(state: string, requestId: string): string {
+  try {
+    const decoded = Buffer.from(state, 'base64').toString();
+    const data = JSON.parse(decoded);
+
+    if (!data.tenantId) {
+      logger.error('Missing tenantId in state', { requestId, decoded });
+      throw new AppError.badRequest('Invalid OAuth state');
+    }
+
+    return data.tenantId;
+  } catch (error) {
+    logger.error('Failed to decode state', { 
+      requestId,
+      state,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    throw new AppError.badRequest('Invalid OAuth state');
+  }
+}
+
+/**
  * Handle OAuth callback and store integration
  */
 router.get('/:provider/callback', async (req, res) => {
+  const requestId = req.headers['x-request-id'] as string;
+  const startTime = Date.now();
+
   try {
     const provider = req.params.provider.toUpperCase() as OAuthProvider;
-    const { code, state } = req.query;
+    const { code, state, error: oauthError } = req.query;
+
+    logger.debug('Received OAuth callback', {
+      requestId,
+      provider,
+      hasCode: !!code,
+      hasState: !!state,
+      error: oauthError,
+      query: req.query
+    });
+
+    // Check for OAuth errors
+    if (oauthError) {
+      logger.error('OAuth provider error', {
+        requestId,
+        provider,
+        error: oauthError,
+        errorDescription: req.query.error_description
+      });
+      throw new AppError.badRequest('OAuth provider error');
+    }
     
     if (!code || !state) {
-      throw new AppError('Invalid callback parameters', 400);
+      logger.error('Missing callback parameters', {
+        requestId,
+        provider,
+        hasCode: !!code,
+        hasState: !!state
+      });
+      throw new AppError.badRequest('Invalid callback parameters');
     }
 
-    // Decode state to get tenantId
-    const { tenantId } = JSON.parse(Buffer.from(state as string, 'base64').toString());
+    // Extract and validate tenantId
+    const tenantId = extractTenantId(state as string, requestId);
     
     // Exchange code for token
-    const token = await exchangeCodeForToken(provider, code as string);
+    const token = await exchangeCodeForToken(provider, code as string, requestId);
     
     // Store integration
     const tenantService = new TenantService();
@@ -67,15 +121,40 @@ router.get('/:provider/callback', async (req, res) => {
       }]
     });
 
-    logger.info(`Successfully connected ${provider} for tenant ${tenantId}`);
+    const duration = Date.now() - startTime;
+    logger.info('Successfully connected provider', {
+      requestId,
+      provider,
+      tenantId,
+      durationMs: duration
+    });
     
     // Redirect back to tenant management page
     res.redirect(`/tenant/${tenantId}/manage`);
   } catch (error: unknown) {
+    const duration = Date.now() - startTime;
+    
     if (error instanceof AppError) {
+      logger.error('OAuth callback failed', {
+        requestId,
+        error: error.message,
+        stack: error.stack,
+        statusCode: error.statusCode,
+        durationMs: duration,
+        query: req.query
+      });
+      
       res.status(error.statusCode).json({ error: error.message });
     } else {
-      res.status(500).json({ error: 'Internal server error' });
+      logger.error('Unexpected error in OAuth callback', {
+        requestId,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        durationMs: duration,
+        query: req.query
+      });
+      
+      res.status(500).json({ error: 'OAuth callback failed' });
     }
   }
 });
