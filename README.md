@@ -328,11 +328,30 @@ Note: The deployment pipeline is under development. Manual deployment is current
 - Error Handling Standards - Coming soon
 - Testing Guidelines - Coming soon
 
-## 📚 Additional Documentation
+## 📚 Documentation
 
-- [Project Status](./status_project.md)
-- [Contributing Guidelines](./CONTRIBUTING.md)
+### API Documentation
+- [API Overview](./docs/api/API.md)
+- [Tenant Endpoints](./docs/api/v1/tenants.md)
+- [Project Endpoints](./docs/api/v1/projects.md)
+- [Auth Endpoints](./docs/api/v1/auth.md)
+
+### Development
+- [Project Status](./docs/STATUS.md)
+- [Development Setup](./docs/development/setup.md)
+- [Client Development](./docs/development/client.md)
+
+### Architecture
+- [Overview](./docs/architecture/overview.md)
+- [API Patterns](./docs/architecture/api-patterns.md)
+
+### Standards & Guidelines
+- [DRY Principles](./docs/standards/DRY.md)
+- [Contributing Guidelines](./docs/contributing/CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
+
+### Deployment
+- [Deployment Guide](./docs/deployment.md)
 
 ## 🔐 Security
 
