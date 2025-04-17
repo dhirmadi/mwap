@@ -17,6 +17,12 @@ Current Features:
 - **Authentication**: 
   * Auth0 integration with PKCE flow
   * Protected routes with JWT validation
+  * Multiple OAuth provider support
+- **Cloud Storage Integration**:
+  * Multiple simultaneous providers
+  * Google Drive, Dropbox, Box, OneDrive support
+  * Safe provider-aware merge strategy
+  * Token management and refresh
 - **Security**: 
   * CORS configuration
   * Rate limiting
@@ -243,6 +249,13 @@ The following security measures are in place:
 - `GET /api/v1/tenant/me` - Get current tenant
 - `PATCH /api/v1/tenant/:id` - Update tenant
 - `DELETE /api/v1/tenant/:id` - Archive tenant
+
+#### Cloud Storage Integration
+- `GET /api/v1/tenant/:id/integrations` - List cloud storage integrations
+- `POST /api/v1/tenant/:id/integrations` - Add cloud storage integration
+- `DELETE /api/v1/tenant/:id/integrations/:provider` - Remove integration
+- `GET /api/v1/auth/:provider` - Start OAuth flow
+- `GET /api/v1/auth/:provider/callback` - Handle OAuth callback
 
 #### Project Management
 - `GET /api/v1/projects/:id` - Get project details

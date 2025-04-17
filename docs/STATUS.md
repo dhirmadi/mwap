@@ -115,12 +115,13 @@
 
 ## Recent Updates
 
-### v0.2.0 - Tenant Manager Page Running
-- ✅ Direct link access to tenant management
-- ✅ GET endpoint for specific tenant by ID
-- ✅ Consolidated tenant hooks
-- ✅ Improved error handling
-- ✅ Type safety improvements
+### v0.2.0 - Multiple Cloud Storage Support
+- ✅ Multiple simultaneous cloud provider connections
+- ✅ Safe provider-aware integration merge strategy
+- ✅ OAuth callback handling with proper URL prefixes
+- ✅ Enhanced logging for integration updates
+- ✅ Type safety improvements for integrations
+- ✅ Support for Google Drive, Dropbox, Box, and OneDrive
 
 ### v0.1.0 - Tenant Creation Complete
 - ✅ Create tenant with validation

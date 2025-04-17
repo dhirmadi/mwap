@@ -173,6 +173,91 @@ Response:
 - Soft deletes by setting archived=true
 - Also archives all projects in the tenant
 
+## Cloud Storage Integrations
+
+### List Integrations
+```http
+GET /api/v1/tenant/:id/integrations
+Authorization: Required + Tenant Owner
+
+Response:
+{
+  "data": [{
+    "provider": "GDRIVE" | "DROPBOX" | "BOX" | "ONEDRIVE",
+    "connectedAt": string,
+    "token": {
+      "accessToken": string,
+      "refreshToken": string,
+      "expiresAt": string
+    }
+  }],
+  "meta": {
+    "requestId": string,
+    "timestamp": string
+  }
+}
+```
+
+### Add Integration
+```http
+POST /api/v1/tenant/:id/integrations
+Authorization: Required + Tenant Owner
+
+Request:
+{
+  "provider": "GDRIVE" | "DROPBOX" | "BOX" | "ONEDRIVE",
+  "token": {
+    "accessToken": string,
+    "refreshToken": string,
+    "expiresAt": string
+  }
+}
+
+Response: Same as List Integrations
+```
+- Replaces existing integration if provider already exists
+- Validates token format and expiry
+- Preserves other provider integrations
+
+### Delete Integration
+```http
+DELETE /api/v1/tenant/:id/integrations/:provider
+Authorization: Required + Tenant Owner
+
+Response:
+{
+  "data": {
+    "success": true
+  },
+  "meta": {
+    "requestId": string
+  }
+}
+```
+
+### OAuth Flow
+```http
+GET /api/v1/auth/:provider
+Authorization: Required + Tenant Owner
+Query Parameters:
+- tenantId: string
+
+Response: Redirects to provider's OAuth consent screen
+```
+
+```http
+GET /api/v1/auth/:provider/callback
+Query Parameters:
+- code: string
+- state: string (base64 encoded { tenantId: string })
+
+Response: Redirects to tenant management page
+```
+- Supports multiple simultaneous provider connections
+- Safe merge strategy preserves existing integrations
+- Enhanced logging for debugging
+- Proper error handling for OAuth failures
+
 ## Project Management
 
 ### Create Project
