@@ -119,12 +119,14 @@ router.get('/:provider/callback', async (req, res) => {
     // Exchange code for token
     const token = await exchangeCodeForToken(provider, code as string, requestId);
     
+    // Get normalized provider key from config
+    const config = getOAuthConfig(provider, requestId);
+    
     // Store integration
-    const providerKey = provider.toLowerCase() as OAuthProvider;
     const tenantService = new TenantService();
     await tenantService.updateTenant(tenantId, {
       integrations: [{
-        provider: providerKey,
+        provider: provider.toLowerCase() as OAuthProvider,
         token,
         connectedAt: new Date()
       }]

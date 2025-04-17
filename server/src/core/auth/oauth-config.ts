@@ -47,18 +47,36 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
 import { ValidationError } from '../types/errors';
 import { logger } from '../logging';
 
+const PROVIDER_ALIASES: Record<string, OAuthProvider> = {
+  'google': 'gdrive',
+  'gdrive': 'gdrive',
+  'dropbox': 'dropbox',
+  'box': 'box',
+  'onedrive': 'onedrive'
+};
+
 export function getOAuthConfig(provider: string, requestId?: string): OAuthConfig {
-  const providerKey = provider.toLowerCase() as OAuthProvider;
+  const normalizedProvider = provider.toLowerCase();
+  const providerKey = PROVIDER_ALIASES[normalizedProvider];
   const config = configs[providerKey];
   
   if (!config) {
     logger.error('Unsupported OAuth provider', {
       provider,
+      normalizedProvider,
       providerKey,
-      requestId
+      requestId,
+      supportedProviders: Object.keys(PROVIDER_ALIASES)
     });
     throw new ValidationError(`Unsupported OAuth provider: ${provider}`);
   }
+  
+  logger.debug('OAuth provider mapped', {
+    provider,
+    normalizedProvider,
+    providerKey,
+    requestId
+  });
   
   return config;
 }
