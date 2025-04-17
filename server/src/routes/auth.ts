@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AppError, ValidationError } from '../core/types/errors';
 import { logger } from '../core/logging';
-import { OAuthProvider, getOAuthConfig } from '../core/auth/oauth-config';
+import { OAuthProvider, getOAuthConfig, PROVIDER_ALIASES } from '../core/auth/oauth-config';
 import { exchangeCodeForToken } from '../core/auth/oauth-client';
 import { TenantService } from '@features/tenant/services';
 
@@ -121,12 +121,24 @@ router.get('/:provider/callback', async (req, res) => {
     
     // Get normalized provider key from config
     const config = getOAuthConfig(provider, requestId);
+    const normalizedProvider = provider.toLowerCase();
+    const providerKey = PROVIDER_ALIASES[normalizedProvider];
+    
+    if (!providerKey) {
+      logger.error('Invalid provider in callback', {
+        provider,
+        normalizedProvider,
+        requestId,
+        supportedProviders: Object.keys(PROVIDER_ALIASES)
+      });
+      throw new ValidationError(`Unsupported OAuth provider: ${provider}`);
+    }
     
     // Store integration
     const tenantService = new TenantService();
     await tenantService.updateTenant(tenantId, {
       integrations: [{
-        provider: provider.toLowerCase() as OAuthProvider,
+        provider: providerKey,
         token,
         connectedAt: new Date()
       }]

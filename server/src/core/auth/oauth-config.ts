@@ -47,7 +47,7 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
 import { ValidationError } from '../types/errors';
 import { logger } from '../logging';
 
-const PROVIDER_ALIASES: Record<string, OAuthProvider> = {
+export const PROVIDER_ALIASES: Record<string, OAuthProvider> = {
   'google': 'gdrive',
   'gdrive': 'gdrive',
   'dropbox': 'dropbox',
