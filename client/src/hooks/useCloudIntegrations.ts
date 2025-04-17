@@ -27,8 +27,8 @@ export function useCloudIntegrations(tenantId: string) {
 
   // Connect new provider via OAuth2
   const connect = (provider: IntegrationProvider) => {
-    // Use 'gdrive' for Google Drive OAuth flow
-    const authProvider = provider === 'GDRIVE' ? 'gdrive' : provider.toLowerCase();
+    // Provider is already lowercase
+    const authProvider = provider;
     window.location.href = `/api/v1/auth/${authProvider}?tenantId=${tenantId}`;
   };
 

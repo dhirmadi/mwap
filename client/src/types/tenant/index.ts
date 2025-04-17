@@ -49,7 +49,7 @@ export interface TenantMember {
 /**
  * Cloud provider integration types
  */
-export type IntegrationProvider = 'GDRIVE' | 'DROPBOX' | 'BOX' | 'ONEDRIVE';
+export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
 
 export interface Integration {
   provider: IntegrationProvider;

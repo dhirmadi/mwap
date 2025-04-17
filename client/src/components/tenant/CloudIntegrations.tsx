@@ -28,7 +28,7 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
     return <LoadingState />;
   }
 
-  const availableProviders: IntegrationProvider[] = ['GDRIVE', 'DROPBOX', 'BOX', 'ONEDRIVE'];
+  const availableProviders: IntegrationProvider[] = ['gdrive', 'dropbox', 'box', 'onedrive'];
   const connectedProviders = integrations.map(i => i.provider);
   const unconnectedProviders = availableProviders.filter(
     p => !connectedProviders.includes(p)
@@ -42,16 +42,16 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
         {integrations.map(integration => (
           <Group key={integration.provider} justify="space-between" p="xs">
             <Group>
-              {integration.provider === 'GDRIVE' && <IconBrandGoogleDrive size="1.5rem" />}
-              {integration.provider === 'DROPBOX' && <IconFolder size="1.5rem" />}
-              {integration.provider === 'BOX' && <IconBox size="1.5rem" />}
-              {integration.provider === 'ONEDRIVE' && <IconBrandOnedrive size="1.5rem" />}
+              {integration.provider === 'gdrive' && <IconBrandGoogleDrive size="1.5rem" />}
+              {integration.provider === 'dropbox' && <IconFolder size="1.5rem" />}
+              {integration.provider === 'box' && <IconBox size="1.5rem" />}
+              {integration.provider === 'onedrive' && <IconBrandOnedrive size="1.5rem" />}
               <div>
                 <Text fw={500}>
-                  {integration.provider === 'GDRIVE' && 'Google Drive'}
-                  {integration.provider === 'DROPBOX' && 'Dropbox'}
-                  {integration.provider === 'BOX' && 'Box'}
-                  {integration.provider === 'ONEDRIVE' && 'OneDrive'}
+                  {integration.provider === 'gdrive' && 'Google Drive'}
+                  {integration.provider === 'dropbox' && 'Dropbox'}
+                  {integration.provider === 'box' && 'Box'}
+                  {integration.provider === 'onedrive' && 'OneDrive'}
                 </Text>
                 <Text size="sm" c="dimmed">
                   Connected {new Date(integration.connectedAt).toLocaleDateString()}
@@ -81,15 +81,15 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
         {unconnectedProviders.map(provider => (
           <Group key={provider} justify="space-between" p="xs">
             <Group>
-              {provider === 'GDRIVE' && <IconBrandGoogleDrive size="1.5rem" />}
-              {provider === 'DROPBOX' && <IconFolder size="1.5rem" />}
-              {provider === 'BOX' && <IconBox size="1.5rem" />}
-              {provider === 'ONEDRIVE' && <IconBrandOnedrive size="1.5rem" />}
+              {provider === 'gdrive' && <IconBrandGoogleDrive size="1.5rem" />}
+              {provider === 'dropbox' && <IconFolder size="1.5rem" />}
+              {provider === 'box' && <IconBox size="1.5rem" />}
+              {provider === 'onedrive' && <IconBrandOnedrive size="1.5rem" />}
               <Text fw={500}>
-                {provider === 'GDRIVE' && 'Google Drive'}
-                {provider === 'DROPBOX' && 'Dropbox'}
-                {provider === 'BOX' && 'Box'}
-                {provider === 'ONEDRIVE' && 'OneDrive'}
+                {provider === 'gdrive' && 'Google Drive'}
+                {provider === 'dropbox' && 'Dropbox'}
+                {provider === 'box' && 'Box'}
+                {provider === 'onedrive' && 'OneDrive'}
               </Text>
             </Group>
 
