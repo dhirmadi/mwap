@@ -3,7 +3,7 @@ import { AppError, ValidationError } from '../core/types/errors';
 import { logger } from '../core/logging';
 import { OAuthProvider, getOAuthConfig, PROVIDER_ALIASES } from '../core/auth/oauth-config';
 import { exchangeCodeForToken } from '../core/auth/oauth-client';
-import { TenantService } from '@features/tenant/services';
+import { TenantModel } from '@features/tenant/schemas';
 
 const router = Router();
 
@@ -135,13 +135,38 @@ router.get('/:provider/callback', async (req, res) => {
     }
     
     // Store integration
-    const tenantService = new TenantService();
-    await tenantService.updateTenant(tenantId, {
-      integrations: [{
-        provider: providerKey,
-        token,
-        connectedAt: new Date()
-      }]
+    const tenant = await TenantModel.findById(tenantId);
+
+    if (!tenant) {
+      throw new ValidationError('Tenant not found');
+    }
+
+    const integration = {
+      provider: providerKey,
+      token,
+      connectedAt: new Date()
+    };
+
+    logger.debug('Updating tenant.integrations', {
+      requestId,
+      tenantId,
+      provider: integration.provider,
+      previousProviders: tenant.integrations?.map(i => i.provider) ?? []
+    });
+
+    // Safely merge the new integration
+    tenant.integrations = [
+      ...(tenant.integrations ?? []).filter(i => i.provider !== integration.provider),
+      integration
+    ];
+
+    await tenant.save();
+
+    logger.debug('Updated tenant.integrations', {
+      requestId,
+      tenantId,
+      provider: integration.provider,
+      currentProviders: tenant.integrations.map(i => i.provider)
     });
 
     const duration = Date.now() - startTime;
