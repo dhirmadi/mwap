@@ -77,20 +77,21 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
               <Text fw={500}>{provider}</Text>
             </Group>
 
-            <Button
-              variant="light"
-              leftSection={<IconPlus size="1rem" />}
-              loading={isConnecting}
-              onClick={async () => {
-                // TODO: Implement OAuth flow to get token
-                const token = await getProviderToken(provider);
-                if (token) {
-                  connect({ provider, token });
-                }
-              }}
-            >
-              Connect
-            </Button>
+            <Group>
+              <Button
+                variant="light"
+                leftSection={<IconPlus size="1rem" />}
+                loading={isConnecting}
+                onClick={async () => {
+                  const token = await getProviderToken(provider);
+                  if (token) {
+                    connect({ provider, token });
+                  }
+                }}
+              >
+                Connect
+              </Button>
+            </Group>
           </Group>
         ))}
 
