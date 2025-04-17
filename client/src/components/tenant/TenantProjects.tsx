@@ -4,6 +4,7 @@ import { IconFolder, IconUsers } from '@tabler/icons-react';
 import { useTenantProjects } from '../../hooks/useTenantProjects';
 import { LoadingState } from '../common';
 import { Project } from '../../types';
+import { CreateProjectForm } from './CreateProjectForm';
 
 interface TenantProjectsProps {
   tenantId: string;
@@ -44,7 +45,13 @@ export function TenantProjects({
 
   return (
     <Card withBorder>
-      <Title order={3} mb="md">Projects</Title>
+      <Group justify="space-between" mb="md">
+        <Title order={3}>Projects</Title>
+        <CreateProjectForm
+          tenantId={tenantId}
+          availableProviders={['GDRIVE', 'DROPBOX']}
+        />
+      </Group>
 
       <Table>
         <Table.Thead>
