@@ -25,23 +25,10 @@ export function useCloudIntegrations(tenantId: string) {
     enabled: !!tenantId,
   });
 
-  // Connect new provider
-  const connectMutation = useMutation({
-    mutationFn: async ({ provider, token }: { provider: IntegrationProvider; token: string }) => {
-      const response = await post<IntegrationListResponse>(
-        api,
-        API_PATHS.TENANT.INTEGRATIONS.ADD(tenantId),
-        { provider, token }
-      );
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
-    onError: (error) => {
-      handleApiError(error);
-    },
-  });
+  // Connect new provider via OAuth2
+  const connect = (provider: IntegrationProvider) => {
+    window.location.href = `/api/v1/auth/${provider.toLowerCase()}?tenantId=${tenantId}`;
+  };
 
   // Disconnect provider
   const disconnectMutation = useMutation({
@@ -64,9 +51,8 @@ export function useCloudIntegrations(tenantId: string) {
     integrations,
     isLoading,
     error,
-    connect: connectMutation.mutate,
+    connect,
     disconnect: disconnectMutation.mutate,
-    isConnecting: connectMutation.isPending,
     isDisconnecting: disconnectMutation.isPending,
   };
 }
