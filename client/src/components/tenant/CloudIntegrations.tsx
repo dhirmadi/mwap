@@ -1,5 +1,5 @@
 import { Card, Title, Text, Button, Group, Stack, Tooltip } from '@mantine/core';
-import { IconCloud, IconTrash, IconPlus, IconBrandGoogleDrive, IconBrandDropbox, IconBox, IconBrandOnedrive } from '@tabler/icons-react';
+import { IconCloud, IconTrash, IconPlus, IconBrandGoogleDrive, IconFolder, IconBox, IconBrandOnedrive } from '@tabler/icons-react';
 import { useCloudIntegrations } from '../../hooks/useCloudIntegrations';
 import { IntegrationProvider } from '../../types/tenant';
 import { LoadingState } from '../common';
@@ -43,7 +43,7 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
           <Group key={integration.provider} justify="space-between" p="xs">
             <Group>
               {integration.provider === 'GDRIVE' && <IconBrandGoogleDrive size="1.5rem" />}
-              {integration.provider === 'DROPBOX' && <IconBrandDropbox size="1.5rem" />}
+              {integration.provider === 'DROPBOX' && <IconFolder size="1.5rem" />}
               {integration.provider === 'BOX' && <IconBox size="1.5rem" />}
               {integration.provider === 'ONEDRIVE' && <IconBrandOnedrive size="1.5rem" />}
               <div>
@@ -82,7 +82,7 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
           <Group key={provider} justify="space-between" p="xs">
             <Group>
               {provider === 'GDRIVE' && <IconBrandGoogleDrive size="1.5rem" />}
-              {provider === 'DROPBOX' && <IconBrandDropbox size="1.5rem" />}
+              {provider === 'DROPBOX' && <IconFolder size="1.5rem" />}
               {provider === 'BOX' && <IconBox size="1.5rem" />}
               {provider === 'ONEDRIVE' && <IconBrandOnedrive size="1.5rem" />}
               <Text fw={500}>
