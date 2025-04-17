@@ -1,5 +1,5 @@
 import { Card, Title, Text, Button, Group, Stack, Tooltip } from '@mantine/core';
-import { IconCloud, IconTrash, IconPlus } from '@tabler/icons-react';
+import { IconCloud, IconTrash, IconPlus, IconBrandGoogleDrive, IconBrandDropbox, IconBox, IconBrandOnedrive } from '@tabler/icons-react';
 import { useCloudIntegrations } from '../../hooks/useCloudIntegrations';
 import { IntegrationProvider } from '../../types/tenant';
 import { LoadingState } from '../common';
@@ -28,7 +28,7 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
     return <LoadingState />;
   }
 
-  const availableProviders: IntegrationProvider[] = ['GDRIVE', 'DROPBOX'];
+  const availableProviders: IntegrationProvider[] = ['GDRIVE', 'DROPBOX', 'BOX', 'ONEDRIVE'];
   const connectedProviders = integrations.map(i => i.provider);
   const unconnectedProviders = availableProviders.filter(
     p => !connectedProviders.includes(p)
@@ -42,9 +42,17 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
         {integrations.map(integration => (
           <Group key={integration.provider} justify="space-between" p="xs">
             <Group>
-              <IconCloud size="1.5rem" />
+              {integration.provider === 'GDRIVE' && <IconBrandGoogleDrive size="1.5rem" />}
+              {integration.provider === 'DROPBOX' && <IconBrandDropbox size="1.5rem" />}
+              {integration.provider === 'BOX' && <IconBox size="1.5rem" />}
+              {integration.provider === 'ONEDRIVE' && <IconBrandOnedrive size="1.5rem" />}
               <div>
-                <Text fw={500}>{integration.provider}</Text>
+                <Text fw={500}>
+                  {integration.provider === 'GDRIVE' && 'Google Drive'}
+                  {integration.provider === 'DROPBOX' && 'Dropbox'}
+                  {integration.provider === 'BOX' && 'Box'}
+                  {integration.provider === 'ONEDRIVE' && 'OneDrive'}
+                </Text>
                 <Text size="sm" c="dimmed">
                   Connected {new Date(integration.connectedAt).toLocaleDateString()}
                 </Text>
@@ -73,8 +81,16 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
         {unconnectedProviders.map(provider => (
           <Group key={provider} justify="space-between" p="xs">
             <Group>
-              <IconCloud size="1.5rem" />
-              <Text fw={500}>{provider}</Text>
+              {provider === 'GDRIVE' && <IconBrandGoogleDrive size="1.5rem" />}
+              {provider === 'DROPBOX' && <IconBrandDropbox size="1.5rem" />}
+              {provider === 'BOX' && <IconBox size="1.5rem" />}
+              {provider === 'ONEDRIVE' && <IconBrandOnedrive size="1.5rem" />}
+              <Text fw={500}>
+                {provider === 'GDRIVE' && 'Google Drive'}
+                {provider === 'DROPBOX' && 'Dropbox'}
+                {provider === 'BOX' && 'Box'}
+                {provider === 'ONEDRIVE' && 'OneDrive'}
+              </Text>
             </Group>
 
             <Group>
