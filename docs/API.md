@@ -48,7 +48,7 @@ Authorization: Required
 
 Request:
 {
-  "name": string  // 3-50 chars, alphanumeric + spaces/hyphens/underscores
+  "name": string  // 2-100 chars, trimmed
 }
 
 Response:
@@ -69,10 +69,33 @@ Response:
     "timestamp": string
   }
 }
+
+Error Response (400):
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request data",
+    "requestId": string,
+    "data": [{
+      "field": string,
+      "message": string
+    }]
+  }
+}
+
+Error Response (409):
+{
+  "error": {
+    "code": "CONFLICT_ERROR",
+    "message": "User already has an active tenant",
+    "requestId": string
+  }
+}
 ```
 - One tenant per user
 - Returns 409 if user already has a tenant
-- Name validation: 3-50 chars, alphanumeric + spaces/hyphens/underscores
+- Name validation: 2-100 chars, trimmed
+- Supports OAuth user IDs (e.g., "google-oauth2|123...")
 
 ### Get Current Tenant
 ```http

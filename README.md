@@ -236,14 +236,27 @@ The following security measures are in place:
 - HTTP security headers via Helmet
 - Request logging for monitoring
 
-### Planned Endpoints
-The following endpoints are planned for implementation:
-- User management
-- Tenant management
-- Resource access control
-- System configuration
+### Available Endpoints
 
-Note: The API structure is being developed. Check back for updates on available endpoints.
+#### Tenant Management
+- `POST /api/v1/tenant` - Create new tenant
+- `GET /api/v1/tenant/me` - Get current tenant
+- `PATCH /api/v1/tenant/:id` - Update tenant
+- `DELETE /api/v1/tenant/:id` - Archive tenant
+
+#### Authentication
+- Auth0 token validation
+- Role-based access control
+- OAuth provider support
+
+See [API Documentation](./docs/API.md) for detailed endpoint specifications.
+
+### Planned Endpoints
+The following endpoints are in development:
+- Project management
+- User management
+- Invite system
+- Admin features
 
 ## 🚀 Deployment
 
