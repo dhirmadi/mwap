@@ -33,7 +33,7 @@ export interface UpdateTenantMemberRequest {
 }
 
 // Integration types
-export type IntegrationProvider = 'GDRIVE' | 'DROPBOX';
+export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
 
 export interface Integration {
   provider: IntegrationProvider;

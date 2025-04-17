@@ -22,8 +22,8 @@ export const tenantIdSchema = z.object({
 
 export const addIntegrationSchema = z.object({
   body: z.object({
-    provider: z.enum(['GDRIVE', 'DROPBOX'], {
-      errorMap: () => ({ message: 'Provider must be either GDRIVE or DROPBOX' })
+    provider: z.enum(['gdrive', 'dropbox', 'box', 'onedrive'], {
+      errorMap: () => ({ message: 'Provider must be one of: gdrive, dropbox, box, onedrive' })
     }),
     token: z.string()
       .min(1, 'Integration token is required')
