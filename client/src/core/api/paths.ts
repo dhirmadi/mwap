@@ -6,6 +6,7 @@ export const API_PATHS = {
   TENANT: {
     CREATE: '/v1/tenant',
     CURRENT: '/v1/tenant/me',
+    GET: (id: string) => `/v1/tenant/${id}`,
     UPDATE: (id: string) => `/v1/tenant/${id}`,
     ARCHIVE: (id: string) => `/v1/tenant/${id}/archive`,
     INTEGRATIONS: {

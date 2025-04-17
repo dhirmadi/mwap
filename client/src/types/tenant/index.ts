@@ -16,10 +16,9 @@ export enum TenantRole {
 export interface Tenant {
   readonly id: string;
   readonly name: string;
-  readonly ownerId: string;
-  readonly settings?: Record<string, unknown>;
+  readonly members: TenantMember[];
   readonly createdAt: string;
-  readonly updatedAt: string;
+  readonly archived: boolean;
 }
 
 /**

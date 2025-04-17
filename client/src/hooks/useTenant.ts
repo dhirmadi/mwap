@@ -91,9 +91,9 @@ export function useTenant(): UseTenantResult {
     return {
       id: data._id,
       name: data.name,
-      ownerId: data.members.find((m: any) => m.role === 'OWNER')?.userId ?? '',
+      members: data.members,
       createdAt: data.createdAt,
-      updatedAt: data.createdAt // API doesn't have updatedAt yet
+      archived: data.archived ?? false
     };
   };
 
