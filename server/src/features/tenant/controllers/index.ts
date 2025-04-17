@@ -9,6 +9,8 @@ import { createTenantSchema } from '../schemas/validation';
 // Create a singleton instance of TenantService
 const tenantService = new TenantService();
 
+export * from './integrations.controller';
+
 export const TenantController: AsyncController = {
   /**
    * Create a new tenant for the authenticated user
