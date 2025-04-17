@@ -5,8 +5,9 @@ import { validateRequest } from '@core/middleware/validation';
 import { logger } from '@core/utils/logger';
 import { 
   createTenantSchema,
-  updateTenantSchema
-} from '../schemas';
+  updateTenantSchema,
+  tenantIdSchema
+} from '../schemas/validation';
 
 const router = Router();
 
@@ -51,7 +52,8 @@ router.get(
 router.patch(
   '/:id',
   ...auth.requireTenantOwner,
-  validateRequest(updateTenantSchema),
+  validateRequest(tenantIdSchema, 'params'),
+  validateRequest(updateTenantSchema, 'body'),
   TenantController.updateTenant
 );
 
@@ -59,6 +61,7 @@ router.patch(
 router.delete(
   '/:id',
   ...auth.requireTenantOwner,
+  validateRequest(tenantIdSchema, 'params'),
   TenantController.archiveTenant
 );
 
