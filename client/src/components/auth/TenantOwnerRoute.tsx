@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
-import { useTenantById } from '../../hooks/useTenantById';
+import { useTenant } from '../../hooks/useTenant';
 import { LoadingState } from '../common';
 import { PrivateRoute } from './PrivateRoute';
 
@@ -15,7 +15,7 @@ interface TenantOwnerRouteProps {
 export function TenantOwnerRoute({ children }: TenantOwnerRouteProps): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth0();
-  const { tenant, isLoading, error } = useTenantById(id!);
+  const { tenant, isLoading, error } = useTenant(id);
 
   // First ensure user is authenticated
   return (
