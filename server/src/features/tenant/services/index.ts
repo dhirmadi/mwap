@@ -361,25 +361,38 @@ export class TenantService {
   /**
    * Get tenant by owner ID
    */
-  async getTenantByOwnerId(ownerId: string): Promise<TenantDocument | null> {
+  async getTenantByOwnerId(userId: string): Promise<TenantDocument | null> {
     try {
-      if (!Types.ObjectId.isValid(ownerId)) {
-        throw new ValidationError('Invalid owner ID');
-      }
+      logger.debug('Getting tenant by owner ID', {
+        userId,
+        query: {
+          'members.userId': userId,
+          'members.role': TenantRole.OWNER,
+          archived: false
+        }
+      });
 
       const tenant = await TenantModel.findOne({
-        ownerId: new Types.ObjectId(ownerId),
+        'members.userId': userId,
+        'members.role': TenantRole.OWNER,
         archived: false
+      });
+
+      logger.debug('Tenant lookup result', {
+        userId,
+        found: !!tenant,
+        tenantId: tenant?._id,
+        memberCount: tenant?.members?.length
       });
 
       return tenant;
     } catch (error) {
-      if (error instanceof ValidationError) {
-        throw error;
-      }
       const metadata = error instanceof Error ? 
-        { message: error.message, stack: error.stack } : 
-        { error };
+        { 
+          message: error.message, 
+          stack: error.stack,
+          userId 
+        } : { error };
       logger.error('Failed to get tenant by owner ID', metadata);
       throw new InternalServerError('Failed to get tenant by owner ID', metadata);
     }
