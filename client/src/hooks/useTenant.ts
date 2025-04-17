@@ -85,8 +85,20 @@ export function useTenant(): UseTenantResult {
     }
   });
 
+  // Transform API response to match our interface
+  const transformTenant = (data: any): Tenant | null => {
+    if (!data) return null;
+    return {
+      id: data._id,
+      name: data.name,
+      ownerId: data.members.find((m: any) => m.role === 'OWNER')?.userId ?? '',
+      createdAt: data.createdAt,
+      updatedAt: data.createdAt // API doesn't have updatedAt yet
+    };
+  };
+
   return {
-    tenant: tenantResponse?.data ?? null,
+    tenant: tenantResponse?.data ? transformTenant(tenantResponse.data) : null,
     isLoading,
     error: queryError ?? null,
     createTenant: mutation.mutate,

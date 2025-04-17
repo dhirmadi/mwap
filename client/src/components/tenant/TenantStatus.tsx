@@ -55,7 +55,7 @@ export function TenantStatus() {
     return (
       <Card withBorder p="md">
         <Text size="sm" c="dimmed">Your Workspace</Text>
-        <Anchor component={Link} to={`/tenant/${tenant.id}`} size="xl" fw={500}>
+        <Anchor component={Link} to={`/tenant/${tenant.id}/manage`} size="xl" fw={500}>
           {tenant.name}
         </Anchor>
       </Card>
