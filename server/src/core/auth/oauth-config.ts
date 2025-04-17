@@ -1,4 +1,4 @@
-export type OAuthProvider = 'GDRIVE' | 'DROPBOX' | 'BOX' | 'ONEDRIVE';
+export type OAuthProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
 
 interface OAuthConfig {
   clientId: string;
@@ -10,7 +10,7 @@ interface OAuthConfig {
 }
 
 const configs: Record<OAuthProvider, OAuthConfig> = {
-  GDRIVE: {
+  gdrive: {
     clientId: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
@@ -18,7 +18,7 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
     redirectUri: process.env.GOOGLE_REDIRECT_URI || `${process.env.API_BASE_URL}/auth/gdrive/callback`,
     scope: 'https://www.googleapis.com/auth/drive.file'
   },
-  DROPBOX: {
+  dropbox: {
     clientId: process.env.DROPBOX_CLIENT_ID || '',
     clientSecret: process.env.DROPBOX_CLIENT_SECRET || '',
     authUrl: 'https://www.dropbox.com/oauth2/authorize',
@@ -26,7 +26,7 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
     redirectUri: `${process.env.API_BASE_URL}/auth/dropbox/callback`,
     scope: ''
   },
-  BOX: {
+  box: {
     clientId: process.env.BOX_CLIENT_ID || '',
     clientSecret: process.env.BOX_CLIENT_SECRET || '',
     authUrl: 'https://account.box.com/api/oauth2/authorize',
@@ -34,7 +34,7 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
     redirectUri: `${process.env.API_BASE_URL}/auth/box/callback`,
     scope: 'root_readwrite'
   },
-  ONEDRIVE: {
+  onedrive: {
     clientId: process.env.ONEDRIVE_CLIENT_ID || '',
     clientSecret: process.env.ONEDRIVE_CLIENT_SECRET || '',
     authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
@@ -44,10 +44,21 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
   }
 };
 
-export function getOAuthConfig(provider: OAuthProvider): OAuthConfig {
-  const config = configs[provider];
+import { ValidationError } from '../types/errors';
+import { logger } from '../logging';
+
+export function getOAuthConfig(provider: string, requestId?: string): OAuthConfig {
+  const providerKey = provider.toLowerCase() as OAuthProvider;
+  const config = configs[providerKey];
+  
   if (!config) {
-    throw new Error(`Unsupported provider: ${provider}`);
+    logger.error('Unsupported OAuth provider', {
+      provider,
+      providerKey,
+      requestId
+    });
+    throw new ValidationError(`Unsupported OAuth provider: ${provider}`);
   }
+  
   return config;
 }

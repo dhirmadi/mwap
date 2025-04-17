@@ -16,7 +16,7 @@ interface TokenResponse {
  * @throws {AppError} If exchange fails or response is invalid
  */
 export async function exchangeCodeForToken(
-  provider: OAuthProvider,
+  provider: string,
   code: string,
   requestId?: string
 ): Promise<string> {

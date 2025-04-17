@@ -11,15 +11,23 @@ const router = Router();
  * Redirect to provider's OAuth consent screen
  */
 router.get('/:provider', (req, res) => {
+  const requestId = req.headers['x-request-id'] as string;
+  
   try {
-    const provider = req.params.provider.toUpperCase() as OAuthProvider;
+    const provider = req.params.provider;
     const tenantId = req.query.tenantId as string;
     
     if (!tenantId) {
       throw new ValidationError('tenantId is required');
     }
 
-    const config = getOAuthConfig(provider);
+    logger.info('OAuth flow started', {
+      provider,
+      tenantId,
+      requestId
+    });
+
+    const config = getOAuthConfig(provider, requestId);
     const state = Buffer.from(JSON.stringify({ tenantId })).toString('base64');
     
     const authUrl = new URL(config.authUrl);
@@ -72,7 +80,7 @@ router.get('/:provider/callback', async (req, res) => {
   const startTime = Date.now();
 
   try {
-    const provider = req.params.provider.toUpperCase() as OAuthProvider;
+    const provider = req.params.provider;
     const { code, state, error: oauthError } = req.query;
 
     logger.debug('Received OAuth callback', {
@@ -112,10 +120,11 @@ router.get('/:provider/callback', async (req, res) => {
     const token = await exchangeCodeForToken(provider, code as string, requestId);
     
     // Store integration
+    const providerKey = provider.toLowerCase() as OAuthProvider;
     const tenantService = new TenantService();
     await tenantService.updateTenant(tenantId, {
       integrations: [{
-        provider,
+        provider: providerKey,
         token,
         connectedAt: new Date()
       }]

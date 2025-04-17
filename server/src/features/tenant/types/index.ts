@@ -10,7 +10,7 @@ export interface TenantMember {
 }
 
 export interface Integration {
-  provider: 'GDRIVE' | 'DROPBOX' | 'BOX' | 'ONEDRIVE';
+  provider: 'gdrive' | 'dropbox' | 'box' | 'onedrive';
   token: string;
   connectedAt: Date;
 }
