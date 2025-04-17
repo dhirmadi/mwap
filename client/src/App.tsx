@@ -106,6 +106,14 @@ function App() {
                 </TenantOwnerRoute>
               }
             />
+            <Route
+              path="/projects/:id/manage"
+              element={
+                <PrivateRoute>
+                  <ProjectAdmin />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </AppShell.Main>
       </AppShell>
