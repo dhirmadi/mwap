@@ -47,6 +47,9 @@
     "GOOGLE_CLIENT_SECRET": {
       "required": true
     },
+    "GOOGLE_REDIRECT_URI": {
+      "required": true
+    },
     "DROPBOX_CLIENT_ID": {
       "required": true
     },

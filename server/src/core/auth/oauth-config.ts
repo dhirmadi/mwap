@@ -15,7 +15,7 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
     tokenUrl: 'https://oauth2.googleapis.com/token',
-    redirectUri: `${process.env.API_BASE_URL}/auth/gdrive/callback`,
+    redirectUri: process.env.GOOGLE_REDIRECT_URI || `${process.env.API_BASE_URL}/auth/gdrive/callback`,
     scope: 'https://www.googleapis.com/auth/drive.file'
   },
   DROPBOX: {
