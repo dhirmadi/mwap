@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi, post } from '../core/api';
 import { AppError } from '../core/errors';
 import { API_PATHS } from '../core/api/paths';
-import { Project, ProjectResponse, CreateProjectRequest } from '../types';
+import { ProjectResponse, CreateProjectRequest } from '../types';
 
 /**
  * Hook for creating new projects

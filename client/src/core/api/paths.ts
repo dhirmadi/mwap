@@ -22,6 +22,7 @@ export const API_PATHS = {
     GET: (id: string) => `/v1/projects/${id}`,
     UPDATE: (id: string) => `/v1/projects/${id}`,
     DELETE: (id: string) => `/v1/projects/${id}`,
+    ROLE: (id: string) => `/v1/projects/${id}/role`,
     MEMBERS: {
       LIST: (id: string) => `/v1/projects/${id}/members`,
       UPDATE: (id: string, userId: string) => `/v1/projects/${id}/members/${userId}`,

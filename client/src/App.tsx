@@ -8,7 +8,8 @@ import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { TenantAdmin } from './pages/TenantAdmin';
 import { ProjectAdmin } from './pages/ProjectAdmin';
-import { CloudIntegrations, TenantProjects, CreateProjectForm } from './components/tenant';
+// These components are used by other components, so we don't need to import them here
+// import { CloudIntegrations, TenantProjects, CreateProjectForm } from './components/tenant';
 
 // Create a client
 const queryClient = new QueryClient({

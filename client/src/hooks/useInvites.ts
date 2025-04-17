@@ -18,10 +18,11 @@ export function useInvites() {
         const response = await api.post<RedeemInviteResponse>(API_PATHS.INVITE.REDEEM, { code });
         console.log('[RedeemInvite] Success:', response.data);
         return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const err = error as { response?: { status: number } };
         // Handle specific error cases
-        if (error.response) {
-          switch (error.response.status) {
+        if (err.response) {
+          switch (err.response.status) {
             case 400:
               throw new Error('Invalid code');
             case 404:

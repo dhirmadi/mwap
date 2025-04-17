@@ -11,6 +11,7 @@ export * from './tenant';
 
 // Project types
 export * from './project';
+export type { ProjectRole } from './project';
 
 // Invite types
 export * from './invite';

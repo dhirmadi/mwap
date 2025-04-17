@@ -1,8 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi, get, post } from '../core/api';
+import { useQuery } from '@tanstack/react-query';
+import { useApi, get } from '../core/api';
 import { AppError } from '../core/errors';
 import { API_PATHS } from '../core/api/paths';
-import { Project, ProjectListResponse, ProjectResponse } from '../types';
+import { Project, ProjectListResponse } from '../types';
 
 /**
  * Query key for projects data
@@ -43,7 +43,7 @@ export interface UseProjectsResult {
  */
 export function useProjects(): UseProjectsResult {
   const api = useApi();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient(); // Not used in this hook
 
   const {
     data: projectsResponse,
