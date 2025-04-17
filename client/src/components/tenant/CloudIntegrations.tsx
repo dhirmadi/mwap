@@ -3,6 +3,7 @@ import { IconCloud, IconTrash, IconPlus } from '@tabler/icons-react';
 import { useCloudIntegrations } from '../../hooks/useCloudIntegrations';
 import { IntegrationProvider } from '../../types/tenant';
 import { LoadingState } from '../common';
+import { getProviderToken } from '../../core/auth/oauth';
 
 interface CloudIntegrationsProps {
   tenantId: string;
@@ -80,7 +81,13 @@ export function CloudIntegrations({ tenantId, isInUse }: CloudIntegrationsProps)
               variant="light"
               leftSection={<IconPlus size="1rem" />}
               loading={isConnecting}
-              onClick={() => connect(provider)}
+              onClick={async () => {
+                // TODO: Implement OAuth flow to get token
+                const token = await getProviderToken(provider);
+                if (token) {
+                  connect({ provider, token });
+                }
+              }}
             >
               Connect
             </Button>

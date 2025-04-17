@@ -8,6 +8,7 @@ import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { TenantAdmin } from './pages/TenantAdmin';
 import { ProjectAdmin } from './pages/ProjectAdmin';
+import { OAuthCallback } from './pages/OAuthCallback';
 // These components are used by other components, so we don't need to import them here
 // import { CloudIntegrations, TenantProjects, CreateProjectForm } from './components/tenant';
 
@@ -93,6 +94,7 @@ function App() {
         <AppShell.Main>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/oauth/callback" element={<OAuthCallback />} />
             <Route 
               path="/user/profile" 
               element={

@@ -27,11 +27,11 @@ export function useCloudIntegrations(tenantId: string) {
 
   // Connect new provider
   const connectMutation = useMutation({
-    mutationFn: async (provider: IntegrationProvider) => {
+    mutationFn: async ({ provider, token }: { provider: IntegrationProvider; token: string }) => {
       const response = await post<IntegrationListResponse>(
         api,
         API_PATHS.TENANT.INTEGRATIONS.ADD(tenantId),
-        { provider }
+        { provider, token }
       );
       return response.data;
     },
