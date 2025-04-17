@@ -35,8 +35,7 @@ router.use((req, res, next) => {
 // Create new tenant (requires auth)
 router.post(
   '/',
-  auth.validateToken,
-
+  auth.requireUserAndToken,
   validateRequest(createTenantSchema),
   TenantController.createTenant
 );
@@ -44,7 +43,7 @@ router.post(
 // Get current user's tenant
 router.get(
   '/me',
-  auth.validateToken,
+  auth.requireUserAndToken,
   TenantController.getCurrentTenant
 );
 

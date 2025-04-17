@@ -21,6 +21,10 @@ export interface AuthMiddleware {
   requireAdmin: Handler[];
   requireSuperAdmin: Handler[];
 
+  // User validation
+  requireUser: Handler;
+  requireUserAndToken: Handler[];
+
   // Tenant role combinations
   requireTenantAdmin: Handler[];
   requireTenantMember: Handler[];

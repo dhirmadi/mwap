@@ -106,16 +106,34 @@ export const TenantController: AsyncController = {
    * Returns null if user has no tenant (not an error)
    */
   getCurrentTenant: async (req: AuthRequest, res: Response): Promise<void> => {
-    // Get tenant
-    const tenant = await tenantService.getTenantByOwnerId(req.user.id);
-
-    // Return response
-    res.status(200).json({
-      data: tenant,
-      meta: {
+    try {
+      const tenant = await tenantService.getTenantByOwnerId(req.user.id);
+      
+      logger.debug('Retrieved tenant', {
+        userId: req.user.id,
+        tenantId: tenant?._id,
         requestId: req.id
-      }
-    });
+      });
+
+      res.status(200).json({
+        data: tenant,
+        meta: {
+          requestId: req.id,
+          timestamp: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      logger.error('Failed to get tenant', {
+        userId: req.user.id,
+        error: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        } : error,
+        requestId: req.id
+      });
+      throw error;
+    }
   },
 
   /**

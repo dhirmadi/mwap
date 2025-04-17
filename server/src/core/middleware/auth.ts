@@ -149,6 +149,32 @@ export const auth: AuthMiddleware = {
   requireAdmin: [validateToken, extractUser, requireRoles(['ADMIN', 'SUPER_ADMIN'])],
   requireSuperAdmin: [validateToken, extractUser, requireRoles(['SUPER_ADMIN'])],
 
+  // Basic user validation
+  requireUser: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const authReq = req as AuthRequest;
+      if (!authReq.user?.id) {
+        throw new AuthenticationError('User not authenticated');
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  // Combined middleware chains
+  requireUserAndToken: [validateToken, extractUser, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthRequest;
+      if (!authReq.user?.id) {
+        throw new AuthenticationError('User not authenticated');
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  }],
+
   // Tenant role combinations
   requireTenantAdmin: [
     validateToken,
