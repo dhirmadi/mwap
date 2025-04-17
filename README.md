@@ -295,19 +295,25 @@ Note: The deployment pipeline is under development. Manual deployment is current
 
 ## 🔧 Development Guidelines
 
-1. **Branch Strategy**
-   - Feature branches from `main`
-   - PRs must be reviewed before merge
-   - Staging must be tested before production deploy
+### Branch Strategy
+- Feature branches from `main`
+- PRs must be reviewed before merge
+- Staging must be tested before production deploy
 
-2. **Code Style**
-   - Use TypeScript where possible
-   - Follow ESLint configuration
-   - Write unit tests for critical functionality
+### Code Style
+- Use TypeScript where possible
+- Follow ESLint configuration
+- Write unit tests for critical functionality
 
-3. **Commit Messages**
-   - Use clear, descriptive commit messages
-   - Reference issue numbers when applicable
+### Commit Messages
+- Use clear, descriptive commit messages
+- Reference issue numbers when applicable
+
+### Coding Standards
+- [DRY Principles](./docs/standards/DRY.md) - Guidelines for writing maintainable, reusable code
+- TypeScript Best Practices - Coming soon
+- Error Handling Standards - Coming soon
+- Testing Guidelines - Coming soon
 
 ## 📚 Additional Documentation
 
