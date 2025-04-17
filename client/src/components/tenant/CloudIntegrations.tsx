@@ -1,5 +1,5 @@
 import { Card, Title, Text, Button, Group, Stack, Tooltip } from '@mantine/core';
-import { IconCloud, IconTrash, IconPlus, IconBrandGoogleDrive, IconFolder, IconBox, IconBrandOnedrive } from '@tabler/icons-react';
+import { IconTrash, IconPlus, IconBrandGoogleDrive, IconFolder, IconBox, IconBrandOnedrive } from '@tabler/icons-react';
 import { useCloudIntegrations } from '../../hooks/useCloudIntegrations';
 import { IntegrationProvider } from '../../types/tenant';
 import { LoadingState } from '../common';

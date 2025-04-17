@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { AppError } from '../core/errors';
+import { AppError, ValidationError } from '../core/types/errors';
 import { logger } from '../core/logging';
 import { OAuthProvider, getOAuthConfig } from '../core/auth/oauth-config';
 import { exchangeCodeForToken } from '../core/auth/oauth-client';
@@ -16,7 +16,7 @@ router.get('/:provider', (req, res) => {
     const tenantId = req.query.tenantId as string;
     
     if (!tenantId) {
-      throw new AppError('tenantId is required', 400);
+      throw new ValidationError('tenantId is required');
     }
 
     const config = getOAuthConfig(provider);
@@ -50,7 +50,7 @@ function extractTenantId(state: string, requestId: string): string {
 
     if (!data.tenantId) {
       logger.error('Missing tenantId in state', { requestId, decoded });
-      throw new AppError.badRequest('Invalid OAuth state');
+      throw new ValidationError('Invalid OAuth state');
     }
 
     return data.tenantId;
@@ -60,7 +60,7 @@ function extractTenantId(state: string, requestId: string): string {
       state,
       error: error instanceof Error ? error.message : String(error)
     });
-    throw new AppError.badRequest('Invalid OAuth state');
+    throw new ValidationError('Invalid OAuth state');
   }
 }
 
@@ -92,7 +92,7 @@ router.get('/:provider/callback', async (req, res) => {
         error: oauthError,
         errorDescription: req.query.error_description
       });
-      throw new AppError.badRequest('OAuth provider error');
+      throw new ValidationError('OAuth provider error');
     }
     
     if (!code || !state) {
@@ -102,7 +102,7 @@ router.get('/:provider/callback', async (req, res) => {
         hasCode: !!code,
         hasState: !!state
       });
-      throw new AppError.badRequest('Invalid callback parameters');
+      throw new ValidationError('Invalid callback parameters');
     }
 
     // Extract and validate tenantId

@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { OAuthProvider, getOAuthConfig } from './oauth-config';
-import { AppError } from '../errors';
+import { AppError, InternalServerError } from '../types/errors';
 import { logger } from '../logging';
 
 interface TokenResponse {
@@ -31,7 +31,7 @@ export async function exchangeCodeForToken(
         hasClientId: !!config.clientId,
         hasClientSecret: !!config.clientSecret
       });
-      throw new AppError.internal('OAuth configuration error');
+      throw new InternalServerError('OAuth configuration error');
     }
 
     const params = new URLSearchParams();
@@ -71,7 +71,7 @@ export async function exchangeCodeForToken(
         status: response.status,
         data: JSON.stringify(response.data)
       });
-      throw new AppError.internal('Invalid token response');
+      throw new InternalServerError('Invalid token response');
     }
 
     return response.data.access_token;
@@ -85,10 +85,10 @@ export async function exchangeCodeForToken(
       provider,
       requestId,
       status: axiosError.response?.status,
-      error: axiosError.message,
+      errorMessage: axiosError.message,
       response: axiosError.response?.data
     });
     
-    throw new AppError.internal('Failed to exchange code for token', { cause: error });
+    throw new InternalServerError('Failed to exchange code for token');
   }
 }

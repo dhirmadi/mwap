@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useApi, get, post, del } from '../core/api/client';
+import { useApi, get, del } from '../core/api/client';
 import { API_PATHS } from '../core/api/paths';
 import { Integration, IntegrationProvider, IntegrationListResponse } from '../types/tenant';
 import { handleApiError } from '../core/errors';
