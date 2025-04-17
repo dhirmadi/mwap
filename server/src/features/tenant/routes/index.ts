@@ -34,7 +34,7 @@ router.use((req, res, next) => {
 
 // Create new tenant (requires auth)
 router.post(
-  '/tenant',
+  '/',
   auth.validateToken,
 
   validateRequest(createTenantSchema),
@@ -43,14 +43,14 @@ router.post(
 
 // Get current user's tenant
 router.get(
-  '/tenant/me',
+  '/me',
   auth.validateToken,
   TenantController.getCurrentTenant
 );
 
 // Update tenant (requires auth + tenant ownership)
 router.patch(
-  '/tenant/:id',
+  '/:id',
   ...auth.requireTenantOwner,
   validateRequest(updateTenantSchema),
   TenantController.updateTenant
@@ -58,7 +58,7 @@ router.patch(
 
 // Delete tenant (requires auth + tenant ownership)
 router.delete(
-  '/tenant/:id',
+  '/:id',
   ...auth.requireTenantOwner,
   TenantController.archiveTenant
 );
