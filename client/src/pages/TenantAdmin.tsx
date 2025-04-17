@@ -4,7 +4,7 @@ import { Container, Title, Group, Button, Stack } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { useTenant } from '../hooks/useTenant';
 import { LoadingState } from '../components/common';
-import { CloudIntegrations } from '../components/tenant';
+import { CloudIntegrations, TenantProjects } from '../components/tenant';
 
 /**
  * Tenant admin page component
@@ -52,6 +52,7 @@ export function TenantAdmin(): JSX.Element {
 
       <Stack spacing="xl">
         <CloudIntegrations tenantId={tenant.id} />
+        <TenantProjects tenantId={tenant.id} />
       </Stack>
     </Container>
   );
