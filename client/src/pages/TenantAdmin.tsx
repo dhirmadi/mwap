@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Title, Group, Button, Stack } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
-import { useTenantById } from '../hooks/useTenantById';
+import { useTenant } from '../hooks/useTenant';
 import { LoadingState } from '../components/common';
 import { CloudIntegrations, TenantProjects } from '../components/tenant';
 
@@ -12,7 +12,7 @@ import { CloudIntegrations, TenantProjects } from '../components/tenant';
  */
 export function TenantAdmin(): JSX.Element {
   const { id } = useParams<{ id: string }>();
-  const { tenant, isLoading, error } = useTenantById(id!);
+  const { tenant, isLoading, error } = useTenant(id);
 
   useEffect(() => {
     console.log(`Rendering tenant admin page for tenant ${id}`);

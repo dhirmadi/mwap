@@ -90,7 +90,7 @@ export function useTenant(id?: string): UseTenantResult {
   });
 
   // Transform API response to match our interface
-  const transformTenant = (data: any): Tenant | null => {
+  const transformTenant = (data: TenantResponse['data']): Tenant | null => {
     if (!data) return null;
     return {
       id: data._id,
