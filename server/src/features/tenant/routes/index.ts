@@ -49,6 +49,14 @@ router.get(
   TenantController.getCurrentTenant
 );
 
+// Get specific tenant (requires auth + tenant ownership)
+router.get(
+  '/:id',
+  ...auth.requireTenantOwner,
+  validateRequest(tenantIdSchema, 'params'),
+  TenantController.getTenant
+);
+
 // Update tenant (requires auth + tenant ownership)
 router.patch(
   '/:id',

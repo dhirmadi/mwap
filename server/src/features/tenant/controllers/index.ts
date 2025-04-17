@@ -167,6 +167,46 @@ export const TenantController: AsyncController = {
    * Delete tenant
    * @requires requireTenantOwner - Only tenant owner can delete
    */
+  /**
+   * Get a specific tenant by ID
+   * @requires requireTenantOwner - Only tenant owner can view
+   */
+  getTenant: async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const tenant = await tenantService.getTenantById(req.params.id);
+      
+      logger.debug('Retrieved tenant by ID', {
+        userId: req.user.id,
+        tenantId: tenant?._id,
+        requestId: req.id
+      });
+
+      res.status(200).json({
+        data: tenant,
+        meta: {
+          requestId: req.id,
+          timestamp: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      logger.error('Failed to get tenant by ID', {
+        userId: req.user.id,
+        tenantId: req.params.id,
+        error: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        } : error,
+        requestId: req.id
+      });
+      throw error;
+    }
+  },
+
+  /**
+   * Archive tenant
+   * @requires requireTenantOwner - Only tenant owner can delete
+   */
   archiveTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       logger.debug('Archiving tenant', {
