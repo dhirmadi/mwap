@@ -28,26 +28,27 @@ export interface UseTenantResult {
   readonly tenant: Tenant | null;
   readonly isLoading: boolean;
   readonly error: AppError | null;
-  readonly createTenant: (data: CreateTenantRequest) => Promise<void>;
-  readonly isCreating: boolean;
-  readonly createError: AppError | null;
+  readonly createTenant?: (data: CreateTenantRequest) => Promise<void>;
+  readonly isCreating?: boolean;
+  readonly createError?: AppError | null;
 }
 
 /**
  * Hook for managing tenant data
  * 
+ * @param id Optional tenant ID. If provided, fetches that specific tenant.
+ *           If not provided, fetches the current user's tenant.
+ * 
  * @example
  * ```typescript
+ * // Get current tenant with mutation capabilities
  * const { tenant, isLoading, error, createTenant } = useTenant();
  * 
- * // Get tenant data
- * if (isLoading) return <Loading />;
- * if (error) return <Error error={error} />;
- * if (!tenant) return <CreateTenant onSubmit={createTenant} />;
- * return <TenantInfo tenant={tenant} />;
+ * // Get specific tenant by ID
+ * const { tenant, isLoading, error } = useTenant('tenant-id');
  * ```
  */
-export function useTenant(): UseTenantResult {
+export function useTenant(id?: string): UseTenantResult {
   const api = useApi();
   const queryClient = useQueryClient();
 
@@ -57,13 +58,16 @@ export function useTenant(): UseTenantResult {
     isLoading,
     error: queryError
   } = useQuery<TenantResponse, AppError>({
-    queryKey: TENANT_QUERY_KEY,
+    queryKey: id ? [...TENANT_QUERY_KEY, id] : TENANT_QUERY_KEY,
     queryFn: async () => {
-      // No error handling needed for null tenant
-      const response = await get<TenantResponse>(api, API_PATHS.TENANT.CURRENT);
+      const response = await get<TenantResponse>(
+        api,
+        id ? API_PATHS.TENANT.GET(id) : API_PATHS.TENANT.CURRENT
+      );
       return response;
     },
-    ...TENANT_QUERY_CONFIG
+    ...TENANT_QUERY_CONFIG,
+    enabled: id ? !!id : true // Only run query if ID is provided when in ID mode
   });
 
   // Mutation for creating tenant
@@ -85,12 +89,30 @@ export function useTenant(): UseTenantResult {
     }
   });
 
-  return {
-    tenant: tenantResponse?.data ?? null,
-    isLoading,
-    error: queryError ?? null,
-    createTenant: mutation.mutate,
-    isCreating: mutation.isPending,
-    createError: mutation.error ?? null
+  // Transform API response to match our interface
+  const transformTenant = (data: TenantResponse['data']): Tenant | null => {
+    if (!data) return null;
+    return {
+      id: data._id,
+      name: data.name,
+      members: data.members,
+      createdAt: data.createdAt,
+      archived: data.archived ?? false
+    };
   };
+
+  const result: UseTenantResult = {
+    tenant: tenantResponse?.data ? transformTenant(tenantResponse.data) : null,
+    isLoading,
+    error: queryError ?? null
+  };
+
+  // Only include mutation-related fields when not in ID mode
+  if (!id) {
+    result.createTenant = mutation.mutate;
+    result.isCreating = mutation.isPending;
+    result.createError = mutation.error ?? null;
+  }
+
+  return result;
 }

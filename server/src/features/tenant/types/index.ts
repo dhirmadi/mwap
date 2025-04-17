@@ -9,10 +9,17 @@ export interface TenantMember {
   updatedAt?: Date;
 }
 
+export interface Integration {
+  provider: 'gdrive' | 'dropbox' | 'box' | 'onedrive';
+  token: string;
+  connectedAt: Date;
+}
+
 export interface Tenant {
   name: string;
   ownerId: Types.ObjectId;
   members: TenantMember[];
+  integrations: Integration[];
   archived: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -29,6 +36,7 @@ export interface CreateTenantInput {
 export interface UpdateTenantInput {
   name?: string;
   archived?: boolean;
+  integrations?: Integration[];
 }
 
 export interface AddMemberInput {

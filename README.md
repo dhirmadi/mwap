@@ -244,6 +244,12 @@ The following security measures are in place:
 - `PATCH /api/v1/tenant/:id` - Update tenant
 - `DELETE /api/v1/tenant/:id` - Archive tenant
 
+#### Project Management
+- `GET /api/v1/projects/:id` - Get project details
+- `PATCH /api/v1/projects/:id` - Update project (archive)
+- `DELETE /api/v1/projects/:id` - Delete project
+- Project admin view at `/projects/:id/manage` (requires ADMIN role)
+
 #### Authentication
 - Auth0 token validation
 - Role-based access control

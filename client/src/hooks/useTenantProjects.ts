@@ -5,14 +5,9 @@ import { API_PATHS } from '../core/api/paths';
 import { Project, ProjectListResponse } from '../types';
 
 /**
- * Query key for projects data
+ * Query configuration for tenant projects data
  */
-const PROJECTS_QUERY_KEY = ['projects'] as const;
-
-/**
- * Query configuration for projects data
- */
-const PROJECTS_QUERY_CONFIG = {
+const TENANT_PROJECTS_QUERY_CONFIG = {
   staleTime: 1 * 60 * 1000,  // 1 minute
   cacheTime: 15 * 60 * 1000  // 15 minutes
 } as const;
@@ -20,7 +15,7 @@ const PROJECTS_QUERY_CONFIG = {
 /**
  * Hook result type
  */
-export interface UseProjectsResult {
+export interface UseTenantProjectsResult {
   readonly projects: Project[];
   readonly isLoading: boolean;
   readonly error: AppError | null;
@@ -28,12 +23,13 @@ export interface UseProjectsResult {
 }
 
 /**
- * Hook for managing projects data
- * Returns empty array if user has no projects (not an error)
+ * Hook for managing tenant projects data
+ * Returns empty array if tenant has no projects (not an error)
+ * Projects are already filtered by tenant on the backend
  * 
  * @example
  * ```typescript
- * const { projects, isLoading, error } = useProjects();
+ * const { projects, isLoading, error } = useTenantProjects();
  * 
  * if (isLoading) return <LoadingState />;
  * if (error) return <ErrorDisplay error={error} />;
@@ -41,9 +37,9 @@ export interface UseProjectsResult {
  * return <ProjectList projects={projects} />;
  * ```
  */
-export function useProjects(): UseProjectsResult {
+export function useTenantProjects(tenantId: string): UseTenantProjectsResult {
   const api = useApi();
-  // const queryClient = useQueryClient(); // Not used in this hook
+  const queryKey = ['tenant', tenantId, 'projects'] as const;
 
   const {
     data: projectsResponse,
@@ -51,13 +47,14 @@ export function useProjects(): UseProjectsResult {
     error: queryError,
     refetch
   } = useQuery<ProjectListResponse, AppError>({
-    queryKey: PROJECTS_QUERY_KEY,
+    queryKey,
     queryFn: async () => {
       // No error handling needed for empty list
       const response = await get<ProjectListResponse>(api, API_PATHS.PROJECT.LIST);
       return response;
     },
-    ...PROJECTS_QUERY_CONFIG
+    enabled: !!tenantId,
+    ...TENANT_PROJECTS_QUERY_CONFIG
   });
 
   return {

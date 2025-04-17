@@ -1,7 +1,7 @@
 import { Auth0Provider } from '@auth0/auth0-react';
 import { ReactNode } from 'react';
 import { AppState } from '@auth0/auth0-react';
-import { notifications } from '@mantine/notifications';
+// Removed unused import: notifications
 
 interface Props {
   children: ReactNode;

@@ -16,10 +16,9 @@ export enum TenantRole {
 export interface Tenant {
   readonly id: string;
   readonly name: string;
-  readonly ownerId: string;
-  readonly settings?: Record<string, unknown>;
+  readonly members: TenantMember[];
   readonly createdAt: string;
-  readonly updatedAt: string;
+  readonly archived: boolean;
 }
 
 /**
@@ -48,9 +47,26 @@ export interface TenantMember {
 }
 
 /**
+ * Cloud provider integration types
+ */
+export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
+
+export interface Integration {
+  provider: IntegrationProvider;
+  token: string;
+  connectedAt: string;
+}
+
+export interface AddIntegrationRequest {
+  provider: IntegrationProvider;
+  token: string;
+}
+
+/**
  * Response types
  */
 export type TenantResponse = SuccessResponse<Tenant>;
 export type TenantListResponse = SuccessResponse<Tenant[]>;
 export type TenantMemberResponse = SuccessResponse<TenantMember>;
 export type TenantMemberListResponse = SuccessResponse<TenantMember[]>;
+export type IntegrationListResponse = SuccessResponse<Integration[]>;

@@ -32,11 +32,26 @@ export interface UpdateTenantMemberRequest {
   role: TenantRole;
 }
 
+// Integration types
+export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
+
+export interface Integration {
+  provider: IntegrationProvider;
+  token: string;
+  connectedAt: Date;
+}
+
+export interface AddIntegrationRequest {
+  provider: IntegrationProvider;
+  token: string;
+}
+
 // Response types
 export type TenantResponse = SuccessResponse<Tenant>;
 export type TenantListResponse = SuccessResponse<Tenant[]>;
 export type TenantMemberResponse = SuccessResponse<TenantMember>;
 export type TenantMemberListResponse = SuccessResponse<TenantMember[]>;
+export type IntegrationListResponse = SuccessResponse<Integration[]>;
 
 // Query types
 export interface TenantQueryParams {

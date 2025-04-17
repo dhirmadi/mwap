@@ -2,7 +2,7 @@ import { Container, Title, Text, Stack, Button, Group, Loader } from '@mantine/c
 import { useAuth } from '../hooks/useAuth';
 
 export function Home() {
-  const { isAuthenticated, isLoading, error, login, logout, user } = useAuth();
+  const { isAuthenticated, isLoading, error, login } = useAuth();
 
   if (isLoading) {
     return (

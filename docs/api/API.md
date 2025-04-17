@@ -118,6 +118,30 @@ Response:
 ```
 - Returns null if user has no tenant (not an error)
 
+### Get Specific Tenant
+```http
+GET /api/v1/tenant/:id
+Authorization: Required + Tenant Owner
+
+Response:
+{
+  "data": {
+    "id": string,
+    "name": string,
+    "members": Array<Member>,
+    "createdAt": string,
+    "archived": boolean
+  },
+  "meta": {
+    "requestId": string,
+    "timestamp": string
+  }
+}
+```
+- Requires tenant owner permissions
+- Returns 404 if tenant not found
+- Returns 403 if user is not the tenant owner
+
 ### Update Tenant
 ```http
 PATCH /api/v1/tenant/:id

@@ -8,6 +8,7 @@ import {
   updateTenantSchema,
   tenantIdSchema
 } from '../schemas/validation';
+import integrationRoutes from './integrations.routes';
 
 const router = Router();
 
@@ -48,6 +49,14 @@ router.get(
   TenantController.getCurrentTenant
 );
 
+// Get specific tenant (requires auth + tenant ownership)
+router.get(
+  '/:id',
+  ...auth.requireTenantOwner,
+  validateRequest(tenantIdSchema, 'params'),
+  TenantController.getTenant
+);
+
 // Update tenant (requires auth + tenant ownership)
 router.patch(
   '/:id',
@@ -72,5 +81,13 @@ router.get('/health', (_req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Integration routes (requires auth + tenant ownership)
+router.use(
+  '/:id/integrations',
+  auth.requireUserAndToken,
+  validateRequest(tenantIdSchema, 'params'),
+  integrationRoutes
+);
 
 export { router as tenantRoutes };

@@ -1,7 +1,8 @@
-import { Card, Text, TextInput, Button, Group, Stack, Skeleton } from '@mantine/core';
+import { Card, Text, TextInput, Button, Group, Stack, Skeleton, Anchor } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useTenant } from '../../hooks/useTenant';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export function TenantStatus() {
   const { tenant, isLoading, error, createTenant, isCreating, createError } = useTenant();
@@ -54,7 +55,9 @@ export function TenantStatus() {
     return (
       <Card withBorder p="md">
         <Text size="sm" c="dimmed">Your Workspace</Text>
-        <Text size="xl" fw={500}>{tenant.name}</Text>
+        <Anchor component={Link} to={`/tenant/${tenant.id}/manage`} size="xl" fw={500}>
+          {tenant.name}
+        </Anchor>
       </Card>
     );
   }

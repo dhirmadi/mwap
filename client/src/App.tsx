@@ -2,10 +2,15 @@ import { AppShell, Container, Group, Title, Button, Menu } from '@mantine/core';
 import { useAuth0 } from '@auth0/auth0-react';
 import { IconLogout, IconUser } from '@tabler/icons-react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { PrivateRoute } from './components/auth';
+import { PrivateRoute, TenantOwnerRoute } from './components/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ModalsProvider } from '@mantine/modals';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
+import { TenantAdmin } from './pages/TenantAdmin';
+import { ProjectAdmin } from './pages/ProjectAdmin';
+// These components are used by other components, so we don't need to import them here
+// import { CloudIntegrations, TenantProjects, CreateProjectForm } from './components/tenant';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -23,8 +28,9 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <AppShell
+      <ModalsProvider>
+        <Router>
+          <AppShell
         header={{ height: 60 }}
         padding="md"
       >
@@ -97,10 +103,27 @@ function App() {
                 </PrivateRoute>
               } 
             />
+            <Route
+              path="/tenant/:id/manage"
+              element={
+                <TenantOwnerRoute>
+                  <TenantAdmin />
+                </TenantOwnerRoute>
+              }
+            />
+            <Route
+              path="/projects/:id/manage"
+              element={
+                <PrivateRoute>
+                  <ProjectAdmin />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </AppShell.Main>
       </AppShell>
-    </Router>
+        </Router>
+      </ModalsProvider>
     </QueryClientProvider>
   );
 }

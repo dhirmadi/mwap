@@ -30,10 +30,36 @@ const tenantMemberSchema = new Schema<TenantMember>({
   }
 }, { _id: false });
 
+// Integration type
+export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
+
+export interface Integration {
+  provider: IntegrationProvider;
+  token: string;
+  connectedAt: Date;
+}
+
+const integrationSchema = new Schema<Integration>({
+  provider: {
+    type: String,
+    required: true,
+    enum: ['gdrive', 'dropbox', 'box', 'onedrive']
+  },
+  token: {
+    type: String,
+    required: true
+  },
+  connectedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: false });
+
 // TypeScript interfaces
 export interface Tenant {
   name: string;
   members: TenantMember[];
+  integrations: Integration[];
   createdAt: Date;
   archived?: boolean;
 }
@@ -53,6 +79,11 @@ const tenantSchema = new Schema<TenantDocument>({
   },
   members: {
     type: [tenantMemberSchema],
+    required: true,
+    default: []
+  },
+  integrations: {
+    type: [integrationSchema],
     required: true,
     default: []
   },

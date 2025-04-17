@@ -115,6 +115,13 @@
 
 ## Recent Updates
 
+### v0.2.0 - Tenant Manager Page Running
+- ✅ Direct link access to tenant management
+- ✅ GET endpoint for specific tenant by ID
+- ✅ Consolidated tenant hooks
+- ✅ Improved error handling
+- ✅ Type safety improvements
+
 ### v0.1.0 - Tenant Creation Complete
 - ✅ Create tenant with validation
 - ✅ Get current tenant

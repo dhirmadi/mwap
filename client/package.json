@@ -19,6 +19,7 @@
     "@mantine/core": "^7.6.1",
     "@mantine/form": "^7.17.3",
     "@mantine/hooks": "^7.6.1",
+    "@mantine/modals": "^7.17.3",
     "@mantine/notifications": "^7.17.3",
     "@tabler/icons-react": "^3.31.0",
     "@tanstack/react-query": "^5.74.3",
@@ -31,12 +32,14 @@
     "vite": "^5.1.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.24.0",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
-    "@typescript-eslint/eslint-plugin": "^7.1.0",
-    "@typescript-eslint/parser": "^7.1.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.5"
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0"
   }
 }

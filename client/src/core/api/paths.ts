@@ -6,8 +6,14 @@ export const API_PATHS = {
   TENANT: {
     CREATE: '/v1/tenant',
     CURRENT: '/v1/tenant/me',
+    GET: (id: string) => `/v1/tenant/${id}`,
     UPDATE: (id: string) => `/v1/tenant/${id}`,
     ARCHIVE: (id: string) => `/v1/tenant/${id}/archive`,
+    INTEGRATIONS: {
+      LIST: (id: string) => `/v1/tenant/${id}/integrations`,
+      ADD: (id: string) => `/v1/tenant/${id}/integrations`,
+      REMOVE: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider}`,
+    },
   },
 
   // Project endpoints
@@ -17,6 +23,7 @@ export const API_PATHS = {
     GET: (id: string) => `/v1/projects/${id}`,
     UPDATE: (id: string) => `/v1/projects/${id}`,
     DELETE: (id: string) => `/v1/projects/${id}`,
+    ROLE: (id: string) => `/v1/projects/${id}/role`,
     MEMBERS: {
       LIST: (id: string) => `/v1/projects/${id}/members`,
       UPDATE: (id: string, userId: string) => `/v1/projects/${id}/members/${userId}`,
