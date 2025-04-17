@@ -31,7 +31,7 @@ const tenantMemberSchema = new Schema<TenantMember>({
 }, { _id: false });
 
 // Integration type
-export type IntegrationProvider = 'GDRIVE' | 'DROPBOX';
+export type IntegrationProvider = 'GDRIVE' | 'DROPBOX' | 'BOX' | 'ONEDRIVE';
 
 export interface Integration {
   provider: IntegrationProvider;
@@ -43,7 +43,7 @@ const integrationSchema = new Schema<Integration>({
   provider: {
     type: String,
     required: true,
-    enum: ['GDRIVE', 'DROPBOX']
+    enum: ['GDRIVE', 'DROPBOX', 'BOX', 'ONEDRIVE']
   },
   token: {
     type: String,

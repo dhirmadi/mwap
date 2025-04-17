@@ -3,7 +3,7 @@ import { AppError } from '../core/errors';
 import { logger } from '../core/logging';
 import { OAuthProvider, getOAuthConfig } from '../core/auth/oauth-config';
 import { exchangeCodeForToken } from '../core/auth/oauth-client';
-import { updateTenantIntegration } from '../services/tenant';
+import { TenantService } from '@features/tenant/services';
 
 const router = Router();
 
@@ -58,10 +58,13 @@ router.get('/:provider/callback', async (req, res) => {
     const token = await exchangeCodeForToken(provider, code as string);
     
     // Store integration
-    await updateTenantIntegration(tenantId, {
-      provider,
-      token,
-      connectedAt: new Date()
+    const tenantService = new TenantService();
+    await tenantService.updateTenant(tenantId, {
+      integrations: [{
+        provider,
+        token,
+        connectedAt: new Date()
+      }]
     });
 
     logger.info(`Successfully connected ${provider} for tenant ${tenantId}`);
