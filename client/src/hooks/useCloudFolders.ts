@@ -49,6 +49,10 @@ export function useCloudFolders(
   return useQuery<CloudFolder[], CloudFolderError>({
     queryKey,
     queryFn: async () => {
+      if (!tenantId || !provider) {
+        console.warn('Missing required parameters:', { tenantId, provider });
+        return [];
+      }
       const requestId = Math.random().toString(36).substring(7);
       const normalizedProvider = provider.toUpperCase();
 

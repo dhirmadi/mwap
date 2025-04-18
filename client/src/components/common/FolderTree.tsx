@@ -206,12 +206,12 @@ export function FolderTree({
   );
 
   // Debug integration status
-  if (!currentIntegration) {
-    console.warn('Integration not found:', {
-      provider,
-      availableIntegrations: integrations.map(i => i.provider)
-    });
-  }
+  console.info('Integration check:', {
+    provider,
+    currentIntegration,
+    allIntegrations: integrations,
+    availableProviders: integrations.map(i => i.provider)
+  });
 
   // Fetch folders only if integration exists
   const {
@@ -223,7 +223,10 @@ export function FolderTree({
     tenantId,
     provider,
     undefined,
-    debouncedSearch
+    debouncedSearch,
+    {
+      enabled: !!currentIntegration
+    }
   );
 
   const isLoading = isLoadingIntegrations || isLoadingFolders;

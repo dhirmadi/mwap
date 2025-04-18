@@ -16,10 +16,25 @@ export function useCloudIntegrations(tenantId: string) {
   const { data: integrations = [], isLoading, error } = useQuery<Integration[]>({
     queryKey,
     queryFn: async () => {
+      console.info('Fetching integrations:', {
+        tenantId,
+        url: API_PATHS.TENANT.INTEGRATIONS.LIST(tenantId)
+      });
+
       const response = await get<IntegrationListResponse>(
         api,
         API_PATHS.TENANT.INTEGRATIONS.LIST(tenantId)
       );
+
+      console.info('Integrations response:', {
+        status: response?.status,
+        data: response?.data,
+        integrations: response?.data?.map(i => ({
+          provider: i.provider,
+          status: i.status
+        }))
+      });
+
       return response.data;
     },
     enabled: !!tenantId,
