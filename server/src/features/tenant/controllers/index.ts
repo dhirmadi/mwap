@@ -10,6 +10,7 @@ import { createTenantSchema } from '../schemas/validation';
 const tenantService = new TenantService();
 
 export * from './integrations.controller';
+export * from './folders.controller';
 
 export const TenantController: AsyncController = {
   /**
