@@ -1,0 +1,1 @@
+web: node --max-old-space-size=4096 -r tsconfig-paths/register -r ./tsconfig-paths-bootstrap.js dist/index.js
