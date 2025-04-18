@@ -14,8 +14,11 @@ import {
   IconChevronRight, 
   IconSearch,
   IconFolderOff,
+  IconLock,
+  IconRefresh,
 } from '@tabler/icons-react';
 import { useCloudFolders } from '../../hooks/useCloudFolders';
+import { useCloudIntegrations } from '../../hooks/useCloudIntegrations';
 import { IntegrationProvider } from '../../types/tenant';
 import { LoadingState } from './LoadingState';
 import { EmptyState } from './EmptyState';
@@ -189,12 +192,42 @@ export function FolderTree({
 }: FolderTreeProps): JSX.Element {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebouncedValue(search, 300);
-  const { data: rootFolders, isLoading, error, refetch } = useCloudFolders(
+
+  // Check cloud integration status
+  const {
+    integrations,
+    isLoading: isLoadingIntegrations,
+    error: integrationsError
+  } = useCloudIntegrations(tenantId);
+
+  // Find the current provider's integration
+  const currentIntegration = integrations.find(
+    i => i.provider.toUpperCase() === provider.toUpperCase()
+  );
+
+  // Debug integration status
+  if (!currentIntegration) {
+    console.warn('Integration not found:', {
+      provider,
+      availableIntegrations: integrations.map(i => i.provider)
+    });
+  }
+
+  // Fetch folders only if integration exists
+  const {
+    data: rootFolders,
+    isLoading: isLoadingFolders,
+    error: foldersError,
+    refetch
+  } = useCloudFolders(
     tenantId,
     provider,
     undefined,
     debouncedSearch
   );
+
+  const isLoading = isLoadingIntegrations || isLoadingFolders;
+  const error = integrationsError || foldersError;
 
   return (
     <Stack>
@@ -210,14 +243,31 @@ export function FolderTree({
       ) : error?.status === 404 ? (
         <EmptyState
           icon={<IconFolderOff size="2rem" color="var(--mantine-color-yellow-6)" />}
-          message="Cloud provider not connected or access not granted"
-          buttonText="Refresh"
+          message={`${provider} integration not found or not properly configured. Please check your cloud provider settings.`}
+          description="This could happen if the integration was removed or the access token expired."
+          buttonText="Check Integration"
+          onAction={() => {
+            console.info('Integration status check requested:', {
+              provider,
+              tenantId,
+              error
+            });
+            refetch();
+          }}
+        />
+      ) : error?.status === 401 || error?.status === 403 ? (
+        <EmptyState
+          icon={<IconLock size="2rem" color="var(--mantine-color-red-6)" />}
+          message={`Access denied to ${provider} folders`}
+          description="Please check your permissions or try reconnecting the cloud provider."
+          buttonText="Retry"
           onAction={refetch}
         />
       ) : error ? (
         <ErrorDisplay 
           error={error} 
-          title="Failed to load folders"
+          title={`Failed to load ${provider} folders`}
+          description="An unexpected error occurred while fetching your folders."
         />
       ) : !rootFolders?.length ? (
         <EmptyState
