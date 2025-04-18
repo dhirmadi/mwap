@@ -1,18 +1,8 @@
 import { AppError } from '@core/errors';
 import { Integration } from '../schemas/tenant.schema';
 import { logger } from '@core/utils';
-
-export interface CloudFolder {
-  id: string;
-  name: string;
-  path: string;
-  hasChildren: boolean;
-}
-
-interface ListFoldersOptions {
-  parentId?: string;
-  search?: string;
-}
+import { ProviderFactory } from './providers/provider-factory';
+import { CloudFolder, ListFoldersOptions } from './providers/cloud-provider.interface';
 
 export class CloudProviderService {
   private integration: Integration;
@@ -33,32 +23,24 @@ export class CloudProviderService {
         search
       });
 
-      // TODO: Implement actual provider-specific folder listing
-      // For now, return mock data
-      const mockFolders: CloudFolder[] = [
-        {
-          id: 'root',
-          name: 'Root',
-          path: '/',
-          hasChildren: true
-        },
-        {
-          id: 'docs',
-          name: 'Documents',
-          path: '/Documents',
-          hasChildren: true
-        }
-      ];
+      // Get provider instance
+      const cloudProvider = ProviderFactory.createProvider(
+        this.integration.provider,
+        this.integration.token
+      );
+
+      // List folders using provider
+      const folders = await cloudProvider.listFolders({ parentId, search });
 
       // Log success
       logger.debug('Listed cloud folders successfully', {
         provider,
         parentId,
         search,
-        folderCount: mockFolders.length
+        folderCount: folders.length
       });
 
-      return mockFolders;
+      return folders;
     } catch (error) {
       // Log error details
       logger.error('Failed to list cloud folders', {
