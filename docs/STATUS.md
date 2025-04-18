@@ -115,6 +115,18 @@
 
 ## Recent Updates
 
+### v0.3.0 - Enhanced Cloud Provider Architecture
+- ✅ Base provider class with shared functionality
+- ✅ Provider-specific implementations (Google Drive, Dropbox)
+- ✅ Memory-efficient caching system with TTL
+- ✅ Folder operations (list, create, delete)
+- ✅ Path resolution with caching
+- ✅ Pagination support for large folders
+- ✅ Build process optimization
+- ✅ Memory usage improvements
+- ✅ Comprehensive error handling
+- ✅ Enhanced type safety
+
 ### v0.2.0 - Multiple Cloud Storage Support
 - ✅ Multiple simultaneous cloud provider connections
 - ✅ Safe provider-aware integration merge strategy
