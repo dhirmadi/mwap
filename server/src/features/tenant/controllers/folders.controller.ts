@@ -58,7 +58,7 @@ export async function listFolders(
     const cloudService = new CloudProviderService(integration);
     
     // List folders
-    const folders = await cloudService.listFolders({
+    const result = await cloudService.listFolders({
       parentId,
       search
     });
@@ -70,12 +70,13 @@ export async function listFolders(
       search,
       requestId,
       userId: req.user.id,
-      folderCount: folders.length
+      folderCount: result.folders.length,
+      hasMore: !!result.nextPageToken
     });
 
     res.json({
       success: true,
-      data: folders
+      data: result
     });
   } catch (error) {
     // Log error details

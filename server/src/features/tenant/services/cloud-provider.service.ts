@@ -2,7 +2,7 @@ import { AppError } from '@core/errors';
 import { Integration } from '../schemas/tenant.schema';
 import { logger } from '@core/utils';
 import { ProviderFactory } from './providers/provider-factory';
-import { CloudFolder, ListFoldersOptions } from './providers/cloud-provider.interface';
+import { CloudFolder, ListFoldersOptions, ListFoldersResponse } from './providers/cloud-provider.interface';
 
 export class CloudProviderService {
   private integration: Integration;
@@ -11,8 +11,8 @@ export class CloudProviderService {
     this.integration = integration;
   }
 
-  async listFolders(options: ListFoldersOptions): Promise<CloudFolder[]> {
-    const { parentId, search } = options;
+  async listFolders(options: ListFoldersOptions): Promise<ListFoldersResponse> {
+    const { parentId, search, pageToken, pageSize } = options;
     const provider = this.integration.provider.toLowerCase();
 
     try {
@@ -20,7 +20,9 @@ export class CloudProviderService {
       logger.debug('Listing cloud folders', {
         provider,
         parentId,
-        search
+        search,
+        pageToken,
+        pageSize
       });
 
       // Get provider instance
@@ -30,17 +32,18 @@ export class CloudProviderService {
       );
 
       // List folders using provider
-      const folders = await cloudProvider.listFolders({ parentId, search });
+      const result = await cloudProvider.listFolders(options);
 
       // Log success
       logger.debug('Listed cloud folders successfully', {
         provider,
         parentId,
         search,
-        folderCount: folders.length
+        folderCount: result.folders.length,
+        hasMore: !!result.nextPageToken
       });
 
-      return folders;
+      return result;
     } catch (error) {
       // Log error details
       logger.error('Failed to list cloud folders', {
@@ -52,6 +55,79 @@ export class CloudProviderService {
 
       throw new AppError(
         `Failed to list folders from ${provider}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        500
+      );
+    }
+  }
+
+  async createFolder(parentId: string, name: string): Promise<CloudFolder> {
+    const provider = this.integration.provider.toLowerCase();
+
+    try {
+      logger.debug('Creating folder', {
+        provider,
+        parentId,
+        name
+      });
+
+      const cloudProvider = ProviderFactory.createProvider(
+        this.integration.provider,
+        this.integration.token
+      );
+
+      const folder = await cloudProvider.createNewFolder(parentId, name);
+
+      logger.debug('Created folder successfully', {
+        provider,
+        folderId: folder.id,
+        path: folder.path
+      });
+
+      return folder;
+    } catch (error) {
+      logger.error('Failed to create folder', {
+        provider,
+        parentId,
+        name,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+
+      throw new AppError(
+        `Failed to create folder in ${provider}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        500
+      );
+    }
+  }
+
+  async deleteFolder(folderId: string): Promise<void> {
+    const provider = this.integration.provider.toLowerCase();
+
+    try {
+      logger.debug('Deleting folder', {
+        provider,
+        folderId
+      });
+
+      const cloudProvider = ProviderFactory.createProvider(
+        this.integration.provider,
+        this.integration.token
+      );
+
+      await cloudProvider.removeFolder(folderId);
+
+      logger.debug('Deleted folder successfully', {
+        provider,
+        folderId
+      });
+    } catch (error) {
+      logger.error('Failed to delete folder', {
+        provider,
+        folderId,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+
+      throw new AppError(
+        `Failed to delete folder in ${provider}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         500
       );
     }
