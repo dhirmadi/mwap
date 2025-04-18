@@ -12,8 +12,8 @@ export const API_PATHS = {
     INTEGRATIONS: {
       LIST: (id: string) => `/v1/tenant/${id}/integrations`,
       ADD: (id: string) => `/v1/tenant/${id}/integrations`,
-      REMOVE: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider}`,
-      LIST_FOLDERS: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider}/folders`,
+      REMOVE: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider.toLowerCase()}`,
+      LIST_FOLDERS: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider.toLowerCase()}/folders`,
     },
   },
 
