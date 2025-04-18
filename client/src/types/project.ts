@@ -53,4 +53,6 @@ export interface CreateProjectRequest {
   name: string;
   description?: string;
   tenantId: string;
+  provider: string;
+  folderPath: string;
 }

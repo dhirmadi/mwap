@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Card, Title, Text, Table, Group, Badge, Tooltip, Button, ActionIcon, Menu, Stack } from '@mantine/core';
 import { IconFolder, IconUsers, IconArchive, IconTrash, IconDots, IconPlus } from '@tabler/icons-react';
 import { useTenantProjects } from '../../hooks/useTenantProjects';
+import { useCloudIntegrations } from '../../hooks/useCloudIntegrations';
 import { LoadingState, ErrorDisplay } from '../common';
 import { Project } from '../../types';
 import { CreateProjectForm } from './CreateProjectForm';
@@ -29,10 +30,19 @@ export function TenantProjects({
 }: TenantProjectsProps) {
   const {
     projects,
-    isLoading,
-    error,
+    isLoading: projectsLoading,
+    error: projectsError,
     refetch
   } = useTenantProjects(tenantId);
+
+  const {
+    integrations,
+    isLoading: integrationsLoading,
+    error: integrationsError
+  } = useCloudIntegrations(tenantId);
+
+  const isLoading = projectsLoading || integrationsLoading;
+  const error = projectsError || integrationsError;
 
   if (isLoading) {
     return <LoadingState />;
@@ -54,11 +64,19 @@ export function TenantProjects({
           </Stack>
           <CreateProjectForm
             tenantId={tenantId}
-            availableProviders={['GDRIVE', 'DROPBOX']}
+            availableProviders={integrations.map(i => i.provider.toUpperCase())}
             trigger={
-              <Button leftSection={<IconPlus size="1rem" />}>
-                Create Project
-              </Button>
+              <Tooltip
+                label="Please connect a cloud provider first"
+                disabled={integrations.length > 0}
+              >
+                <Button
+                  leftSection={<IconPlus size="1rem" />}
+                  disabled={integrations.length === 0}
+                >
+                  Create Project
+                </Button>
+              </Tooltip>
             }
           />
         </Stack>
@@ -72,7 +90,20 @@ export function TenantProjects({
         <Title order={3}>Projects</Title>
         <CreateProjectForm
           tenantId={tenantId}
-          availableProviders={['GDRIVE', 'DROPBOX']}
+          availableProviders={integrations.map(i => i.provider.toUpperCase())}
+          trigger={
+            <Tooltip
+              label="Please connect a cloud provider first"
+              disabled={integrations.length > 0}
+            >
+              <Button
+                leftSection={<IconPlus size="1rem" />}
+                disabled={integrations.length === 0}
+              >
+                Create Project
+              </Button>
+            </Tooltip>
+          }
         />
       </Group>
 

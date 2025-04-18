@@ -8,14 +8,16 @@ import {
   Modal,
   Text,
   Stepper,
-  Paper
+  Paper,
+  Box
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { IconPlus, IconCloudUpload, IconFolderPlus } from '@tabler/icons-react';
+import { IconPlus, IconCloudUpload, IconFolderPlus, IconFolderSearch, IconClipboardCheck } from '@tabler/icons-react';
 import { useCreateProject } from '../../hooks/useCreateProject';
 import { IntegrationProvider } from '../../types';
 import { handleApiError } from '../../core/errors';
+import { FolderTree } from '../common/FolderTree';
 
 interface CreateProjectFormProps {
   tenantId: string;
@@ -70,7 +72,9 @@ export function CreateProjectForm({
     try {
       await createProject({
         name: values.name,
-        description: `Project using ${values.cloudProvider} at ${values.folderPath}`
+        description: `Project using ${values.cloudProvider} at ${values.folderPath}`,
+        provider: values.cloudProvider,
+        folderPath: values.folderPath
       });
 
       notifications.show({
@@ -81,15 +85,29 @@ export function CreateProjectForm({
 
       setOpened(false);
       form.reset();
+      setActiveStep(0);
     } catch (error) {
       handleApiError(error, 'Failed to create project');
     }
   });
 
   const nextStep = () => {
-    const currentStepValid = activeStep === 0
-      ? form.isValid('cloudProvider')
-      : form.isValid('name') && form.isValid('folderPath');
+    let currentStepValid = false;
+    
+    switch (activeStep) {
+      case 0:
+        currentStepValid = form.isValid('cloudProvider');
+        break;
+      case 1:
+        currentStepValid = form.isValid('name');
+        break;
+      case 2:
+        currentStepValid = form.isValid('folderPath');
+        break;
+      case 3:
+        currentStepValid = form.isValid();
+        break;
+    }
 
     if (currentStepValid) {
       setActiveStep((current) => current + 1);
@@ -151,26 +169,67 @@ export function CreateProjectForm({
             </Stepper.Step>
 
             <Stepper.Step
-              label="Project Details"
-              description="Name and location"
+              label="Project Name"
+              description="Enter project name"
               icon={<IconFolderPlus size="1.2rem" />}
             >
               <Paper withBorder p="md" mt="md">
-                <Stack>
-                  <TextInput
-                    label="Project Name"
-                    placeholder="Enter project name"
-                    required
-                    {...form.getInputProps('name')}
-                  />
+                <TextInput
+                  label="Project Name"
+                  placeholder="Enter project name"
+                  required
+                  {...form.getInputProps('name')}
+                />
+              </Paper>
+            </Stepper.Step>
 
-                  <TextInput
-                    label="Folder Path"
-                    placeholder="/path/to/project/folder"
-                    description="Path in the cloud provider where project files will be stored"
-                    required
-                    {...form.getInputProps('folderPath')}
+            <Stepper.Step
+              label="Select Folder"
+              description="Choose location"
+              icon={<IconFolderSearch size="1.2rem" />}
+            >
+              <Paper withBorder p="md" mt="md">
+                <Box mah={400} style={{ overflowY: 'auto' }}>
+                  <FolderTree
+                    tenantId={tenantId}
+                    provider={form.values.cloudProvider}
+                    selectedPath={form.values.folderPath}
+                    onSelect={(path) => form.setFieldValue('folderPath', path)}
                   />
+                </Box>
+              </Paper>
+            </Stepper.Step>
+
+            <Stepper.Step
+              label="Review"
+              description="Confirm details"
+              icon={<IconClipboardCheck size="1.2rem" />}
+            >
+              <Paper withBorder p="md" mt="md">
+                <Stack>
+                  <Group>
+                    <Text fw={500} size="sm" style={{ width: 120 }}>Cloud Provider:</Text>
+                    <Text size="sm">
+                      {form.values.cloudProvider === 'GDRIVE' ? 'Google Drive' : 'Dropbox'}
+                    </Text>
+                  </Group>
+
+                  <Group>
+                    <Text fw={500} size="sm" style={{ width: 120 }}>Project Name:</Text>
+                    <Text size="sm">{form.values.name}</Text>
+                  </Group>
+
+                  <Group>
+                    <Text fw={500} size="sm" style={{ width: 120 }}>Folder Path:</Text>
+                    <Text size="sm" style={{ wordBreak: 'break-all' }}>
+                      {form.values.folderPath}
+                    </Text>
+                  </Group>
+
+                  <Text size="sm" c="dimmed" mt="md">
+                    Please review the details above before creating the project.
+                    Click "Create Project" to proceed or "Back" to make changes.
+                  </Text>
                 </Stack>
               </Paper>
             </Stepper.Step>
@@ -182,17 +241,17 @@ export function CreateProjectForm({
                 Back
               </Button>
             )}
-            {activeStep === 0 ? (
-              <Button onClick={nextStep} disabled={availableProviders.length === 0}>
-                Next
-              </Button>
-            ) : (
+            {activeStep === 3 ? (
               <Button
                 type="submit"
                 loading={isLoading}
-                disabled={availableProviders.length === 0}
+                disabled={availableProviders.length === 0 || !form.isValid()}
               >
                 Create Project
+              </Button>
+            ) : (
+              <Button onClick={nextStep} disabled={availableProviders.length === 0}>
+                Next
               </Button>
             )}
           </Group>

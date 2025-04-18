@@ -13,6 +13,7 @@ export const API_PATHS = {
       LIST: (id: string) => `/v1/tenant/${id}/integrations`,
       ADD: (id: string) => `/v1/tenant/${id}/integrations`,
       REMOVE: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider}`,
+      LIST_FOLDERS: (id: string, provider: string) => `/v1/tenant/${id}/integrations/${provider}/folders`,
     },
   },
 
