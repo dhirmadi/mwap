@@ -37,7 +37,8 @@ interface FormValues {
  */
 export function CreateProjectForm({
   tenantId,
-  availableProviders
+  availableProviders,
+  trigger
 }: CreateProjectFormProps) {
   const [opened, setOpened] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -120,7 +121,11 @@ export function CreateProjectForm({
 
   return (
     <>
-      {trigger || (
+      {trigger ? (
+        <Box onClick={() => setOpened(true)} style={{ cursor: 'pointer' }}>
+          {trigger}
+        </Box>
+      ) : (
         <Button
           leftSection={<IconPlus size="1rem" />}
           onClick={() => setOpened(true)}
