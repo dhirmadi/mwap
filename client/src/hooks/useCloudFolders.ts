@@ -64,7 +64,11 @@ export function useCloudFolders(
             provider: normalizedProvider,
             parentId,
             search,
-            url: API_PATHS.TENANT.INTEGRATIONS.LIST_FOLDERS(tenantId, normalizedProvider)
+            url: API_PATHS.TENANT.INTEGRATIONS.LIST_FOLDERS(tenantId, normalizedProvider),
+            apiPaths: {
+              integrationsList: API_PATHS.TENANT.INTEGRATIONS.LIST(tenantId),
+              foldersList: API_PATHS.TENANT.INTEGRATIONS.LIST_FOLDERS(tenantId, normalizedProvider)
+            }
           });
         }
 

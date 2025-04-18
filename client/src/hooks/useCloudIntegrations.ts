@@ -28,11 +28,16 @@ export function useCloudIntegrations(tenantId: string) {
 
       console.info('Integrations response:', {
         status: response?.status,
-        data: response?.data,
+        rawData: response?.data,
         integrations: response?.data?.map(i => ({
           provider: i.provider,
-          status: i.status
-        }))
+          status: i.status,
+          id: i.id,
+          createdAt: i.createdAt,
+          updatedAt: i.updatedAt
+        })),
+        hasDropbox: response?.data?.some(i => i.provider.toUpperCase() === 'DROPBOX'),
+        providersList: response?.data?.map(i => i.provider.toUpperCase()).join(', ')
       });
 
       return response.data;
