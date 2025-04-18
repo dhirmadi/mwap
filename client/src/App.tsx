@@ -5,12 +5,10 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { PrivateRoute, TenantOwnerRoute } from './components/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ModalsProvider } from '@mantine/modals';
+import { Suspense } from 'react';
 import { Home } from './pages/Home';
-import { Profile } from './pages/Profile';
-import { TenantAdmin } from './pages/TenantAdmin';
-import { ProjectAdmin } from './pages/ProjectAdmin';
-// These components are used by other components, so we don't need to import them here
-// import { CloudIntegrations, TenantProjects, CreateProjectForm } from './components/tenant';
+import { LoadingState } from './components/common/LoadingState';
+import { Profile, TenantAdmin, ProjectAdmin } from './routes/LazyRoutes';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -99,7 +97,9 @@ function App() {
               path="/user/profile" 
               element={
                 <PrivateRoute>
-                  <Profile />
+                  <Suspense fallback={<LoadingState />}>
+                    <Profile />
+                  </Suspense>
                 </PrivateRoute>
               } 
             />
@@ -107,7 +107,9 @@ function App() {
               path="/tenant/:id/manage"
               element={
                 <TenantOwnerRoute>
-                  <TenantAdmin />
+                  <Suspense fallback={<LoadingState />}>
+                    <TenantAdmin />
+                  </Suspense>
                 </TenantOwnerRoute>
               }
             />
@@ -115,7 +117,9 @@ function App() {
               path="/projects/:id/manage"
               element={
                 <PrivateRoute>
-                  <ProjectAdmin />
+                  <Suspense fallback={<LoadingState />}>
+                    <ProjectAdmin />
+                  </Suspense>
                 </PrivateRoute>
               }
             />

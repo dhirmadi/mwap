@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true,
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, 'index.html')
@@ -32,7 +33,9 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             'vendor': ['react', 'react-dom', 'react-router-dom'],
             'auth': ['@auth0/auth0-react'],
-            'ui': ['@mantine/core', '@mantine/hooks', '@mantine/notifications']
+            'ui': ['@mantine/core', '@mantine/hooks', '@mantine/notifications', '@mantine/modals'],
+            'icons': ['@tabler/icons-react'],
+            'query': ['@tanstack/react-query']
           }
         }
       }
