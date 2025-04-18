@@ -207,6 +207,13 @@ export function FolderTree({
 
       {isLoading ? (
         <LoadingState />
+      ) : error?.status === 404 ? (
+        <EmptyState
+          icon={<IconFolderOff size="2rem" color="var(--mantine-color-yellow-6)" />}
+          message="Cloud provider not connected or access not granted"
+          buttonText="Refresh"
+          onAction={refetch}
+        />
       ) : error ? (
         <ErrorDisplay 
           error={error} 

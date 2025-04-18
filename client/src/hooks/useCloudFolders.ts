@@ -40,7 +40,7 @@ export function useCloudFolders(
         
         const response = await get<CloudFolderListResponse>(
           api,
-          API_PATHS.TENANT.INTEGRATIONS.LIST_FOLDERS(tenantId, provider),
+          API_PATHS.TENANT.INTEGRATIONS.LIST_FOLDERS(tenantId, provider.toUpperCase()),
           {
             params: {
               parentId,
@@ -50,7 +50,14 @@ export function useCloudFolders(
           }
         );
 
-        if (!response.data || response.data.length === 0) {
+        // Handle empty or invalid response
+        if (!response || !response.data) {
+          console.info(`[${requestId}] No response or invalid data from ${provider}`, { tenantId, parentId, search });
+          return [];
+        }
+
+        // Handle empty folder list
+        if (response.data.length === 0) {
           console.info(`[${requestId}] No folders found for ${provider}`, { tenantId, parentId, search });
         }
 
@@ -70,11 +77,12 @@ export function useCloudFolders(
     },
     enabled: !!tenantId && !!provider,
     retry: (failureCount, error) => {
-      // Don't retry on 4xx errors (client errors)
-      if (error.status && error.status >= 400 && error.status < 500) {
+      // Don't retry on 404 (not found) or other client errors
+      if (error.status === 404 || (error.status && error.status >= 400 && error.status < 500)) {
+        console.info(`[${error.requestId}] Not retrying due to ${error.status} status`);
         return false;
       }
-      // Retry up to 3 times for other errors
+      // Retry up to 3 times for server errors
       return failureCount < 3;
     },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
