@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Card, Title, Text, Table, Group, Badge, Tooltip } from '@mantine/core';
-import { IconFolder, IconUsers } from '@tabler/icons-react';
+import { Card, Title, Text, Table, Group, Badge, Tooltip, Button, ActionIcon, Menu, Stack } from '@mantine/core';
+import { IconFolder, IconUsers, IconArchive, IconTrash, IconDots, IconPlus } from '@tabler/icons-react';
 import { useTenantProjects } from '../../hooks/useTenantProjects';
-import { LoadingState } from '../common';
+import { LoadingState, ErrorDisplay } from '../common';
 import { Project } from '../../types';
 import { CreateProjectForm } from './CreateProjectForm';
 
@@ -11,6 +11,8 @@ interface TenantProjectsProps {
   getProviderName?: (project: Project) => string | undefined;
   getMemberCount?: (project: Project) => number;
   getFolderPath?: (project: Project) => string | undefined;
+  onArchive?: (project: Project) => Promise<void>;
+  onDelete?: (project: Project) => Promise<void>;
 }
 
 /**
@@ -21,24 +23,45 @@ export function TenantProjects({
   tenantId,
   getProviderName,
   getMemberCount,
-  getFolderPath
+  getFolderPath,
+  onArchive,
+  onDelete
 }: TenantProjectsProps) {
   const {
     projects,
     isLoading,
+    error,
+    refetch
   } = useTenantProjects(tenantId);
 
   if (isLoading) {
     return <LoadingState />;
   }
 
+  if (error) {
+    return <ErrorDisplay error={error} onRetry={refetch} />;
+  }
+
   if (projects.length === 0) {
     return (
       <Card withBorder>
         <Title order={3} mb="md">Projects</Title>
-        <Text c="dimmed" ta="center" py="xl">
-          No projects found in this tenant
-        </Text>
+        <Stack align="center" gap="md" py="xl">
+          <IconFolder size={40} color="gray" />
+          <Stack gap={5} align="center">
+            <Text size="lg" fw={500}>No projects found</Text>
+            <Text size="sm" c="dimmed">Create your first project to get started</Text>
+          </Stack>
+          <CreateProjectForm
+            tenantId={tenantId}
+            availableProviders={['GDRIVE', 'DROPBOX']}
+            trigger={
+              <Button leftSection={<IconPlus size="1rem" />}>
+                Create Project
+              </Button>
+            }
+          />
+        </Stack>
       </Card>
     );
   }
@@ -60,6 +83,7 @@ export function TenantProjects({
             <Table.Th>Cloud Provider</Table.Th>
             <Table.Th>Folder Path</Table.Th>
             <Table.Th>Members</Table.Th>
+            <Table.Th w={0} />
           </Table.Tr>
         </Table.Thead>
 
@@ -105,6 +129,36 @@ export function TenantProjects({
                   <IconUsers size="1rem" />
                   <Text>{getMemberCount?.(project) ?? 0}</Text>
                 </Group>
+              </Table.Td>
+
+              <Table.Td>
+                <Menu position="bottom-end" withinPortal>
+                  <Menu.Target>
+                    <ActionIcon variant="subtle" color="gray">
+                      <IconDots size="1rem" />
+                    </ActionIcon>
+                  </Menu.Target>
+
+                  <Menu.Dropdown>
+                    {onArchive && (
+                      <Menu.Item
+                        leftSection={<IconArchive size="1rem" />}
+                        onClick={() => onArchive(project)}
+                      >
+                        Archive
+                      </Menu.Item>
+                    )}
+                    {onDelete && (
+                      <Menu.Item
+                        leftSection={<IconTrash size="1rem" />}
+                        color="red"
+                        onClick={() => onDelete(project)}
+                      >
+                        Delete
+                      </Menu.Item>
+                    )}
+                  </Menu.Dropdown>
+                </Menu>
               </Table.Td>
             </Table.Tr>
           ))}
