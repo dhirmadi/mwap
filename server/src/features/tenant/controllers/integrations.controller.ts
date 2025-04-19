@@ -3,6 +3,8 @@ import { AppError } from '@core/errors';
 import { TenantModel } from '../schemas';
 import { AddIntegrationRequest, IntegrationProvider } from '../types/api';
 import { logger } from '@core/utils';
+import { ProviderFactory } from '../services/providers/provider-factory';
+import { DropboxProvider } from '../services/providers/dropbox.provider';
 
 export async function getIntegrations(req: Request, res: Response, next: NextFunction) {
   try {
@@ -60,6 +62,15 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
     // Check if integration already exists
     if (tenant.integrations.some(i => i.provider === provider)) {
       throw new AppError(`Integration with provider ${provider} already exists`, 400);
+    }
+
+    // Validate token before adding integration
+    const cloudProvider = ProviderFactory.createProvider(provider, token);
+    if (cloudProvider instanceof DropboxProvider) {
+      const isValid = await cloudProvider.validateToken();
+      if (!isValid) {
+        throw new AppError('Invalid or expired Dropbox token', 401);
+      }
     }
 
     tenant.integrations.push({

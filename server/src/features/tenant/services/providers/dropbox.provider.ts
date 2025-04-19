@@ -11,6 +11,19 @@ export class DropboxProvider extends BaseCloudProvider {
     this.client = new Dropbox({ accessToken });
   }
 
+  async validateToken(): Promise<boolean> {
+    try {
+      // Try to get current account info as a validation
+      await this.client.usersGetCurrentAccount();
+      return true;
+    } catch (error) {
+      logger.error('Failed to validate Dropbox token', {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      return false;
+    }
+  }
+
   protected async doListFolders({ 
     parentId = '', 
     search = '',

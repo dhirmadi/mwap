@@ -53,6 +53,14 @@ export class CloudProviderService {
         error: error instanceof Error ? error.message : 'Unknown error'
       });
 
+      // Check for token validation errors
+      if (error instanceof Error && error.message.includes('401')) {
+        throw new AppError(
+          `Authentication failed for ${provider}. Please reconnect your account.`,
+          401
+        );
+      }
+
       throw new AppError(
         `Failed to list folders from ${provider}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         500
