@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
 
 // Set environment
 const env = process.env.NODE_ENV || 'development';

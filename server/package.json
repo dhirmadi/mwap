@@ -8,11 +8,11 @@
     "npm": "10.x"
   },
   "scripts": {
-    "start": "node -r tsconfig-paths/register -r ./tsconfig-paths-bootstrap.js dist/index.js",
+    "start": "node -r ts-node/register -r tsconfig-paths/register ./tsconfig-paths-bootstrap.ts dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "build": "node --max-old-space-size=4096 ./node_modules/.bin/tsc -p tsconfig.json",
     "build:prod": "npm run clean && node --max-old-space-size=4096 ./node_modules/.bin/tsc -p tsconfig.prod.json",
-    "deploy": "node scripts/deploy.js",
+    "deploy": "ts-node scripts/deploy.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "clean": "rm -rf dist",
