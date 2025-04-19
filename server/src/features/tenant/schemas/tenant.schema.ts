@@ -1,5 +1,7 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 import { Integration, TenantMember } from '../types/api';
+
+export interface IntegrationDocument extends Document, Integration {}
 
 const integrationSchema = new Schema<Integration>({
   provider: {

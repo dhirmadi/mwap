@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '@core/errors';
 import { TenantModel } from '../schemas';
-import { AddIntegrationRequest, IntegrationProvider } from '../types/api';
+import { AddIntegrationRequest, IntegrationProvider, Integration } from '../types/api';
 import { logger } from '@core/utils';
 import { ProviderFactory } from '../services/providers/provider-factory';
 import { DropboxProvider } from '../services/providers/dropbox.provider';
@@ -73,14 +73,15 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
       }
     }
 
-    tenant.integrations.push({
+    const newIntegration: Integration = {
       provider,
       token,
       refreshToken: req.body.refreshToken,
       expiresAt: req.body.expiresAt,
       connectedAt: new Date(),
       lastRefreshedAt: new Date()
-    });
+    };
+    tenant.integrations.push(newIntegration);
 
     await tenant.save();
 

@@ -1,7 +1,7 @@
 import { AppError } from '@core/errors';
 import { logger } from '@core/utils';
 import { Integration, IntegrationProvider } from '../types/api';
-import { TenantModel } from '../schemas';
+import { TenantModel, IntegrationDocument } from '../schemas';
 import { DropboxProvider } from './providers/dropbox.provider';
 
 interface TokenRefreshResult {
@@ -76,7 +76,7 @@ export class TokenRefreshService {
       throw new AppError('Tenant not found', 404);
     }
 
-    const integrationDoc = tenant.integrations.find(i => i.provider === provider);
+    const integrationDoc = tenant.integrations.find(i => i.provider === provider) as IntegrationDocument;
     if (!integrationDoc) {
       throw new AppError(`Integration with provider ${provider} not found`, 404);
     }
@@ -85,10 +85,10 @@ export class TokenRefreshService {
     const integration: Integration = {
       provider: integrationDoc.provider as IntegrationProvider,
       token: integrationDoc.token,
-      refreshToken: integrationDoc.get('refreshToken'),
-      expiresAt: integrationDoc.get('expiresAt'),
+      refreshToken: integrationDoc.refreshToken,
+      expiresAt: integrationDoc.expiresAt,
       connectedAt: integrationDoc.connectedAt,
-      lastRefreshedAt: integrationDoc.get('lastRefreshedAt'),
+      lastRefreshedAt: integrationDoc.lastRefreshedAt,
       tenantId
     };
 
@@ -110,14 +110,14 @@ export class TokenRefreshService {
       }
 
       // Update integration document with new tokens
-      integrationDoc.set('token', result.accessToken);
+      integrationDoc.token = result.accessToken;
       if (result.refreshToken) {
-        integrationDoc.set('refreshToken', result.refreshToken);
+        integrationDoc.refreshToken = result.refreshToken;
       }
       if (result.expiresAt) {
-        integrationDoc.set('expiresAt', result.expiresAt);
+        integrationDoc.expiresAt = result.expiresAt;
       }
-      integrationDoc.set('lastRefreshedAt', new Date());
+      integrationDoc.lastRefreshedAt = new Date();
 
       await tenant.save();
       
