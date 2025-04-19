@@ -20,8 +20,8 @@ export const API_CONFIG = {
     STATUS_CODES: [408, 429, 500, 502, 503, 504]
   },
   HEADERS: {
-    CONTENT_TYPE: 'application/json',
-    ACCEPT: 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 } as const;
 

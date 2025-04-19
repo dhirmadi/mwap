@@ -43,8 +43,17 @@ const corsOptions: cors.CorsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['X-Response-Time'],
+  allowedHeaders: [
+    'Content-Type',
+    'content_type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
+  exposedHeaders: ['X-Response-Time', 'Content-Type'],
   maxAge: constants.security.cors.maxAge
 };
 
