@@ -25,22 +25,40 @@ echo "📥 Fetching environment variables from Heroku staging..."
 touch ./server/.env
 touch ./client/.env
 
-# Copy example files as base configuration
+# Set up server configuration
 echo "🔄 Setting up server configuration..."
-cp ./server/.env.example ./server/.env
 
-# Override with local development settings
+# Create fresh .env file with development settings
 echo "Configuring local development variables..."
 {
     echo "PORT=3001"
     echo "NODE_ENV=development"
     echo "CORS_ORIGIN=http://localhost:5173"
-    # Fetch sensitive environment variables from Heroku staging
-    echo "Fetching sensitive environment variables from Heroku..."
-    heroku config:get MONGO_URI -a mwap-staging >> ./server/.env
-    heroku config:get AUTH0_CLIENT_SECRET -a mwap-staging >> ./server/.env
-    heroku config:get MONGO_CLIENT_ENCRYPTION_KEY -a mwap-staging >> ./server/.env
-} >> ./server/.env
+    echo "LOG_LEVEL=debug"
+    
+    # Fetch all required variables from Heroku staging
+    echo "Fetching environment variables from Heroku..."
+    echo "MONGO_URI=$(heroku config:get MONGO_URI -a mwap-staging)"
+    echo "AUTH0_DOMAIN=$(heroku config:get AUTH0_DOMAIN -a mwap-staging)"
+    echo "AUTH0_CLIENT_ID=$(heroku config:get AUTH0_CLIENT_ID -a mwap-staging)"
+    echo "AUTH0_CLIENT_SECRET=$(heroku config:get AUTH0_CLIENT_SECRET -a mwap-staging)"
+    echo "AUTH0_AUDIENCE=$(heroku config:get AUTH0_AUDIENCE -a mwap-staging)"
+    echo "MONGO_CLIENT_ENCRYPTION_KEY=$(heroku config:get MONGO_CLIENT_ENCRYPTION_KEY -a mwap-staging)"
+    echo "MONGO_ENCRYPTION_KEY_NAME=mwap_data_key"
+    echo "MONGO_MAX_POOL_SIZE=10"
+    echo "MONGO_MIN_POOL_SIZE=2"
+    echo "MONGO_CONNECT_TIMEOUT_MS=10000"
+    echo "MONGO_SOCKET_TIMEOUT_MS=45000"
+    echo "RATE_LIMITING_ENABLED=true"
+    echo "RATE_LIMIT_WINDOW_MS=900000"
+    echo "RATE_LIMIT_MAX_REQUESTS=100"
+    echo "ENABLE_REQUEST_LOGGING=true"
+    echo "METRICS_ENABLED=true"
+    echo "METRICS_INTERVAL=60000"
+    echo "CACHE_ENABLED=true"
+    echo "CACHE_TTL=300"
+    echo "CACHE_CHECK_PERIOD=600"
+} > ./server/.env
 
 # Set up client configuration
 echo "🔄 Setting up client configuration..."
