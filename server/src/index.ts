@@ -1,4 +1,7 @@
-import 'dotenv/config';
+import { loadEnv } from '@core/config/load-env';
+
+// Load environment variables
+loadEnv();
 import { app } from './app';
 import { connectDB } from '@core/config/database';
 import { env } from '@core/config/environment';

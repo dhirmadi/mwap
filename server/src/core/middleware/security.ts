@@ -90,7 +90,7 @@ export const setupSecurity = (app: Application): void => {
           'https://*.herokuapp.com',
           'https://cdn.auth0.com',
           'http://localhost:5173',
-          'http://localhost:3001'
+          `http://localhost:${process.env.PORT || '3001'}`
         ],
         fontSrc: [
           "'self'",

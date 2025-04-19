@@ -1,7 +1,7 @@
 export const constants = {
   development: {
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
-    apiUrl: process.env.API_URL || 'http://localhost:3001',
+    apiUrl: process.env.API_URL || `http://localhost:${process.env.PORT || '3001'}`,
   },
   production: {
     frontendUrl: process.env.FRONTEND_URL,
