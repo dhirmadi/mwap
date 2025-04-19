@@ -1,7 +1,8 @@
 import { AppError } from '@core/errors';
 import { logger } from '@core/utils';
 import { Integration, IntegrationProvider } from '../types/api';
-import { TenantModel, IntegrationDocument } from '../schemas';
+import { IntegrationDocument } from '../types/mongoose';
+import { TenantModel } from '../schemas';
 import { DropboxProvider } from './providers/dropbox.provider';
 
 interface TokenRefreshResult {
