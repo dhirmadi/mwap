@@ -65,6 +65,9 @@ export class CloudProviderService {
       if (error instanceof Error && error.message.includes('401')) {
         // Try to refresh token if possible
         try {
+          if (!this.integration.tenantId) {
+            throw new AppError('TenantId is required for token refresh', 400);
+          }
           const refreshedIntegration = await TokenRefreshService.refreshToken(
             this.integration.tenantId,
             provider
