@@ -1,6 +1,14 @@
 /**
  * API configuration constants
  */
+// Log environment variables for debugging
+console.log('API Environment:', {
+  VITE_API_URL: import.meta.env.VITE_API_URL,
+  NODE_ENV: import.meta.env.MODE,
+  DEV: import.meta.env.DEV,
+  PROD: import.meta.env.PROD,
+});
+
 export const API_CONFIG = {
   // In development: http://localhost:3001/api
   // In production: /api

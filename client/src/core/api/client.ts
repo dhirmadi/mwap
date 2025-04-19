@@ -23,6 +23,14 @@ export function createApiClient(
   retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG
 ): AxiosInstance {
   // Create axios instance with merged config
+  console.log('Creating API client with config:', {
+    baseURL: API_CONFIG.BASE_URL,
+    timeout: API_CONFIG.TIMEOUT,
+    headers: API_CONFIG.HEADERS,
+    envConfig: import.meta.env,
+    additionalConfig: config
+  });
+  
   const client = axios.create({
     baseURL: API_CONFIG.BASE_URL,
     timeout: API_CONFIG.TIMEOUT,
@@ -32,6 +40,14 @@ export function createApiClient(
 
   // Add auth token to requests
   client.interceptors.request.use(async (config) => {
+    console.log('Request interceptor:', {
+      url: config.url,
+      baseURL: config.baseURL,
+      fullPath: `${config.baseURL}${config.url}`,
+      method: config.method,
+      headers: config.headers
+    });
+
     // Skip auth for public endpoints
     if (config.url?.endsWith('/health') || config.url?.includes('/public/')) {
       return config;
@@ -67,8 +83,13 @@ export function createApiClient(
       // Log error for debugging
       console.error('API Error:', {
         url: error.config?.url,
+        baseURL: error.config?.baseURL,
+        fullPath: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
         status: error.response?.status,
-        data: error.response?.data
+        data: error.response?.data,
+        message: error.message,
+        code: error.code,
+        name: error.name
       });
 
       // Handle auth errors
