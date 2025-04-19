@@ -34,8 +34,16 @@ export class TokenRefreshService {
         throw new Error(`Failed to refresh token: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as {
+        access_token: string;
+        refresh_token?: string;
+        expires_in?: number;
+      };
       
+      if (!data.access_token) {
+        throw new Error('Invalid token response: missing access_token');
+      }
+
       return {
         accessToken: data.access_token,
         refreshToken: data.refresh_token,

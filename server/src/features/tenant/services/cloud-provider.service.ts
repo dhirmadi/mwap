@@ -1,5 +1,5 @@
 import { AppError } from '@core/errors';
-import { Integration } from '../schemas/tenant.schema';
+import { Integration } from '../types/api';
 import { logger } from '@core/utils';
 import { ProviderFactory } from './providers/provider-factory';
 import { TokenRefreshService } from './token-refresh.service';
@@ -8,11 +8,15 @@ import { CloudFolder, ListFoldersOptions, ListFoldersResponse } from './provider
 export class CloudProviderService {
   private integration: Integration;
 
-  constructor(integration: Integration, tenantId: string) {
+  constructor(integration: Integration, tenantId?: string) {
     this.integration = {
       ...integration,
-      tenantId
+      tenantId: tenantId || integration.tenantId
     };
+    
+    if (!this.integration.tenantId) {
+      throw new AppError('TenantId is required for cloud provider operations', 400);
+    }
   }
 
   async listFolders(options: ListFoldersOptions): Promise<ListFoldersResponse> {
