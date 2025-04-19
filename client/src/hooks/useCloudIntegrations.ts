@@ -49,7 +49,8 @@ export function useCloudIntegrations(tenantId: string) {
   const connect = (provider: IntegrationProvider) => {
     // Provider is already lowercase
     const authProvider = provider;
-    window.location.href = `/api/v1/auth/${authProvider}?tenantId=${tenantId}`;
+    const baseUrl = import.meta.env.VITE_API_URL || '/api';
+    window.location.href = `${baseUrl}/v1/auth/${authProvider}?tenantId=${tenantId}`;
   };
 
   // Disconnect provider
