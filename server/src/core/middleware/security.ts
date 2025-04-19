@@ -7,7 +7,7 @@ import { constants } from '../config/constants';
 
 // CORS configuration with enhanced security
 const corsOptions: cors.CorsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void, req?: Request) => {
     // Allow requests with no origin (same-origin requests)
     if (!origin) {
       return callback(null, true);
@@ -23,9 +23,9 @@ const corsOptions: cors.CorsOptions = {
     // Log all CORS requests with helpful information
     console.log('CORS request:', {
       origin,
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
+      method: req?.method || 'unknown',
+      url: req?.url || 'unknown',
+      headers: req?.headers || {},
       allowedPatterns: allowedOrigins.map(p => p.toString()),
       appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME,
       isAllowed: allowedOrigins.some(pattern => pattern.test(origin))
