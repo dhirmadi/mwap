@@ -38,12 +38,18 @@ export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
 export interface Integration {
   provider: IntegrationProvider;
   token: string;
+  refreshToken?: string;
+  expiresAt?: Date;
   connectedAt: Date;
+  lastRefreshedAt?: Date;
+  tenantId?: string; // Added for token refresh
 }
 
 export interface AddIntegrationRequest {
   provider: IntegrationProvider;
   token: string;
+  refreshToken?: string;
+  expiresAt?: Date;
 }
 
 // Response types

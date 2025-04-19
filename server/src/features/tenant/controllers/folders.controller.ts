@@ -55,7 +55,7 @@ export async function listFolders(
     }
 
     // Get cloud provider service
-    const cloudService = new CloudProviderService(integration);
+    const cloudService = new CloudProviderService(integration, tenantId);
     
     // List folders
     const result = await cloudService.listFolders({

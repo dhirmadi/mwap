@@ -2,13 +2,17 @@ import { AppError } from '@core/errors';
 import { Integration } from '../schemas/tenant.schema';
 import { logger } from '@core/utils';
 import { ProviderFactory } from './providers/provider-factory';
+import { TokenRefreshService } from './token-refresh.service';
 import { CloudFolder, ListFoldersOptions, ListFoldersResponse } from './providers/cloud-provider.interface';
 
 export class CloudProviderService {
   private integration: Integration;
 
-  constructor(integration: Integration) {
-    this.integration = integration;
+  constructor(integration: Integration, tenantId: string) {
+    this.integration = {
+      ...integration,
+      tenantId
+    };
   }
 
   async listFolders(options: ListFoldersOptions): Promise<ListFoldersResponse> {
@@ -55,10 +59,25 @@ export class CloudProviderService {
 
       // Check for token validation errors
       if (error instanceof Error && error.message.includes('401')) {
-        throw new AppError(
-          `Authentication failed for ${provider}. Please reconnect your account.`,
-          401
-        );
+        // Try to refresh token if possible
+        try {
+          const refreshedIntegration = await TokenRefreshService.refreshToken(
+            this.integration.tenantId,
+            provider
+          );
+          
+          // Retry with new token
+          const cloudProvider = ProviderFactory.createProvider(
+            refreshedIntegration.provider,
+            refreshedIntegration.token
+          );
+          return await cloudProvider.listFolders(options);
+        } catch (refreshError) {
+          throw new AppError(
+            `Authentication failed for ${provider}. Please reconnect your account.`,
+            401
+          );
+        }
       }
 
       throw new AppError(

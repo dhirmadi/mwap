@@ -11,9 +11,21 @@ const integrationSchema = new Schema<Integration>({
     type: String,
     required: true
   },
+  refreshToken: {
+    type: String,
+    required: false
+  },
+  expiresAt: {
+    type: Date,
+    required: false
+  },
   connectedAt: {
     type: Date,
     default: Date.now
+  },
+  lastRefreshedAt: {
+    type: Date,
+    required: false
   }
 });
 
