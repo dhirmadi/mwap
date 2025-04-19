@@ -25,25 +25,35 @@ echo "📥 Fetching environment variables from Heroku staging..."
 touch ./server/.env
 touch ./client/.env
 
-# Fetch environment variables from Heroku staging and format them for .env file
-echo "🔄 Updating server/.env..."
-heroku config -a mwap-staging --json | jq -r 'to_entries | .[] | .key + "=" + .value' > ./server/.env
+# Copy example files as base configuration
+echo "🔄 Setting up server configuration..."
+cp ./server/.env.example ./server/.env
 
-# Add local development specific variables to server/.env
-echo "Adding local development variables..."
+# Override with local development settings
+echo "Configuring local development variables..."
 {
     echo "PORT=3001"
     echo "NODE_ENV=development"
     echo "CORS_ORIGIN=http://localhost:5173"
+    # Fetch sensitive environment variables from Heroku staging
+    echo "Fetching sensitive environment variables from Heroku..."
+    heroku config:get MONGO_URI -a mwap-staging >> ./server/.env
+    heroku config:get AUTH0_CLIENT_SECRET -a mwap-staging >> ./server/.env
+    heroku config:get MONGO_CLIENT_ENCRYPTION_KEY -a mwap-staging >> ./server/.env
 } >> ./server/.env
 
-# Create client .env file
-echo "🔄 Creating client/.env..."
+# Set up client configuration
+echo "🔄 Setting up client configuration..."
+cp ./client/.env.example ./client/.env
+
+# Override with local development settings
+echo "Configuring client environment..."
 {
-    echo "VITE_API_URL=http://localhost:3001"
-    echo "VITE_AUTH0_DOMAIN=$(grep AUTH0_DOMAIN ./server/.env | cut -d '=' -f2)"
-    echo "VITE_AUTH0_CLIENT_ID=$(grep AUTH0_CLIENT_ID ./server/.env | cut -d '=' -f2)"
-    echo "VITE_AUTH0_AUDIENCE=$(grep AUTH0_AUDIENCE ./server/.env | cut -d '=' -f2)"
+    echo "VITE_API_URL=http://localhost:3001/api"
+    # Fetch Auth0 configuration from Heroku staging
+    echo "VITE_AUTH0_DOMAIN=$(heroku config:get AUTH0_DOMAIN -a mwap-staging)"
+    echo "VITE_AUTH0_CLIENT_ID=$(heroku config:get AUTH0_CLIENT_ID -a mwap-staging)"
+    echo "VITE_AUTH0_AUDIENCE=$(heroku config:get AUTH0_AUDIENCE -a mwap-staging)"
 } > ./client/.env
 
 echo "📦 Installing dependencies..."
