@@ -2,7 +2,9 @@
  * API configuration constants
  */
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || '/api',  // Use environment variable in development
+  // In development: http://localhost:3001/api
+  // In production: /api
+  BASE_URL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
   TIMEOUT: 10000,
   RETRY: {
     COUNT: 3,

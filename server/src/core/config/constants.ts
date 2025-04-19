@@ -31,6 +31,7 @@ export const constants = {
       allowedOrigins: [
         /^http:\/\/localhost:\d+$/,
         /^https:\/\/[a-zA-Z0-9-]+\.herokuapp\.com$/,
+        /^http:\/\/127\.0\.0\.1:\d+$/,  // Also allow 127.0.0.1
       ],
       maxAge: 600, // 10 minutes
     },
