@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { env } from '../config/environment';
 import { constants } from '../config/constants';
+import { logger } from '../utils/logger';
 
 // CORS configuration with enhanced security
 const corsOptions: cors.CorsOptions = {
@@ -21,17 +22,23 @@ const corsOptions: cors.CorsOptions = {
     }
 
     // Log all CORS requests with helpful information
-    console.log('CORS request:', {
+    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    const logData = {
       origin,
       method: req?.method || 'unknown',
       url: req?.url || 'unknown',
-      headers: req?.headers || {},
       allowedPatterns: allowedOrigins.map(p => p.toString()),
       appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME,
-      isAllowed: allowedOrigins.some(pattern => pattern.test(origin))
-    });
-    
-    callback(new Error('Not allowed by CORS'));
+      isAllowed
+    };
+
+    if (!isAllowed) {
+      logger.warn('CORS request denied', logData);
+      return callback(new Error('Not allowed by CORS'));
+    }
+
+    logger.debug('CORS request allowed', logData);
+    callback(null, true);
   },
   credentials: true,
   optionsSuccessStatus: 200,

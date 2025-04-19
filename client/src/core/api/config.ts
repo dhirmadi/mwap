@@ -12,7 +12,7 @@ console.log('API Environment:', {
 export const API_CONFIG = {
   // In development: http://localhost:3001/api
   // In production: /api
-  BASE_URL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api',
+  BASE_URL: import.meta.env.VITE_API_URL || '/api',
   TIMEOUT: 10000,
   RETRY: {
     COUNT: 3,

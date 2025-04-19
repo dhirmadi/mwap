@@ -29,9 +29,13 @@ export const constants = {
     },
     cors: {
       allowedOrigins: [
-        /^http:\/\/localhost:\d+$/,
+        // Development origins
+        /^http:\/\/localhost(:\d+)?$/,
+        /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+        /^http:\/\/0\.0\.0\.0(:\d+)?$/,
+        // Production origins
         /^https:\/\/[a-zA-Z0-9-]+\.herokuapp\.com$/,
-        /^http:\/\/127\.0\.0\.1:\d+$/,  // Also allow 127.0.0.1
+        // Add your production domain here if different from Heroku
       ],
       maxAge: 600, // 10 minutes
     },
