@@ -20,11 +20,15 @@ const corsOptions: cors.CorsOptions = {
       return callback(null, true);
     }
 
-    // Log blocked requests with helpful information
-    console.log('CORS blocked request:', {
+    // Log all CORS requests with helpful information
+    console.log('CORS request:', {
       origin,
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
       allowedPatterns: allowedOrigins.map(p => p.toString()),
-      appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME
+      appDomain: process.env.HEROKU_APP_DEFAULT_DOMAIN_NAME || process.env.HEROKU_APP_NAME,
+      isAllowed: allowedOrigins.some(pattern => pattern.test(origin))
     });
     
     callback(new Error('Not allowed by CORS'));
@@ -86,7 +90,7 @@ export const setupSecurity = (app: Application): void => {
           'https://*.herokuapp.com',
           'https://cdn.auth0.com',
           'http://localhost:5173',
-          'http://localhost:3000'
+          'http://localhost:3001'
         ],
         fontSrc: [
           "'self'",
