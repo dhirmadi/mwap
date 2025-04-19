@@ -1,8 +1,8 @@
-import { Dropbox } from 'dropbox';
 import { AppError } from '@core/errors';
 import { logger } from '@core/utils';
 import { Integration, IntegrationProvider } from '../types/api';
 import { TenantModel } from '../schemas';
+import { DropboxProvider } from './providers/dropbox.provider';
 
 interface TokenRefreshResult {
   accessToken: string;
@@ -17,6 +17,19 @@ export class TokenRefreshService {
     }
 
     try {
+      // First validate the current token
+      const provider = new DropboxProvider(integration.token);
+      const isValid = await provider.validateToken();
+      
+      if (isValid) {
+        return {
+          accessToken: integration.token,
+          refreshToken: integration.refreshToken,
+          expiresAt: integration.expiresAt
+        };
+      }
+
+      // Token is invalid, try to refresh
       const response = await fetch('https://api.dropboxapi.com/oauth2/token', {
         method: 'POST',
         headers: {

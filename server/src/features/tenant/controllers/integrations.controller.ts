@@ -76,7 +76,10 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
     tenant.integrations.push({
       provider,
       token,
-      connectedAt: new Date()
+      refreshToken: req.body.refreshToken,
+      expiresAt: req.body.expiresAt,
+      connectedAt: new Date(),
+      lastRefreshedAt: new Date()
     });
 
     await tenant.save();
