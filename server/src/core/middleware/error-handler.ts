@@ -15,12 +15,7 @@ import { User } from '../types/auth';
 // Use standard Request type with Express namespace extension
 type AuthenticatedRequest = Request;
 
-// Simple logger for now - can be replaced with a proper logging service
-const logger = {
-  error: (message: string, meta: Record<string, unknown>) => {
-    console.error(message, meta);
-  }
-};
+import { logger } from '../logging';
 
 // Helper function to generate request ID
 const generateRequestId = (req: AuthenticatedRequest): string => {

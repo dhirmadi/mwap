@@ -59,7 +59,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
     const duration = seconds * 1000 + nanoseconds / 1000000;
 
     // Log request details
-    logger.info('Request processed', {
+    logger.info(`${req.method} ${req.path} - ${res.statusCode}`, {
       // Request identification
       request_id: requestId,
       method: req.method,
