@@ -30,10 +30,24 @@ app.use('/api/v1', apiRoutes);
 
 // Static files
 const clientPath = path.join(__dirname, '../../client/dist');
+logger.debug('Client path configuration', {
+  dirname: __dirname,
+  clientPath,
+  exists: require('fs').existsSync(clientPath)
+});
 app.use(express.static(clientPath));
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) return next();
-  res.sendFile(path.join(clientPath, 'index.html'));
+  const indexPath = path.join(clientPath, 'index.html');
+  if (!require('fs').existsSync(indexPath)) {
+    logger.error('Client index.html not found', {
+      indexPath,
+      clientPath,
+      dirname: __dirname
+    });
+    return res.status(500).json({ error: 'Frontend not built. Please run npm run build in the client directory.' });
+  }
+  res.sendFile(indexPath);
 });
 
 // Error handling

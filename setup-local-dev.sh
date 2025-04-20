@@ -102,6 +102,12 @@ cd client
 npm install
 cd ..
 
+# Build the client
+echo "🏗️ Building client..."
+cd client
+npm run build
+cd ..
+
 # Start the applications
 echo "🚀 Starting the applications..."
 
