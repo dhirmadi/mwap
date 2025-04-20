@@ -1,6 +1,5 @@
 import 'dotenv/config';
-import express from 'express';
-import type { RequestHandler } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import compression from 'compression';
 import path from 'path';
 import { setupSecurity } from '@core/middleware/security';
@@ -29,7 +28,7 @@ app.get('/health', (_req, res) => {
 // API routes
 app.use('/api/v1', apiRoutes);
 
-// Static files
+// Static files - check client build at startup
 const clientPath = path.join(__dirname, '../../client/dist');
 const indexPath = path.join(clientPath, 'index.html');
 const exists = require('fs').existsSync(indexPath);
@@ -38,7 +37,7 @@ logger.debug('Client app configuration', { clientPath, exists });
 
 // Serve static files and client app
 app.use(express.static(clientPath));
-app.get('*', ((req, res, next) => {
+app.get('*', (req: Request, res: Response, next: NextFunction) => {
   if (req.path.startsWith('/api')) return next();
   if (!exists) {
     logger.error('Client app not built', { clientPath });
