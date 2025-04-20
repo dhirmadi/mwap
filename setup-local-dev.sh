@@ -36,6 +36,7 @@ echo "Configuring local development variables..."
     echo "API_BASE_URL=http://localhost:3001"
     echo "CORS_ORIGIN=http://localhost:5173"
     echo "LOG_LEVEL=debug"
+    echo "DEBUG=*"
     
     # Fetch all required variables from Heroku staging
     echo "Fetching environment variables from Heroku..."
