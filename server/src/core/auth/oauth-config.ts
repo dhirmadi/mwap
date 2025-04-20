@@ -23,7 +23,7 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
     clientSecret: process.env.DROPBOX_CLIENT_SECRET || '',
     authUrl: 'https://www.dropbox.com/oauth2/authorize',
     tokenUrl: 'https://api.dropboxapi.com/oauth2/token',
-    redirectUri: `${process.env.API_BASE_URL}/api/v1/auth/dropbox/callback`,
+    redirectUri: process.env.DROPBOX_REDIRECT_URI || `${process.env.API_BASE_URL}/api/v1/auth/dropbox/callback`,
     scope: ''
   },
   box: {

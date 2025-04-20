@@ -33,6 +33,7 @@ echo "Configuring local development variables..."
 {
     echo "PORT=3001"
     echo "NODE_ENV=development"
+    echo "API_BASE_URL=http://localhost:3001"
     echo "CORS_ORIGIN=http://localhost:5173"
     echo "LOG_LEVEL=debug"
     
@@ -52,8 +53,8 @@ echo "Configuring local development variables..."
     echo "# Production Dropbox redirect: $(heroku config:get DROPBOX_REDIRECT_URI -a mwap-staging)"
     
     # Set local development redirect URIs
-    echo "GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/google/callback"
-    echo "DROPBOX_REDIRECT_URI=http://localhost:3001/api/auth/dropbox/callback"
+    echo "GOOGLE_REDIRECT_URI=http://localhost:3001/api/v1/auth/google/callback"
+    echo "DROPBOX_REDIRECT_URI=http://localhost:3001/api/v1/auth/dropbox/callback"
     
     echo "MONGO_CLIENT_ENCRYPTION_KEY=$(heroku config:get MONGO_CLIENT_ENCRYPTION_KEY -a mwap-staging)"
     echo "MONGO_ENCRYPTION_KEY_NAME=mwap_data_key"
