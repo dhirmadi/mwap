@@ -56,6 +56,13 @@ export const PROVIDER_ALIASES: Record<string, OAuthProvider> = {
 };
 
 export function getOAuthConfig(provider: string, requestId?: string): OAuthConfig {
+  // Debug log the environment variables
+  logger.debug('OAuth config environment variables', {
+    API_BASE_URL: process.env.API_BASE_URL,
+    DROPBOX_REDIRECT_URI: process.env.DROPBOX_REDIRECT_URI,
+    GOOGLE_REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
+    requestId
+  });
   const normalizedProvider = provider.toLowerCase();
   const providerKey = PROVIDER_ALIASES[normalizedProvider];
   const config = configs[providerKey];
