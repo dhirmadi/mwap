@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import type { Handler } from 'express';
+import type { RequestHandler } from 'express';
 import compression from 'compression';
 import path from 'path';
 import { setupSecurity } from '@core/middleware/security';
@@ -40,7 +40,7 @@ logger.debug('Client app configuration', { clientPath, exists });
 app.use(express.static(clientPath));
 
 // Serve client app for all non-API routes
-const serveClientApp: Handler = (req, res, next) => {
+const serveClientApp: RequestHandler = (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
