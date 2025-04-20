@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import type { Request, Response, NextFunction } from 'express';
+import type { RequestHandler } from 'express';
 import compression from 'compression';
 import path from 'path';
 import { setupSecurity } from '@core/middleware/security';
@@ -37,7 +37,9 @@ logger.debug('Client path configuration', {
   exists: require('fs').existsSync(clientPath)
 });
 app.use(express.static(clientPath));
-app.get('*', (req: Request, res: Response, next: NextFunction) => {
+
+// Serve client app for all non-API routes
+const serveClientApp: RequestHandler = (req, res, next) => {
   if (req.path.startsWith('/api')) return next();
   const indexPath = path.join(clientPath, 'index.html');
   if (!require('fs').existsSync(indexPath)) {
@@ -49,7 +51,9 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
     return res.status(500).json({ error: 'Frontend not built. Please run npm run build in the client directory.' });
   }
   res.sendFile(indexPath);
-});
+};
+
+app.get('*', serveClientApp);
 
 // Error handling
 app.use(notFoundHandler);
