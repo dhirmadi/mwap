@@ -31,29 +31,21 @@ app.use('/api/v1', apiRoutes);
 
 // Static files
 const clientPath = path.join(__dirname, '../../client/dist');
-logger.debug('Client path configuration', {
-  dirname: __dirname,
-  clientPath,
-  exists: require('fs').existsSync(clientPath)
-});
-app.use(express.static(clientPath));
+const indexPath = path.join(clientPath, 'index.html');
+const exists = require('fs').existsSync(indexPath);
 
-// Serve client app for all non-API routes
-const serveClientApp: RequestHandler = (req, res, next) => {
+logger.debug('Client app configuration', { clientPath, exists });
+
+// Serve static files and client app
+app.use(express.static(clientPath));
+app.get('*', ((req, res, next) => {
   if (req.path.startsWith('/api')) return next();
-  const indexPath = path.join(clientPath, 'index.html');
-  if (!require('fs').existsSync(indexPath)) {
-    logger.error('Client index.html not found', {
-      indexPath,
-      clientPath,
-      dirname: __dirname
-    });
-    return res.status(500).json({ error: 'Frontend not built. Please run npm run build in the client directory.' });
+  if (!exists) {
+    logger.error('Client app not built', { clientPath });
+    return res.status(500).json({ error: 'Client app not built. Run: npm run build' });
   }
   res.sendFile(indexPath);
-};
-
-app.get('*', serveClientApp);
+});
 
 // Error handling
 app.use(notFoundHandler);
