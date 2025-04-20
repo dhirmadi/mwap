@@ -47,7 +47,14 @@ echo "Configuring local development variables..."
     echo "DROPBOX_CLIENT_SECRET=$(heroku config:get DROPBOX_CLIENT_SECRET -a mwap-staging)"
     echo "GOOGLE_CLIENT_ID=$(heroku config:get GOOGLE_CLIENT_ID -a mwap-staging)"
     echo "GOOGLE_CLIENT_SECRET=$(heroku config:get GOOGLE_CLIENT_SECRET -a mwap-staging)"
-    echo "GOOGLE_REDIRECT_URI=$(heroku config:get GOOGLE_REDIRECT_URI -a mwap-staging)"
+    # Store original redirect URIs as comments
+    echo "# Production Google redirect: $(heroku config:get GOOGLE_REDIRECT_URI -a mwap-staging)"
+    echo "# Production Dropbox redirect: $(heroku config:get DROPBOX_REDIRECT_URI -a mwap-staging)"
+    
+    # Set local development redirect URIs
+    echo "GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/google/callback"
+    echo "DROPBOX_REDIRECT_URI=http://localhost:3001/api/auth/dropbox/callback"
+    
     echo "MONGO_CLIENT_ENCRYPTION_KEY=$(heroku config:get MONGO_CLIENT_ENCRYPTION_KEY -a mwap-staging)"
     echo "MONGO_ENCRYPTION_KEY_NAME=mwap_data_key"
     echo "MONGO_MAX_POOL_SIZE=10"
