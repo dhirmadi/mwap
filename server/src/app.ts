@@ -52,7 +52,15 @@ const serveClientApp: RequestHandler = (req, res, next) => {
     return;
   }
   
-  res.sendFile(indexPath, (err) => {
+  // Always serve index.html for client-side routing
+  res.sendFile(indexPath, {
+    root: clientPath,
+    dotfiles: 'deny',
+    headers: {
+      'x-timestamp': Date.now().toString(),
+      'x-sent': true
+    }
+  }, (err) => {
     if (err) {
       logger.error('Failed to serve client app', { error: err.message });
       next(err);
