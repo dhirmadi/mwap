@@ -14,6 +14,7 @@ MWAP (Modular Web Application Platform) is a full-stack TypeScript application b
 - **Authentication**: Auth0 React SDK
 - **State Management**: React hooks and context
 - **Type Safety**: TypeScript with strict mode
+- **API Integration**: Axios with retry logic
 
 ### Backend
 - **Runtime**: Node.js
@@ -40,7 +41,7 @@ MWAP (Modular Web Application Platform) is a full-stack TypeScript application b
 - **Hosting**: Heroku
 - **Database**: MongoDB Atlas
 - **Authentication**: Auth0
-- **Cloud Storage**: Multiple provider support
+- **Cloud Storage**: Multiple provider support (Google Drive, Dropbox)
 - **CI/CD**: Heroku Pipeline with review apps
 
 ## Project Structure
@@ -49,62 +50,51 @@ MWAP (Modular Web Application Platform) is a full-stack TypeScript application b
 mwap/
 ├── client/                 # Frontend application
 │   ├── src/
-│   │   ├── assets/        # Static assets
-│   │   ├── core/          # Core functionality
-│   │   │   ├── auth/      # Auth0 and OAuth configuration
-│   │   │   │   ├── oauth.tsx    # OAuth flow management
-│   │   │   │   └── provider-instructions.ts
-│   │   │   └── api/      # API integration
+│   │   ├── auth/          # Auth0 configuration
 │   │   ├── components/    # React components
-│   │   │   ├── tenant/   # Tenant management
-│   │   │   │   ├── CloudIntegrations.tsx
-│   │   │   │   ├── TenantProjects.tsx
-│   │   │   │   └── TokenInput.tsx
-│   │   │   └── project/  # Project management
-│   │   ├── hooks/        # Custom React hooks
-│   │   │   ├── useCloudIntegrations.ts
-│   │   │   ├── useCreateProject.ts
-│   │   │   └── useTenant.ts
-│   │   ├── pages/        # Page components
-│   │   ├── types/        # TypeScript definitions
-│   │   ├── App.tsx       # Main application
-│   │   └── main.tsx      # Entry point
-│   └── vite.config.ts    # Build configuration
+│   │   │   ├── auth/      # Authentication components
+│   │   │   ├── common/    # Shared components
+│   │   │   ├── invite/    # Invite management
+│   │   │   ├── layout/    # Page layouts
+│   │   │   ├── project/   # Project management
+│   │   │   ├── tenant/    # Tenant management
+│   │   │   └── user/      # User profile components
+│   │   ├── core/          # Core functionality
+│   │   │   ├── api/       # API client and configuration
+│   │   │   ├── auth/      # OAuth flow management
+│   │   │   └── errors/    # Error handling
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── pages/         # Page components
+│   │   ├── types/         # TypeScript definitions
+│   │   ├── App.tsx        # Main application
+│   │   └── main.tsx       # Entry point
+│   └── vite.config.ts     # Build configuration
 │
 ├── server/                # Backend application
 │   ├── src/
 │   │   ├── core/         # Core functionality
 │   │   │   ├── auth/     # Authentication
-│   │   │   │   ├── oauth-config.ts   # Provider config
-│   │   │   │   └── oauth-client.ts   # Token handling
+│   │   │   ├── config/   # Environment configuration
+│   │   │   ├── errors/   # Error definitions
 │   │   │   ├── logging/  # Logging infrastructure
 │   │   │   ├── middleware/ # Core middleware
+│   │   │   ├── routes/   # Core routes
 │   │   │   ├── types/    # Core type definitions
+│   │   │   ├── utils/    # Shared utilities
 │   │   │   └── validation/ # Request validation
 │   │   ├── features/     # Feature modules
-│   │   │   ├── tenant/   # Tenant management
-│   │   │   │   ├── controllers/
-│   │   │   │   │   ├── integrations.controller.ts
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── routes/
-│   │   │   │   ├── schemas/
-│   │   │   │   └── types/
+│   │   │   ├── invites/  # Invite management
 │   │   │   ├── projects/ # Project management
+│   │   │   ├── superadmin/ # Admin features
+│   │   │   ├── tenant/   # Tenant management
 │   │   │   └── users/    # User management
 │   │   ├── routes/       # API routes
-│   │   │   ├── auth.ts   # OAuth endpoints
-│   │   │   └── v1.ts     # API versioning
-│   │   └── index.ts      # Server entry
+│   │   └── app.ts        # Express application setup
 │   └── tsconfig.json     # TypeScript config
 │
 ├── docs/                  # Documentation
-│   ├── api/              # API documentation
-│   ├── development/      # Development guides
-│   └── standards/        # Coding standards
-│
 ├── scripts/              # Utility scripts
-├── .env.example         # Environment templates
-└── Procfile            # Heroku configuration
+└── setup-local-dev.sh   # Development setup script
 ```
 
 ## Key Components
@@ -115,77 +105,45 @@ mwap/
    - JWT validation and refresh
    - Role-based access control
    - User profile management
-   - Session handling
+   - Protected route components
 
 2. **OAuth Integration**
    - Multiple provider support
    - Token exchange and refresh
    - State management
-   - Error handling
    - Provider-specific configuration
 
 ### Cloud Storage Integration
 
 1. **Provider Architecture**
    - Base provider class with shared functionality
-   - Provider-specific implementations (Google Drive, Dropbox)
+   - Provider-specific implementations
+     - Google Drive provider
+     - Dropbox provider
    - Factory pattern for provider instantiation
-   - Interface-based design for extensibility
-   - Caching layer with TTL support
+   - Interface-based design
+   - Caching layer
 
 2. **Core Features**
    - Folder listing with pagination
-   - Path resolution and caching
-   - Folder creation and deletion
+   - Path resolution
    - Error handling and logging
-   - Memory optimization
    - Type safety with TypeScript
-
-3. **Provider Management**
-   - Multiple simultaneous providers
-   - Safe merge strategy
-   - Token refresh handling
-   - Integration removal
-   - State persistence
-   - Cache invalidation
-
-4. **OAuth Flow**
-   - Provider configuration
-   - Token exchange
-   - State management
-   - Error handling
-   - Callback processing
-
-5. **Performance Optimizations**
-   - In-memory caching
-   - Batch operations
-   - Path resolution caching
-   - Pagination support
-   - Memory usage optimization
-   - Build process improvements
-
-6. **Type Safety**
-   - Zod validation
-   - TypeScript interfaces
-   - Runtime checks
-   - Error boundaries
-   - Strict null checks
-   - Comprehensive type definitions
+   - Token refresh management
 
 ### Tenant Management
 
 1. **Core Features**
    - Tenant creation and updates
-   - Member management
-   - Role-based access
-   - Integration management
+   - Cloud provider integration
    - Project organization
+   - Member management
 
 2. **Cloud Integration**
    - Provider connections
    - Token management
    - Integration status
-   - Usage tracking
+   - Folder management
 
 ### Project Management
 
@@ -198,7 +156,7 @@ mwap/
 2. **Integration**
    - Cloud storage access
    - Permission management
-   - Resource sharing
+   - Project status tracking
 
 ## Development Guidelines
 
@@ -213,48 +171,42 @@ mwap/
 2. **Component Design**
    - Single responsibility
    - Clear interfaces
-   - Proper error handling
+   - Error handling
    - Comprehensive logging
 
 ### Best Practices
 
 1. **TypeScript Usage**
    - Strict mode enabled
-   - Proper type definitions
    - Interface segregation
-   - Type safety
+   - Proper type definitions
+   - Runtime type validation
 
 2. **Error Handling**
    - Consistent error types
-   - Proper error propagation
+   - Error boundaries
    - User-friendly messages
-   - Error logging
+   - Detailed logging
 
 3. **Security**
    - OAuth best practices
    - Token management
    - Input validation
-   - Error masking
    - Rate limiting
-
-4. **Testing**
-   - Unit tests
-   - Integration tests
-   - E2E testing
-   - Test coverage
 
 ### Development Workflow
 
 1. **Local Development**
    ```bash
-   # Frontend
+   # Install dependencies and set up development environment
+   ./setup-local-dev.sh
+
+   # Frontend Development
    cd client
-   npm install
    npm run dev
 
-   # Backend
+   # Backend Development
    cd server
-   npm install
    npm run dev
    ```
 
@@ -263,45 +215,49 @@ mwap/
    - Configure Auth0 credentials
    - Set up MongoDB connection
    - Configure OAuth providers
-   - Set security parameters
 
-3. **Deployment**
-   - Review apps for PRs
-   - Staging environment
-   - Production deployment
-   - Performance monitoring
+## Current Status
+
+The application currently supports:
+1. User authentication via Auth0
+2. Tenant management with cloud storage integration
+3. Project creation and management
+4. Member invitations and role management
+5. Cloud storage provider integration (Google Drive, Dropbox)
+6. Folder browsing and selection
+
+Recent improvements:
+1. Enhanced TypeScript type safety
+2. Improved error handling
+3. Better client-side routing
+4. Optimized static file serving
+5. Simplified development setup
 
 ## Future Improvements
 
 1. **Authentication**
    - Enhanced token refresh
-   - Better error messages
-   - Session management
    - MFA support
+   - Session management
+   - Better error messages
 
 2. **Cloud Integration**
    - Additional providers
-   - Better token management
    - Usage analytics
    - Quota management
+   - Improved caching
 
 3. **Project Management**
    - Project templates
    - Resource sharing
-   - Usage analytics
+   - Usage tracking
    - Archival system
 
 4. **Technical Infrastructure**
    - Enhanced testing
    - Performance monitoring
-   - Caching layer
    - Search functionality
-
-5. **Security**
-   - Audit logging
-   - Security monitoring
-   - Data encryption
-   - Compliance features
+   - API documentation
 
 ## Support and Resources
 
