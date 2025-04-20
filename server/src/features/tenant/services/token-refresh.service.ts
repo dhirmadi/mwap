@@ -4,6 +4,7 @@ import { Integration, IntegrationProvider } from '../types/api';
 import { IntegrationDocument } from '../types/mongoose';
 import { TenantModel } from '../schemas';
 import { DropboxProvider } from './providers/dropbox.provider';
+import { providerConfigs } from '@core/providers/config';
 
 interface TokenRefreshResult {
   accessToken: string;
@@ -19,7 +20,14 @@ export class TokenRefreshService {
 
     try {
       // First validate the current token
-      const provider = new DropboxProvider(integration.token);
+      const provider = new DropboxProvider(integration.token, providerConfigs.find(p => p.metadata.id === integration.provider)?.config || {
+        clientId: '',
+        clientSecret: '',
+        scopes: [],
+        authEndpoint: '',
+        tokenEndpoint: '',
+        apiEndpoint: ''
+      });
       const isValid = await provider.validateToken();
       
       if (isValid) {

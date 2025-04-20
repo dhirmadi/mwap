@@ -42,15 +42,22 @@ app.use(express.static(clientPath));
 // Serve client app for all non-API routes
 const serveClientApp: RequestHandler = (req, res, next) => {
   if (req.path.startsWith('/api')) {
-    return next();
+    next();
+    return;
   }
   
   if (!exists) {
     logger.error('Client app not built', { clientPath });
-    return res.status(500).json({ error: 'Client app not built. Run: npm run build' });
+    res.status(500).json({ error: 'Client app not built. Run: npm run build' });
+    return;
   }
   
-  res.sendFile(indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      logger.error('Failed to serve client app', { error: err.message });
+      next(err);
+    }
+  });
 };
 
 app.get('*', serveClientApp);

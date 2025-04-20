@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '@core/errors';
 import { TenantModel } from '../schemas';
-import { AddIntegrationRequest, IntegrationProvider, Integration } from '../types/api';
+import { AddIntegrationRequest, Integration } from '../types/api';
+import { IntegrationProvider } from '../schemas';
 import { logger } from '@core/utils';
 import { ProviderFactory } from '../services/providers/provider-factory';
 
@@ -80,8 +81,8 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
       throw new AppError(`Provider ${provider} not found`, 400);
     }
 
-    const newIntegration: Integration = {
-      provider,
+    const newIntegration = {
+      provider: provider as IntegrationProvider,
       token,
       refreshToken: req.body.refreshToken,
       expiresAt: req.body.expiresAt,
@@ -92,7 +93,7 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
         .map(([capability]) => capability),
       settings: {
         ...req.body.settings,
-        scopes: metadata.capabilities
+        scopes: Object.keys(metadata.capabilities)
       }
     };
     tenant.integrations.push(newIntegration);

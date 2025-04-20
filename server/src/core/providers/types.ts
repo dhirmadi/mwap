@@ -44,5 +44,5 @@ export interface ProviderConfig {
 export interface ProviderRegistration {
   metadata: ProviderMetadata;
   config: ProviderConfig;
-  factory: new (token: string, config: ProviderConfig) => CloudProviderInterface;
+  factory: new (token: string, config: ProviderConfig, tokenInfo?: TokenInfo) => CloudProviderInterface;
 }

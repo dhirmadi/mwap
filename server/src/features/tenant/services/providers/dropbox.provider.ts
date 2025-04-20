@@ -1,7 +1,7 @@
 import { Dropbox } from 'dropbox';
 import { CloudFolder, ListFoldersOptions, ListFoldersResponse } from './cloud-provider.interface';
 import { BaseCloudProvider } from '@core/providers/base-provider';
-import { ProviderCapabilities, ProviderConfig } from '@core/providers/types';
+import { ProviderCapabilities, ProviderConfig, TokenInfo } from '@core/providers/types';
 import { logger } from '@core/utils';
 import { AppError } from '@core/errors';
 
@@ -40,10 +40,17 @@ export class DropboxProvider extends BaseCloudProvider {
       throw new AppError('Failed to refresh token', 401);
     }
 
-    const data = await response.json();
+    const data = await response.json() as {
+      access_token: string;
+      refresh_token?: string;
+      expires_in: number;
+      token_type: string;
+      scope?: string;
+    };
+
     return {
       accessToken: data.access_token,
-      refreshToken: data.refresh_token || this.tokenInfo.refreshToken,
+      refreshToken: data.refresh_token || this.tokenInfo?.refreshToken,
       expiresAt: new Date(Date.now() + (data.expires_in * 1000)),
       tokenType: data.token_type,
       scope: data.scope?.split(' ')

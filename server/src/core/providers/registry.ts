@@ -1,5 +1,5 @@
 import { logger } from '@core/utils';
-import { ProviderMetadata, ProviderConfig, ProviderRegistration } from './types';
+import { ProviderMetadata, ProviderConfig, ProviderRegistration, TokenInfo } from './types';
 import { CloudProviderInterface } from '@features/tenant/services/providers/cloud-provider.interface';
 
 export class ProviderRegistry {
@@ -30,14 +30,14 @@ export class ProviderRegistry {
     return provider;
   }
 
-  static createProviderInstance(id: string, token: string): CloudProviderInterface | undefined {
+  static createProviderInstance(id: string, token: string, tokenInfo?: TokenInfo): CloudProviderInterface | undefined {
     const provider = this.getProvider(id);
     
     if (!provider) {
       return undefined;
     }
 
-    return new provider.factory(token, provider.config);
+    return new provider.factory(token, provider.config, tokenInfo);
   }
 
   static listProviders(): ProviderRegistration[] {

@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { CloudFolder, ListFoldersOptions, ListFoldersResponse } from './cloud-provider.interface';
 import { BaseCloudProvider } from '@core/providers/base-provider';
-import { ProviderCapabilities, ProviderConfig } from '@core/providers/types';
+import { ProviderCapabilities, ProviderConfig, TokenInfo } from '@core/providers/types';
 import { logger } from '@core/utils';
 import { AppError } from '@core/errors';
 
