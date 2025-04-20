@@ -1,15 +1,79 @@
 import { CloudProviderInterface, CloudFolder, ListFoldersOptions, ListFoldersResponse } from '@features/tenant/services/providers/cloud-provider.interface';
-import { ProviderCapabilities, ProviderConfig } from './types';
+import { ProviderCapabilities, ProviderConfig, TokenInfo } from './types';
 import { AppError } from '@core/errors';
 import { logger } from '@core/utils';
+import { RateLimiter } from '@core/utils/rate-limiter';
 
 export abstract class BaseCloudProvider implements CloudProviderInterface {
+  protected rateLimiter?: RateLimiter;
+
   protected constructor(
-    protected readonly token: string,
-    protected readonly config: ProviderConfig
+    protected token: string,
+    protected readonly config: ProviderConfig,
+    protected tokenInfo?: TokenInfo
   ) {
     if (!token) {
       throw new AppError('Token is required for cloud provider operations', 400);
+    }
+
+    // Initialize rate limiter if limits are configured
+    if (config.quotaLimits?.requestsPerMinute) {
+      this.rateLimiter = new RateLimiter(
+        config.quotaLimits.requestsPerMinute,
+        this.constructor.name
+      );
+    }
+
+    // Initialize token info if not provided
+    if (!tokenInfo) {
+      this.tokenInfo = {
+        accessToken: token,
+        expiresAt: new Date(Date.now() + 3600 * 1000) // Default 1 hour expiry
+      };
+    }
+  }
+
+  protected async refreshTokenIfNeeded(): Promise<void> {
+    if (!this.config.refreshTokens || !this.tokenInfo?.refreshToken) {
+      return;
+    }
+
+    const expiresAt = this.tokenInfo.expiresAt;
+    if (!expiresAt || expiresAt > new Date(Date.now() + 300 * 1000)) { // 5 min buffer
+      return;
+    }
+
+    try {
+      const newTokenInfo = await this.refreshAccessToken();
+      this.token = newTokenInfo.accessToken;
+      this.tokenInfo = newTokenInfo;
+    } catch (error) {
+      logger.error('Failed to refresh access token', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        provider: this.constructor.name
+      });
+      throw new AppError('Failed to refresh access token', 401);
+    }
+  }
+
+  protected abstract refreshAccessToken(): Promise<TokenInfo>;
+
+  protected async withRateLimit<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      // Check token refresh before operation
+      await this.refreshTokenIfNeeded();
+
+      // Check rate limit
+      if (this.rateLimiter) {
+        await this.rateLimiter.checkLimit();
+      }
+
+      return await operation();
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw this.handleError(error, 'executing rate-limited operation');
     }
   }
 

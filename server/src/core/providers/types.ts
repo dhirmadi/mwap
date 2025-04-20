@@ -19,6 +19,14 @@ export interface ProviderMetadata {
   version: string;
 }
 
+export interface TokenInfo {
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt?: Date;
+  tokenType?: string;
+  scope?: string[];
+}
+
 export interface ProviderConfig {
   clientId: string;
   clientSecret: string;
@@ -30,6 +38,7 @@ export interface ProviderConfig {
     requestsPerMinute?: number;
     storageLimit?: number;
   };
+  refreshTokens?: boolean;
 }
 
 export interface ProviderRegistration {

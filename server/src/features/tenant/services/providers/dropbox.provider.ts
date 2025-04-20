@@ -8,9 +8,46 @@ import { AppError } from '@core/errors';
 export class DropboxProvider extends BaseCloudProvider {
   private client: Dropbox;
 
-  constructor(token: string, config: ProviderConfig) {
-    super(token, config);
-    this.client = new Dropbox({ accessToken: token });
+  constructor(token: string, config: ProviderConfig, tokenInfo?: TokenInfo) {
+    super(token, config, tokenInfo);
+    this.client = new Dropbox({ 
+      accessToken: token,
+      refreshToken: tokenInfo?.refreshToken,
+      clientId: config.clientId,
+      clientSecret: config.clientSecret
+    });
+  }
+
+  protected async refreshAccessToken(): Promise<TokenInfo> {
+    if (!this.tokenInfo?.refreshToken) {
+      throw new AppError('No refresh token available', 401);
+    }
+
+    const response = await fetch(this.config.tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: this.tokenInfo.refreshToken,
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret
+      })
+    });
+
+    if (!response.ok) {
+      throw new AppError('Failed to refresh token', 401);
+    }
+
+    const data = await response.json();
+    return {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token || this.tokenInfo.refreshToken,
+      expiresAt: new Date(Date.now() + (data.expires_in * 1000)),
+      tokenType: data.token_type,
+      scope: data.scope?.split(' ')
+    };
   }
 
   get capabilities(): ProviderCapabilities {

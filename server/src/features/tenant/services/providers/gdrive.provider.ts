@@ -8,20 +8,37 @@ import { AppError } from '@core/errors';
 export class GoogleDriveProvider extends BaseCloudProvider {
   private drive;
 
-  constructor(token: string, config: ProviderConfig) {
-    super(token, config);
+  private oauth2Client: any;
+
+  constructor(token: string, config: ProviderConfig, tokenInfo?: TokenInfo) {
+    super(token, config, tokenInfo);
+    
     // Create OAuth2 client
-    const oauth2Client = new google.auth.OAuth2(
+    this.oauth2Client = new google.auth.OAuth2(
       config.clientId,
       config.clientSecret
     );
-    oauth2Client.setCredentials({ access_token: token });
+    this.oauth2Client.setCredentials({ 
+      access_token: token,
+      refresh_token: tokenInfo?.refreshToken
+    });
 
     // Create Drive client
     this.drive = google.drive({
       version: 'v3',
-      auth: oauth2Client
+      auth: this.oauth2Client
     });
+  }
+
+  protected async refreshAccessToken(): Promise<TokenInfo> {
+    const { credentials } = await this.oauth2Client.refreshAccessToken();
+    return {
+      accessToken: credentials.access_token,
+      refreshToken: credentials.refresh_token || this.tokenInfo?.refreshToken,
+      expiresAt: new Date(Date.now() + credentials.expiry_date),
+      tokenType: credentials.token_type,
+      scope: credentials.scope?.split(' ')
+    };
   }
 
   get capabilities(): ProviderCapabilities {
