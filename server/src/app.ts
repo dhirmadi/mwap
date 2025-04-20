@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import type { Handler } from 'express';
 import compression from 'compression';
 import path from 'path';
 import { setupSecurity } from '@core/middleware/security';
@@ -35,16 +36,24 @@ const exists = require('fs').existsSync(indexPath);
 
 logger.debug('Client app configuration', { clientPath, exists });
 
-// Serve static files and client app
+// Serve static files
 app.use(express.static(clientPath));
-app.get('*', (req: Request, res: Response, next: NextFunction) => {
-  if (req.path.startsWith('/api')) return next();
+
+// Serve client app for all non-API routes
+const serveClientApp: Handler = (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  
   if (!exists) {
     logger.error('Client app not built', { clientPath });
     return res.status(500).json({ error: 'Client app not built. Run: npm run build' });
   }
+  
   res.sendFile(indexPath);
-});
+};
+
+app.get('*', serveClientApp);
 
 // Error handling
 app.use(notFoundHandler);
