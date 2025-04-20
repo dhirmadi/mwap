@@ -1,24 +1,39 @@
-import { IntegrationProvider } from '../../types/api';
+import { ProviderRegistry } from '@core/providers/registry';
+import { providerConfigs } from '@core/providers/config';
 import { CloudProviderInterface } from './cloud-provider.interface';
-import { DropboxProvider } from './dropbox.provider';
-import { GoogleDriveProvider } from './gdrive.provider';
 import { logger } from '@core/utils';
+import { AppError } from '@core/errors';
+
+// Initialize providers
+providerConfigs.forEach(config => ProviderRegistry.registerProvider(config));
 
 export class ProviderFactory {
-  static createProvider(provider: IntegrationProvider, token: string): CloudProviderInterface {
-    const providerType = provider.toLowerCase();
-
+  static createProvider(providerId: string, token: string): CloudProviderInterface {
     logger.debug('Creating cloud provider', {
-      provider: providerType
+      providerId
     });
 
-    switch (providerType) {
-      case 'dropbox':
-        return new DropboxProvider(token);
-      case 'gdrive':
-        return new GoogleDriveProvider(token);
-      default:
-        throw new Error(`Unsupported provider: ${provider}`);
+    const provider = ProviderRegistry.createProviderInstance(providerId, token);
+    
+    if (!provider) {
+      throw new AppError(`Provider ${providerId} not found or disabled`, 400);
+    }
+
+    return provider;
+  }
+
+  static getAvailableProviders() {
+    return ProviderRegistry.getEnabledProviders()
+      .map(p => p.metadata);
+  }
+
+  static isProviderEnabled(providerId: string): boolean {
+    return ProviderRegistry.isProviderEnabled(providerId);
+  }
+
+  static validateProvider(providerId: string): void {
+    if (!this.isProviderEnabled(providerId)) {
+      throw new AppError(`Provider ${providerId} not found or disabled`, 400);
     }
   }
 }

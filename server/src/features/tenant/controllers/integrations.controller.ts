@@ -4,7 +4,6 @@ import { TenantModel } from '../schemas';
 import { AddIntegrationRequest, IntegrationProvider, Integration } from '../types/api';
 import { logger } from '@core/utils';
 import { ProviderFactory } from '../services/providers/provider-factory';
-import { DropboxProvider } from '../services/providers/dropbox.provider';
 
 export async function getIntegrations(req: Request, res: Response, next: NextFunction) {
   try {
@@ -66,11 +65,19 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
 
     // Validate token before adding integration
     const cloudProvider = ProviderFactory.createProvider(provider, token);
-    if (cloudProvider instanceof DropboxProvider) {
+    if (typeof cloudProvider.validateToken === 'function') {
       const isValid = await cloudProvider.validateToken();
       if (!isValid) {
-        throw new AppError('Invalid or expired Dropbox token', 401);
+        throw new AppError(`Invalid or expired ${provider} token`, 401);
       }
+    }
+
+    // Get provider metadata for capabilities
+    const metadata = ProviderFactory.getAvailableProviders()
+      .find(p => p.id === provider);
+
+    if (!metadata) {
+      throw new AppError(`Provider ${provider} not found`, 400);
     }
 
     const newIntegration: Integration = {
@@ -79,7 +86,14 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
       refreshToken: req.body.refreshToken,
       expiresAt: req.body.expiresAt,
       connectedAt: new Date(),
-      lastRefreshedAt: new Date()
+      lastRefreshedAt: new Date(),
+      capabilities: Object.entries(metadata.capabilities)
+        .filter(([_, enabled]) => enabled)
+        .map(([capability]) => capability),
+      settings: {
+        ...req.body.settings,
+        scopes: metadata.capabilities
+      }
     };
     tenant.integrations.push(newIntegration);
 

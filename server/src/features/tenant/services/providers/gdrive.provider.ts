@@ -1,16 +1,21 @@
 import { google } from 'googleapis';
 import { CloudFolder, ListFoldersOptions, ListFoldersResponse } from './cloud-provider.interface';
-import { BaseCloudProvider } from './base.provider';
+import { BaseCloudProvider } from '@core/providers/base-provider';
+import { ProviderCapabilities, ProviderConfig } from '@core/providers/types';
 import { logger } from '@core/utils';
+import { AppError } from '@core/errors';
 
 export class GoogleDriveProvider extends BaseCloudProvider {
   private drive;
 
-  constructor(accessToken: string) {
-    super();
+  constructor(token: string, config: ProviderConfig) {
+    super(token, config);
     // Create OAuth2 client
-    const oauth2Client = new google.auth.OAuth2();
-    oauth2Client.setCredentials({ access_token: accessToken });
+    const oauth2Client = new google.auth.OAuth2(
+      config.clientId,
+      config.clientSecret
+    );
+    oauth2Client.setCredentials({ access_token: token });
 
     // Create Drive client
     this.drive = google.drive({
@@ -19,12 +24,24 @@ export class GoogleDriveProvider extends BaseCloudProvider {
     });
   }
 
-  protected async doListFolders({ 
+  get capabilities(): ProviderCapabilities {
+    return {
+      folderListing: true,
+      folderCreation: true,
+      folderDeletion: true,
+      search: true,
+      thumbnails: true,
+      sharing: true
+    };
+  }
+
+  async listFolders({ 
     parentId = 'root', 
     search = '', 
     pageToken,
     pageSize = 100 
   }: ListFoldersOptions): Promise<ListFoldersResponse> {
+    await this.validateCapability('folderListing', 'listFolders');
     // Build query
     let query = "mimeType = 'application/vnd.google-apps.folder'";
     
@@ -79,7 +96,8 @@ export class GoogleDriveProvider extends BaseCloudProvider {
     return '/' + pathParts.join('/');
   }
 
-  protected async createFolder(parentId: string, name: string): Promise<CloudFolder> {
+  async createNewFolder(parentId: string, name: string): Promise<CloudFolder> {
+    await this.validateCapability('folderCreation', 'createNewFolder');
     const response = await this.drive.files.create({
       requestBody: {
         name,
@@ -97,7 +115,8 @@ export class GoogleDriveProvider extends BaseCloudProvider {
     };
   }
 
-  protected async deleteFolder(folderId: string): Promise<void> {
+  async removeFolder(folderId: string): Promise<void> {
+    await this.validateCapability('folderDeletion', 'removeFolder');
     await this.drive.files.delete({
       fileId: folderId
     });

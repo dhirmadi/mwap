@@ -33,7 +33,7 @@ export interface UpdateTenantMemberRequest {
 }
 
 // Integration types
-export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
+export type IntegrationProvider = string;
 
 export interface Integration {
   provider: IntegrationProvider;
@@ -42,7 +42,16 @@ export interface Integration {
   expiresAt?: Date;
   connectedAt: Date;
   lastRefreshedAt?: Date;
-  tenantId?: string; // Added for token refresh
+  tenantId?: string;
+  capabilities?: string[];
+  settings?: {
+    quotaLimits?: {
+      requestsPerMinute?: number;
+      storageLimit?: number;
+    };
+    scopes?: string[];
+    customConfig?: Record<string, unknown>;
+  };
 }
 
 export interface AddIntegrationRequest {
@@ -50,6 +59,14 @@ export interface AddIntegrationRequest {
   token: string;
   refreshToken?: string;
   expiresAt?: Date;
+  settings?: {
+    quotaLimits?: {
+      requestsPerMinute?: number;
+      storageLimit?: number;
+    };
+    scopes?: string[];
+    customConfig?: Record<string, unknown>;
+  };
 }
 
 // Response types

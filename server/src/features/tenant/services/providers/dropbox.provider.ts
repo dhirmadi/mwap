@@ -1,14 +1,27 @@
 import { Dropbox } from 'dropbox';
 import { CloudFolder, ListFoldersOptions, ListFoldersResponse } from './cloud-provider.interface';
-import { BaseCloudProvider } from './base.provider';
+import { BaseCloudProvider } from '@core/providers/base-provider';
+import { ProviderCapabilities, ProviderConfig } from '@core/providers/types';
 import { logger } from '@core/utils';
+import { AppError } from '@core/errors';
 
 export class DropboxProvider extends BaseCloudProvider {
   private client: Dropbox;
 
-  constructor(accessToken: string) {
-    super();
-    this.client = new Dropbox({ accessToken });
+  constructor(token: string, config: ProviderConfig) {
+    super(token, config);
+    this.client = new Dropbox({ accessToken: token });
+  }
+
+  get capabilities(): ProviderCapabilities {
+    return {
+      folderListing: true,
+      folderCreation: true,
+      folderDeletion: true,
+      search: true,
+      thumbnails: true,
+      sharing: true
+    };
   }
 
   async validateToken(): Promise<boolean> {
@@ -24,11 +37,12 @@ export class DropboxProvider extends BaseCloudProvider {
     }
   }
 
-  protected async doListFolders({ 
+  async listFolders({ 
     parentId = '', 
     search = '',
     pageSize = 100
   }: ListFoldersOptions): Promise<ListFoldersResponse> {
+    await this.validateCapability('folderListing', 'listFolders');
     const path = parentId || '';
     
     // List folder contents
@@ -65,7 +79,8 @@ export class DropboxProvider extends BaseCloudProvider {
     return metadata.result.path_display || '';
   }
 
-  protected async createFolder(parentId: string, name: string): Promise<CloudFolder> {
+  async createNewFolder(parentId: string, name: string): Promise<CloudFolder> {
+    await this.validateCapability('folderCreation', 'createNewFolder');
     const path = `${parentId}/${name}`.replace('//', '/');
     
     const result = await this.client.filesCreateFolderV2({
@@ -81,7 +96,8 @@ export class DropboxProvider extends BaseCloudProvider {
     };
   }
 
-  protected async deleteFolder(folderId: string): Promise<void> {
+  async removeFolder(folderId: string): Promise<void> {
+    await this.validateCapability('folderDeletion', 'removeFolder');
     await this.client.filesDeleteV2({
       path: folderId
     });
