@@ -2,20 +2,26 @@ import { Select, Stack, TextInput, Text, Box, Alert } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { FolderTree } from '../../common/FolderTree';
-import { FormSection, ReviewField } from './ui';
+import { ReviewField } from './ui';
 import { FormValues, VALIDATION_RULES } from './config';
 import { PROVIDER_LABELS } from '../../../types/integration';
 import { showSuccessNotification } from './errors';
+import { BaseStep } from './BaseStep';
 
 interface StepProps {
   form: UseFormReturnType<FormValues>;
   tenantId: string;
   availableProviders: string[];
+  isLoading?: boolean;
 }
 
-export function ProviderStep({ form, availableProviders }: StepProps) {
+/**
+ * Cloud provider selection step
+ * @component
+ */
+export function ProviderStep({ form, availableProviders, isLoading }: StepProps) {
   return (
-    <FormSection>
+    <BaseStep form={form} isLoading={isLoading}>
       <Stack>
         <Select
           label="Cloud Provider"
@@ -36,13 +42,17 @@ export function ProviderStep({ form, availableProviders }: StepProps) {
           </Alert>
         )}
       </Stack>
-    </FormSection>
+    </BaseStep>
   );
 }
 
-export function NameStep({ form }: StepProps) {
+/**
+ * Project name input step
+ * @component
+ */
+export function NameStep({ form, isLoading }: StepProps) {
   return (
-    <FormSection>
+    <BaseStep form={form} isLoading={isLoading}>
       <TextInput
         label="Project Name"
         placeholder="Enter project name"
@@ -51,13 +61,17 @@ export function NameStep({ form }: StepProps) {
         error={form.errors.name}
         {...form.getInputProps('name')}
       />
-    </FormSection>
+    </BaseStep>
   );
 }
 
-export function FolderStep({ form, tenantId }: StepProps) {
+/**
+ * Folder selection step with tree view
+ * @component
+ */
+export function FolderStep({ form, tenantId, isLoading }: StepProps) {
   return (
-    <FormSection>
+    <BaseStep form={form} isLoading={isLoading}>
       <Stack spacing="xs">
         <Text size="sm" c="dimmed">
           {VALIDATION_RULES.folderPath.description}
@@ -89,13 +103,17 @@ export function FolderStep({ form, tenantId }: StepProps) {
           </Alert>
         )}
       </Stack>
-    </FormSection>
+    </BaseStep>
   );
 }
 
-export function ReviewStep({ form }: StepProps) {
+/**
+ * Final review step
+ * @component
+ */
+export function ReviewStep({ form, isLoading }: StepProps) {
   return (
-    <FormSection>
+    <BaseStep form={form} isLoading={isLoading}>
       <Stack>
         <Alert 
           icon={<IconInfoCircle size="1rem" />}
@@ -127,6 +145,6 @@ export function ReviewStep({ form }: StepProps) {
           You can manage project settings after creation.
         </Text>
       </Stack>
-    </FormSection>
+    </BaseStep>
   );
 }

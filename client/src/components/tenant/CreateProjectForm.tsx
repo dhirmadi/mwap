@@ -6,6 +6,7 @@ import { STEPS } from './project-creation/config';
 import { ProviderStep, NameStep, FolderStep, ReviewStep } from './project-creation/steps';
 import { showValidationError } from './project-creation/errors';
 import { useProjectCreationForm } from '../../hooks/useProjectCreationForm';
+import { FormErrorBoundary } from './project-creation/FormErrorBoundary';
 
 interface CreateProjectFormProps {
   tenantId: string;
@@ -99,59 +100,61 @@ export function CreateProjectForm({
         title="Create New Project"
         size="lg"
       >
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}>
-          <Stepper 
-            active={activeStep} 
-            onStepClick={handleStepClick}
-          >
-            {STEPS.map((step, index) => (
-              <Stepper.Step
-                key={index}
-                label={step.label}
-                description={step.description}
-                icon={<step.icon size="1.2rem" />}
-                allowStepSelect={canNavigateToStep(index)}
-                completedIcon={validatedSteps.has(index) ? undefined : null}
-              >
-                {activeStep === index && renderStep()}
-              </Stepper.Step>
-            ))}
-          </Stepper>
+        <FormErrorBoundary onReset={handleReset}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}>
+            <Stepper 
+              active={activeStep} 
+              onStepClick={handleStepClick}
+            >
+              {STEPS.map((step, index) => (
+                <Stepper.Step
+                  key={index}
+                  label={step.label}
+                  description={step.description}
+                  icon={<step.icon size="1.2rem" />}
+                  allowStepSelect={canNavigateToStep(index)}
+                  completedIcon={validatedSteps.has(index) ? undefined : null}
+                >
+                  {activeStep === index && renderStep()}
+                </Stepper.Step>
+              ))}
+            </Stepper>
 
-          <Group justify="flex-end" mt="xl">
-            {activeStep > 0 && (
-              <Button variant="default" onClick={handlePrev}>
-                Back
-              </Button>
-            )}
-            {activeStep === STEPS.length - 1 ? (
-              <Button
-                type="submit"
-                loading={isLoading || state === 'submitting'}
-                disabled={
-                  availableProviders.length === 0 ||
-                  !form.isValid() ||
-                  state === 'submitting'
-                }
-              >
-                Create Project
-              </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                disabled={
-                  availableProviders.length === 0 ||
-                  state === 'validating'
-                }
-              >
-                Next
-              </Button>
-            )}
-          </Group>
-        </form>
+            <Group justify="flex-end" mt="xl">
+              {activeStep > 0 && (
+                <Button variant="default" onClick={handlePrev}>
+                  Back
+                </Button>
+              )}
+              {activeStep === STEPS.length - 1 ? (
+                <Button
+                  type="submit"
+                  loading={isLoading || state === 'submitting'}
+                  disabled={
+                    availableProviders.length === 0 ||
+                    !form.isValid() ||
+                    state === 'submitting'
+                  }
+                >
+                  Create Project
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  disabled={
+                    availableProviders.length === 0 ||
+                    state === 'validating'
+                  }
+                >
+                  Next
+                </Button>
+              )}
+            </Group>
+          </form>
+        </FormErrorBoundary>
       </Modal>
     </>
   );
