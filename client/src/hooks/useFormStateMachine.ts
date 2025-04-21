@@ -74,24 +74,33 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
   form,
   config
 }: UseFormStateMachineOptions<T>): UseFormStateMachineReturn {
-  // State
+  // State declarations
   const [state, setState] = useState<FormState>('initial');
   const prevStateRef = useRef<FormState>(state);
-  
-  // Get step from form
   const activeStep = form.values.activeStep;
 
-  // Track state changes
+  // Function definitions
+  const resetForm = useCallback(() => {
+    setState('initial');
+    form.reset();
+    form.setFieldValue('activeStep', 0);
+  }, [form, setState]);
+
+  const handleReset = useCallback(() => {
+    resetForm();
+  }, [resetForm]);
+
+  // Effects
   useEffect(() => {
     prevStateRef.current = state;
   }, [state]);
 
-  // Handle cleanup on unmount
   useEffect(() => {
     return () => {
-      handleReset();
+      form.reset();
+      setState('initial');
     };
-  }, [handleReset]);
+  }, [form, setState]);
 
   /**
    * Validate current step
@@ -183,7 +192,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
     } else {
       setState('error');
     }
-  }, [activeStep, config.steps.length, validateCurrentStep, form]);
+  }, [activeStep, config.steps.length, validateCurrentStep, form, setState]);
 
   /**
    * Handle previous step
@@ -193,7 +202,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
       form.setFieldValue('activeStep', activeStep - 1);
       setState('editing');
     }
-  }, [activeStep, form]);
+  }, [activeStep, form, setState]);
 
   /**
    * Handle form submission
@@ -223,7 +232,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
     } else {
       setState('error');
     }
-  }, [config, form.values, isStepValid, validateCurrentStep]);
+  }, [config, form.values, isStepValid, validateCurrentStep, setState]);
 
   /**
    * Handle form reset
