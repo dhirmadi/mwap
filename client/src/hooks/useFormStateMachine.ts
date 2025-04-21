@@ -234,14 +234,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
     }
   }, [config, form.values, isStepValid, validateCurrentStep, setState]);
 
-  /**
-   * Handle form reset
-   */
-  const handleReset = useCallback(() => {
-    form.setFieldValue('activeStep', 0);
-    setState('initial');
-    form.reset();
-  }, [form]);
+
 
   return {
     state,
