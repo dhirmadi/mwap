@@ -181,12 +181,19 @@ mwap/
    - Interface segregation
    - Proper type definitions
    - Runtime type validation
+   - Type guards for data validation
+   - Safe type casting with validation
+   - Mongoose document handling
 
 2. **Error Handling**
    - Consistent error types
    - Error boundaries
    - User-friendly messages
    - Detailed logging
+   - Field-level validation errors
+   - Specific error messages
+   - Validation error aggregation
+   - AppError standardization
 
 3. **Security**
    - OAuth best practices

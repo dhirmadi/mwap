@@ -34,7 +34,13 @@ Error responses follow this format:
     "code": string,
     "message": string,
     "requestId": string,
-    "data"?: any
+    "data"?: {
+      "fields"?: Array<{
+        "field": string,
+        "message": string
+      }>,
+      "details"?: string[]
+    }
   }
 }
 ```
@@ -209,15 +215,36 @@ Request:
   "token": {
     "accessToken": string,
     "refreshToken": string,
-    "expiresAt": string
+    "expiresAt": string  // ISO 8601 date string
   }
 }
 
 Response: Same as List Integrations
+
+Error Response (400):
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid integration object",
+    "requestId": string,
+    "data": {
+      "details": [
+        "provider is required",
+        "token is required",
+        "token.accessToken is required",
+        "token.refreshToken is required",
+        "token.expiresAt must be a valid date"
+      ]
+    }
+  }
+}
 ```
 - Replaces existing integration if provider already exists
 - Validates token format and expiry
 - Preserves other provider integrations
+- Enhanced validation with specific error messages
+- Proper date normalization for expiresAt
+- Type-safe validation with TypeScript
 
 ### Delete Integration
 ```http
