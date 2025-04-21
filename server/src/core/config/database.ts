@@ -1,6 +1,9 @@
-import mongoose, { ConnectOptions } from 'mongoose';
+import mongoose, { ConnectOptions, ConnectionStates } from 'mongoose';
 import { env } from './environment';
 import { logger } from '@core/utils/logger';
+
+// Set global mongoose options
+mongoose.set("bufferTimeoutMS", 30000); // Increase buffer timeout to 30 seconds
 
 interface ExtendedConnectOptions extends ConnectOptions {
   maxPoolSize?: number;
@@ -12,6 +15,46 @@ interface ExtendedConnectOptions extends ConnectOptions {
   ssl?: boolean;
   authSource?: string;
 }
+
+// Connection readiness check with retry
+export const ensureConnection = async (retries = 3, backoff = 1000): Promise<void> => {
+  const isConnected = mongoose.connection.readyState === 1; // 1 = connected
+  if (isConnected) return;
+
+  let attempts = 0;
+  while (attempts < retries) {
+    try {
+      const isConnected = mongoose.connection.readyState === 1; // 1 = connected
+      if (isConnected) return;
+
+      logger.warn('Waiting for MongoDB connection', {
+        attempt: attempts + 1,
+        maxRetries: retries,
+        currentState: mongoose.connection.readyState
+      });
+
+      await new Promise<void>((resolve) => {
+        const checkConnection = () => {
+          const isConnected = mongoose.connection.readyState === 1; // 1 = connected
+          if (isConnected) {
+            resolve();
+          } else {
+            setTimeout(checkConnection, backoff);
+          }
+        };
+        checkConnection();
+      });
+
+      return;
+    } catch (error) {
+      attempts++;
+      if (attempts === retries) {
+        throw new Error('Failed to establish MongoDB connection');
+      }
+      await new Promise(resolve => setTimeout(resolve, backoff * Math.pow(2, attempts)));
+    }
+  }
+};
 
 export const connectDB = async (): Promise<void> => {
   try {

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import logger from '@core/logging/config';
+import mongoose from 'mongoose';
 
 /**
  * Health check response type
@@ -14,6 +15,11 @@ interface HealthResponse {
     total: number;
     rss: number;
   };
+  mongodb: {
+    state: number;
+    status: string;
+    host?: string;
+  };
 }
 
 /**
@@ -21,6 +27,20 @@ interface HealthResponse {
  */
 const formatMemory = (bytes: number): number => {
   return Math.round(bytes / 1024 / 1024 * 100) / 100;
+};
+
+/**
+ * Get MongoDB connection status string
+ */
+const getMongoStatus = (state: number): string => {
+  switch (state) {
+    case 0: return 'disconnected';
+    case 1: return 'connected';
+    case 2: return 'connecting';
+    case 3: return 'disconnecting';
+    case 99: return 'uninitialized';
+    default: return 'unknown';
+  }
 };
 
 /**
@@ -56,7 +76,12 @@ healthRouter.get('/health', (req, res) => {
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version || '0.0.0',
-    memory: getMemoryStats()
+    memory: getMemoryStats(),
+    mongodb: {
+      state: mongoose.connection.readyState,
+      status: getMongoStatus(mongoose.connection.readyState),
+      host: mongoose.connection.host || undefined
+    }
   };
 
   // Set no-cache headers
