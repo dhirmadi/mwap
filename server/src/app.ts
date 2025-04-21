@@ -29,16 +29,30 @@ app.get('/health', (_req, res) => {
 // API routes
 app.use('/api/v1', apiRoutes);
 
-// Static files configuration
+/**
+ * Static File Serving Configuration
+ * 
+ * This section handles serving the client-side application and its static assets.
+ * The implementation uses a two-tier approach:
+ * 1. Static file middleware for assets (js, css, images)
+ * 2. Custom middleware for client-side routing (SPA)
+ */
+
+// Use absolute path resolution to prevent path traversal issues
 const clientPath = path.resolve(__dirname, '../../client/dist');
 const indexPath = path.join(clientPath, 'index.html');
 
-// Validate client build at startup
+/**
+ * Startup Validation
+ * 
+ * Verify the client build exists and gather stats for monitoring.
+ * This early check prevents runtime errors and provides useful debugging info.
+ */
 const fs = require('fs');
 const exists = fs.existsSync(indexPath);
 const stats = exists ? fs.statSync(indexPath) : null;
 
-// Enhanced logging for client app configuration
+// Log detailed configuration for debugging and monitoring
 logger.debug('Client app configuration', {
   clientPath,
   indexPath,
@@ -47,23 +61,47 @@ logger.debug('Client app configuration', {
   lastModified: stats?.mtime
 });
 
-// Serve static files with proper caching
+/**
+ * Static Asset Serving
+ * 
+ * Configuration details:
+ * - etag: Enable strong caching with ETags
+ * - lastModified: Use Last-Modified headers for caching
+ * - maxAge: 
+ *   - Production: 1 day cache (86400 seconds)
+ *   - Development: No cache (0 seconds)
+ * - index: Disabled to prevent conflicts with SPA routing
+ */
 app.use(express.static(clientPath, {
   etag: true,
   lastModified: true,
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
-  index: false // Disable auto-serving of index.html
+  index: false // Let our custom middleware handle index.html
 }));
 
-// Serve client app for all non-API routes
+/**
+ * Single Page Application Handler
+ * 
+ * This middleware serves the client application for all non-API routes,
+ * enabling client-side routing while maintaining proper caching behavior.
+ * 
+ * Caching Strategy:
+ * - Production: public cache with immediate revalidation
+ * - Development: no caching to aid debugging
+ * 
+ * Security:
+ * - Denies access to dotfiles
+ * - Uses root path to prevent directory traversal
+ * - Validates client build before serving
+ */
 const serveClientApp: RequestHandler = (req, res, next) => {
-  // Skip API routes
+  // Skip API routes to maintain separation of concerns
   if (req.path.startsWith('/api')) {
     next();
     return;
   }
   
-  // Ensure client app is built
+  // Early validation of client build
   if (!exists) {
     const error = 'Client app not built. Run: npm run build';
     logger.error(error, { clientPath });
@@ -71,26 +109,27 @@ const serveClientApp: RequestHandler = (req, res, next) => {
     return;
   }
 
-  // Log client-side route access
+  // Enhanced logging for monitoring and debugging
   logger.debug('Serving client app for route', {
     path: req.path,
     method: req.method,
     userAgent: req.get('user-agent')
   });
   
-  // Serve index.html for client-side routing
+  // Serve index.html with environment-specific caching
   res.sendFile('index.html', {
-    root: clientPath,
-    dotfiles: 'deny',
+    root: clientPath, // Use root option for security
+    dotfiles: 'deny', // Prevent access to hidden files
     headers: {
       'x-timestamp': Date.now().toString(),
       'x-sent': true,
       'cache-control': process.env.NODE_ENV === 'production' 
-        ? 'public, max-age=0, must-revalidate' 
-        : 'no-cache, no-store, must-revalidate'
+        ? 'public, max-age=0, must-revalidate' // Always revalidate in production
+        : 'no-cache, no-store, must-revalidate' // No cache in development
     }
   }, (err) => {
     if (err) {
+      // Detailed error logging for troubleshooting
       logger.error('Failed to serve client app', {
         error: err.message,
         path: req.path,
