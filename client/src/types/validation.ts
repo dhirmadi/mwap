@@ -23,9 +23,9 @@ export interface ValidationRule {
  * @interface ValidationRules
  * @template T - Form values type
  */
-export interface ValidationRules<T extends Record<string, unknown>> {
+export type ValidationRules<T extends Record<string, unknown>> = {
   [K in keyof T]: ValidationRule;
-}
+};
 
 /**
  * Type guard to check if an object is a valid ValidationRule

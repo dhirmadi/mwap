@@ -3,9 +3,9 @@
  * @module hooks/useFormStateMachine
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { UseFormReturnType } from '@mantine/form';
-import { ValidationError, ErrorCode } from '../core/errors/types';
+import { ValidationError } from '../core/errors/types';
 import { handleError } from '../core/errors/handler';
 
 /**
@@ -118,7 +118,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
         form.reset();
       }
     };
-  }, []); // Empty deps array since this should only run on unmount
+  }, [form]); // Include form in deps array since we use it in cleanup
 
   /**
    * Validate current step
