@@ -45,7 +45,7 @@ export async function listFolders(
       throw new AppError('Only tenant owners can access cloud folders', 403);
     }
 
-    // Find integration
+    // Find integration and convert to plain object
     const integration = tenant.integrations.find(i => 
       i.provider.toLowerCase() === provider.toLowerCase()
     );
@@ -54,8 +54,32 @@ export async function listFolders(
       throw new AppError(`Integration with provider ${provider} not found`, 404);
     }
 
+    // Convert Mongoose document to plain object and validate
+    const rawData = integration.toObject();
+
+    // Log raw data for debugging
+    logger.debug('Raw integration data', {
+      tenantId,
+      provider: rawData.provider,
+      hasToken: !!rawData.token,
+      connectedAt: rawData.connectedAt
+    });
+
+    // Validate and normalize integration data
+    const integrationData = validateIntegration(rawData);
+
+    // Log validated data
+    logger.debug('Validated integration data', {
+      tenantId,
+      provider: integrationData.provider,
+      hasToken: !!integrationData.token,
+      connectedAt: integrationData.connectedAt,
+      expiresAt: integrationData.expiresAt,
+      lastRefreshedAt: integrationData.lastRefreshedAt
+    });
+
     // Get cloud provider service
-    const cloudService = new CloudProviderService(integration, tenantId);
+    const cloudService = new CloudProviderService(integrationData, tenantId);
     
     // List folders
     const result = await cloudService.listFolders({

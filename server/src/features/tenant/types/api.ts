@@ -1,5 +1,6 @@
 import { SuccessResponse } from '@core/types/responses';
 import { TenantRole } from '@core/types/auth';
+import { AppError } from '@core/errors';
 
 // Base tenant interfaces
 export interface Tenant {
@@ -83,4 +84,40 @@ export interface TenantQueryParams {
   sort?: string;
   order?: 'asc' | 'desc';
   search?: string;
+}
+
+// Validation functions
+export function isIntegration(obj: unknown): obj is Integration {
+  if (!obj || typeof obj !== 'object') {
+    return false;
+  }
+
+  const integration = obj as Integration;
+  return (
+    typeof integration.provider === 'string' &&
+    typeof integration.token === 'string' &&
+    integration.provider.length > 0 &&
+    integration.token.length > 0 &&
+    (integration.connectedAt instanceof Date || typeof integration.connectedAt === 'string')
+  );
+}
+
+export function validateIntegration(obj: unknown): Integration {
+  if (!isIntegration(obj)) {
+    throw new AppError('Invalid integration object: missing required fields', 400);
+  }
+
+  // Convert string dates to Date objects if needed
+  const integration = { ...obj } as Integration;
+  if (typeof integration.connectedAt === 'string') {
+    integration.connectedAt = new Date(integration.connectedAt);
+  }
+  if (typeof integration.expiresAt === 'string') {
+    integration.expiresAt = new Date(integration.expiresAt);
+  }
+  if (typeof integration.lastRefreshedAt === 'string') {
+    integration.lastRefreshedAt = new Date(integration.lastRefreshedAt);
+  }
+
+  return integration;
 }
