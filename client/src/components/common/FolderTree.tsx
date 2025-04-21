@@ -91,14 +91,25 @@ function FolderNode({
     <Box>
       <UnstyledButton
         onClick={() => {
-          onSelect(path);
           if (hasChildren) {
             setIsOpen(!isOpen);
           }
         }}
-        style={{ width: '100%' }}
+        onDoubleClick={() => {
+          onSelect(path);
+        }}
+        style={{ 
+          width: '100%',
+          backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
+          borderRadius: 'var(--mantine-radius-sm)',
+          '&:hover': {
+            backgroundColor: isSelected 
+              ? 'var(--mantine-color-blue-light)' 
+              : 'var(--mantine-color-gray-0)'
+          }
+        }}
       >
-        <Group gap="xs" pl={level * 20}>
+        <Group gap="xs" pl={level * 20} py="xs">
           {hasChildren && (
             <IconChevronRight
               size="1rem"
@@ -109,9 +120,15 @@ function FolderNode({
             />
           )}
           {isOpen ? (
-            <IconFolderOpen size="1.2rem" />
+            <IconFolderOpen 
+              size="1.2rem"
+              color={isSelected ? 'var(--mantine-color-blue-filled)' : undefined}
+            />
           ) : (
-            <IconFolder size="1.2rem" />
+            <IconFolder 
+              size="1.2rem"
+              color={isSelected ? 'var(--mantine-color-blue-filled)' : undefined}
+            />
           )}
           <Text
             size="sm"
@@ -243,25 +260,25 @@ export function FolderTree({
       ) : error?.status === 404 ? (
         <EmptyState
           icon={<IconFolderOff size="2rem" color="var(--mantine-color-yellow-6)" />}
-          message={`${provider} integration not found or not properly configured. Please check your cloud provider settings.`}
-          description="This could happen if the integration was removed or the access token expired."
-          buttonText="Check Integration"
+          message={`${provider} integration not found or not properly configured`}
+          description="Please check your cloud provider settings and ensure you have connected your account."
+          buttonText="Connect Provider"
           onAction={() => {
-            console.info('Integration status check requested:', {
-              provider,
-              tenantId,
-              error
-            });
-            refetch();
+            // Redirect to integrations page to connect provider
+            window.location.href = `/tenant/${tenantId}/settings/integrations`;
           }}
         />
       ) : error?.status === 401 || error?.status === 403 ? (
         <EmptyState
           icon={<IconLock size="2rem" color="var(--mantine-color-red-6)" />}
           message={`Access denied to ${provider} folders`}
-          description="Please check your permissions or try reconnecting the cloud provider."
-          buttonText="Retry"
-          onAction={refetch}
+          description="Your session may have expired. Please refresh the page or reconnect the cloud provider."
+          buttonText="Reconnect"
+          onAction={() => {
+            // Don't refetch immediately as it might cause a logout
+            // Instead, let the user manually reconnect
+            window.location.href = `/tenant/${tenantId}/settings/integrations`;
+          }}
         />
       ) : error ? (
         <ErrorDisplay 
