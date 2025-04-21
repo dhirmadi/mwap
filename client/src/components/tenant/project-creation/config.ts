@@ -76,14 +76,17 @@ export const VALIDATION_RULES = {
   name: {
     required: 'Name is required',
     min: { value: 3, message: 'Name must be at least 3 characters' },
-    max: { value: 50, message: 'Name must be at most 50 characters' }
+    max: { value: 50, message: 'Name must be at most 50 characters' },
+    description: 'Project name should be 3-50 characters long'
   },
   cloudProvider: {
-    required: 'Cloud provider is required'
+    required: 'Cloud provider is required',
+    description: 'Select where to store project files'
   },
   folderPath: {
     required: 'Folder path is required',
-    max: { value: 200, message: 'Folder path must be at most 200 characters' }
+    max: { value: 200, message: 'Folder path must be at most 200 characters' },
+    description: 'Double-click a folder to select it as the project location'
   }
 };
 

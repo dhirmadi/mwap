@@ -4,9 +4,31 @@ import { formatErrorMessage } from '../../../core/errors/handlers';
 
 export function showSuccessNotification() {
   notifications.show({
-    title: 'Success',
-    message: 'Project created successfully',
-    color: 'green'
+    title: 'Project Created',
+    message: 'Project has been created successfully. You will be redirected to the project page.',
+    color: 'green',
+    autoClose: 3000,
+    withCloseButton: true
+  });
+}
+
+export function showRoleError() {
+  notifications.show({
+    title: 'Permission Error',
+    message: 'Only tenant owners can create projects. Please contact your tenant administrator.',
+    color: 'red',
+    autoClose: false,
+    withCloseButton: true
+  });
+}
+
+export function showValidationError(message: string) {
+  notifications.show({
+    title: 'Validation Error',
+    message,
+    color: 'red',
+    autoClose: 3000,
+    withCloseButton: true
   });
 }
 

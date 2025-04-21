@@ -42,6 +42,13 @@ export function CreateProjectForm({
   });
 
   const handleSubmit = form.onSubmit(async (values) => {
+    // Final validation before submission
+    const finalValidation = STEPS[STEPS.length - 1].validateStep?.(values);
+    if (finalValidation) {
+      showValidationError(finalValidation);
+      return;
+    }
+
     try {
       await createProject({
         name: values.name,
@@ -53,6 +60,10 @@ export function CreateProjectForm({
       showSuccessNotification();
       handleClose();
     } catch (error) {
+      if (error.status === 403) {
+        showRoleError();
+        return;
+      }
       handleApiError(error, 'Failed to create project');
     }
   });
@@ -66,10 +77,26 @@ export function CreateProjectForm({
   const nextStep = () => {
     const currentStep = STEPS[activeStep];
     
-    // Validate only required fields for current step
+    // Validate all fields for current step
     const stepError = currentStep.validateStep?.(form.values);
     if (stepError) {
       form.setFieldError(currentStep.field, stepError);
+      showValidationError(stepError);
+      return;
+    }
+
+    // Validate required fields
+    const fieldErrors = currentStep.requiredFields.reduce((errors, field) => {
+      const error = form.validateField(field);
+      if (error) errors[field] = error;
+      return errors;
+    }, {} as Record<string, string>);
+
+    if (Object.keys(fieldErrors).length > 0) {
+      Object.entries(fieldErrors).forEach(([field, error]) => {
+        form.setFieldError(field, error);
+      });
+      showValidationError('Please fix the validation errors before continuing.');
       return;
     }
 
