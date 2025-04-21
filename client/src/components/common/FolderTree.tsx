@@ -260,24 +260,23 @@ export function FolderTree({
       ) : error?.status === 404 ? (
         <EmptyState
           icon={<IconFolderOff size="2rem" color="var(--mantine-color-yellow-6)" />}
-          message={`${provider} integration not found or not properly configured`}
-          description="Please check your cloud provider settings and ensure you have connected your account."
+          message={`${provider} integration not found`}
+          description="Please connect your cloud provider account to access folders."
           buttonText="Connect Provider"
           onAction={() => {
-            // Redirect to integrations page to connect provider
-            window.location.href = `/tenant/${tenantId}/settings/integrations`;
+            // Open integrations page in new tab to avoid losing state
+            window.open(`/tenant/${tenantId}/settings/integrations`, '_blank');
           }}
         />
       ) : error?.status === 401 || error?.status === 403 ? (
         <EmptyState
           icon={<IconLock size="2rem" color="var(--mantine-color-red-6)" />}
           message={`Access denied to ${provider} folders`}
-          description="Your session may have expired. Please refresh the page or reconnect the cloud provider."
+          description="Your cloud provider session may have expired. Please reconnect your account."
           buttonText="Reconnect"
           onAction={() => {
-            // Don't refetch immediately as it might cause a logout
-            // Instead, let the user manually reconnect
-            window.location.href = `/tenant/${tenantId}/settings/integrations`;
+            // Open in new tab to avoid losing state
+            window.open(`/tenant/${tenantId}/settings/integrations`, '_blank');
           }}
         />
       ) : error ? (
