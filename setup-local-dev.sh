@@ -136,12 +136,41 @@ echo "Press Ctrl+C to stop both applications"
 
 # Handle cleanup on script termination
 cleanup() {
-    echo "Stopping applications..."
-    kill $SERVER_PID $CLIENT_PID
+    echo ""
+    echo "🛑 Shutting down server and client..."
+
+    # Send SIGTERM to server
+    if [ -n "$SERVER_PID" ] && kill -0 $SERVER_PID 2>/dev/null; then
+        echo "➤ Sending SIGTERM to server (PID: $SERVER_PID)..."
+        kill -TERM $SERVER_PID 2>/dev/null
+    fi
+
+    # Send SIGTERM to client
+    if [ -n "$CLIENT_PID" ] && kill -0 $CLIENT_PID 2>/dev/null; then
+        echo "➤ Sending SIGTERM to client (PID: $CLIENT_PID)..."
+        kill -TERM $CLIENT_PID 2>/dev/null
+    fi
+
+    # Wait briefly for them to terminate gracefully
+    sleep 2
+
+    # Force kill if still running
+    if [ -n "$SERVER_PID" ] && kill -0 $SERVER_PID 2>/dev/null; then
+        echo "➤ Force stopping server..."
+        kill -9 $SERVER_PID 2>/dev/null
+    fi
+
+    if [ -n "$CLIENT_PID" ] && kill -0 $CLIENT_PID 2>/dev/null; then
+        echo "➤ Force stopping client..."
+        kill -9 $CLIENT_PID 2>/dev/null
+    fi
+
+    echo "✅ All processes stopped. Exiting."
     exit 0
 }
 
-trap cleanup SIGINT SIGTERM
+# Handle termination signals
+trap cleanup SIGINT SIGTERM SIGHUP EXIT ERR
 
 # Wait for either process to exit
-wait
+wait $SERVER_PID $CLIENT_PID
