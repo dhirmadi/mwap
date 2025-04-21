@@ -115,6 +115,14 @@
 
 ## Recent Updates
 
+### v0.4.1 - Enhanced Graceful Shutdown
+- ✅ Added timeout for graceful shutdown (10s)
+- ✅ Added proper database connection cleanup
+- ✅ Added error handling during shutdown
+- ✅ Added shutdown duration tracking
+- ✅ Added handling for uncaught exceptions
+- ✅ Added detailed logging of shutdown process
+
 ### v0.4.0 - MongoDB Connection Management
 - ✅ Increased buffer timeout to 30 seconds
 - ✅ Added connection readiness check with retry
