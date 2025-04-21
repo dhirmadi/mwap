@@ -3,7 +3,8 @@ import { UseFormReturnType } from '@mantine/form';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { FolderTree } from '../../common/FolderTree';
 import { FormSection, ReviewField } from './ui';
-import { FormValues, PROVIDER_LABELS, VALIDATION_RULES } from './config';
+import { FormValues, VALIDATION_RULES } from './config';
+import { PROVIDER_LABELS } from '../../../types/integration';
 import { showSuccessNotification } from './errors';
 
 interface StepProps {

@@ -47,20 +47,9 @@ export interface TenantMember {
 }
 
 /**
- * Cloud provider integration types
+ * Integration types
  */
-export type IntegrationProvider = 'gdrive' | 'dropbox' | 'box' | 'onedrive';
-
-export interface Integration {
-  provider: IntegrationProvider;
-  token: string;
-  connectedAt: string;
-}
-
-export interface AddIntegrationRequest {
-  provider: IntegrationProvider;
-  token: string;
-}
+export * from '../integration';
 
 /**
  * Cloud folder types
