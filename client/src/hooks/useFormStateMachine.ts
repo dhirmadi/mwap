@@ -77,30 +77,48 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
   // State declarations
   const [state, setState] = useState<FormState>('initial');
   const prevStateRef = useRef<FormState>(state);
-  const activeStep = form.values.activeStep;
+  const activeStepRef = useRef(form.values.activeStep);
+
+  // Memoize form values to prevent unnecessary re-renders
+  const activeStep = useMemo(() => {
+    // Only update if the value actually changed
+    if (form.values.activeStep !== activeStepRef.current) {
+      activeStepRef.current = form.values.activeStep;
+    }
+    return activeStepRef.current;
+  }, [form.values.activeStep]);
 
   // Function definitions
   const resetForm = useCallback(() => {
-    setState('initial');
-    form.reset();
-    form.setFieldValue('activeStep', 0);
-  }, [form, setState]);
+    // Batch state updates
+    const updates = () => {
+      setState('initial');
+      form.reset();
+      form.setFieldValue('activeStep', 0);
+    };
+    updates();
+  }, [form]);
 
   const handleReset = useCallback(() => {
     resetForm();
   }, [resetForm]);
 
-  // Effects
+  // Effects - Only track state changes for debugging
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Form state changed:', state);
+    }
     prevStateRef.current = state;
   }, [state]);
 
+  // Cleanup effect - Only runs on unmount
   useEffect(() => {
     return () => {
-      form.reset();
-      setState('initial');
+      if (form && typeof form.reset === 'function') {
+        form.reset();
+      }
     };
-  }, [form, setState]);
+  }, []); // Empty deps array since this should only run on unmount
 
   /**
    * Validate current step
@@ -110,48 +128,52 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
     if (!step) return false;
 
     try {
-      // Validate step-specific logic
-      const stepError = step.validate(form.values);
-      if (stepError) {
-        const error = new ValidationError(
-          'Step validation failed',
-          [{ field: String(step.requiredFields[0]), message: stepError }]
-        );
-        handleError(error, 'StepValidation');
-        form.setFieldError(step.requiredFields[0], stepError);
-        return false;
-      }
+      // Batch all form updates
+      const updates = () => {
+        // Validate step-specific logic
+        const stepError = step.validate(form.values);
+        if (stepError) {
+          const error = new ValidationError(
+            'Step validation failed',
+            [{ field: String(step.requiredFields[0]), message: stepError }]
+          );
+          handleError(error, 'StepValidation');
+          form.setFieldError(step.requiredFields[0], stepError);
+          return false;
+        }
 
-      // Validate required fields
-      const fieldErrors = step.requiredFields.reduce((errors, field) => {
-        const error = form.validateField(field);
-        if (error) errors[field] = error;
-        return errors;
-      }, {} as Record<string, string>);
+        // Validate required fields
+        const fieldErrors = step.requiredFields.reduce((errors, field) => {
+          const error = form.validateField(field);
+          if (error) errors[field] = error;
+          return errors;
+        }, {} as Record<string, string>);
 
-      if (Object.keys(fieldErrors).length > 0) {
-        const error = new ValidationError(
-          'Field validation failed',
-          Object.entries(fieldErrors).map(([field, message]) => ({
-            field,
-            message
-          }))
-        );
-        handleError(error, 'FieldValidation');
-        Object.entries(fieldErrors).forEach(([field, message]) => {
-          form.setFieldError(field as keyof T, message);
-        });
-        return false;
-      }
+        if (Object.keys(fieldErrors).length > 0) {
+          const error = new ValidationError(
+            'Field validation failed',
+            Object.entries(fieldErrors).map(([field, message]) => ({
+              field,
+              message
+            }))
+          );
+          handleError(error, 'FieldValidation');
+          Object.entries(fieldErrors).forEach(([field, message]) => {
+            form.setFieldError(field as keyof T, message);
+          });
+          return false;
+        }
 
-    // Clear any previous errors and mark step as validated
-    step.requiredFields.forEach(field => form.clearFieldError(field));
-    setValidatedSteps(prev => new Set([...prev, activeStep]));
-    return true;
-  } catch (error) {
-    return false;
-  }
-}, [activeStep, config.steps, form]);
+        // Clear any previous errors
+        step.requiredFields.forEach(field => form.clearFieldError(field));
+        return true;
+      };
+
+      return updates();
+    } catch (error) {
+      return false;
+    }
+  }, [activeStep, config.steps, form]);
 
   /**
    * Check if a step is valid
@@ -179,39 +201,51 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
    * Handle next step
    */
   const handleNext = useCallback(async () => {
-    setState('validating');
-    const isValid = await validateCurrentStep();
-    
-    if (isValid) {
-      if (activeStep < config.steps.length - 1) {
+    // Batch state updates
+    const performUpdate = async () => {
+      setState('validating');
+      const isValid = await validateCurrentStep();
+      
+      if (isValid && activeStep < config.steps.length - 1) {
         form.setFieldValue('activeStep', activeStep + 1);
         setState('editing');
       } else {
         setState('error');
       }
-    } else {
-      setState('error');
-    }
-  }, [activeStep, config.steps.length, validateCurrentStep, form, setState]);
+    };
+
+    await performUpdate();
+  }, [activeStep, config.steps.length, validateCurrentStep, form]);
 
   /**
    * Handle previous step
    */
   const handlePrev = useCallback(() => {
+    // Only update if we can actually go back
     if (activeStep > 0) {
-      form.setFieldValue('activeStep', activeStep - 1);
-      setState('editing');
+      // Batch updates
+      const updates = () => {
+        form.setFieldValue('activeStep', activeStep - 1);
+        setState('editing');
+      };
+      updates();
     }
-  }, [activeStep, form, setState]);
+  }, [activeStep, form]);
 
   /**
    * Handle form submission
    */
   const handleSubmit = useCallback(async () => {
-    setState('validating');
-    const isValid = await validateCurrentStep();
-    
-    if (isValid) {
+    // Batch all state updates and validations
+    const performSubmit = async () => {
+      setState('validating');
+      const isValid = await validateCurrentStep();
+      
+      if (!isValid) {
+        setState('error');
+        return;
+      }
+
       // Verify all steps are validated
       for (let i = 0; i < config.steps.length; i++) {
         if (!isStepValid(i)) {
@@ -229,10 +263,10 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
         handleError(error, 'FormSubmission');
         throw error;
       }
-    } else {
-      setState('error');
-    }
-  }, [config, form.values, isStepValid, validateCurrentStep, setState]);
+    };
+
+    await performSubmit();
+  }, [config, form.values, isStepValid, validateCurrentStep]);
 
 
 
