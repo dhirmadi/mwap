@@ -1,5 +1,6 @@
 import { notifications } from '@mantine/notifications';
-import { AppError } from '../../../core/errors';
+import { AppError, ValidationError, ErrorCode } from '../../../core/errors';
+import { formatErrorMessage } from '../../../core/errors/handlers';
 
 export function showSuccessNotification() {
   notifications.show({
@@ -10,10 +11,22 @@ export function showSuccessNotification() {
 }
 
 export function showErrorNotification(error: unknown) {
-  const appError = error as AppError;
+  const appError = error instanceof AppError ? error : new AppError(
+    ErrorCode.UNKNOWN,
+    'Failed to create project'
+  );
+
+  let message = formatErrorMessage(appError);
+  
+  // For validation errors, show field-specific messages
+  if (appError instanceof ValidationError && appError.fields.length > 0) {
+    message = `${message}\n${appError.fields.map(f => `- ${f.field}: ${f.message}`).join('\n')}`;
+  }
+
   notifications.show({
-    title: 'Error',
-    message: appError.message || 'Failed to create project',
-    color: 'red'
+    title: appError.code === ErrorCode.VALIDATION ? 'Validation Error' : 'Error',
+    message,
+    color: 'red',
+    autoClose: appError instanceof ValidationError ? 5000 : 3000
   });
 }

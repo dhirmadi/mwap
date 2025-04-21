@@ -205,13 +205,10 @@ export function FolderTree({
     i => i.provider.toUpperCase() === provider.toUpperCase()
   );
 
-  // Debug integration status
-  console.info('Integration check:', {
-    provider,
-    currentIntegration,
-    allIntegrations: integrations,
-    availableProviders: integrations.map(i => i.provider)
-  });
+  // Check if provider is available
+  const isProviderAvailable = integrations.some(
+    i => i.provider.toUpperCase() === provider.toUpperCase()
+  );
 
   // Fetch folders only if integration exists
   const {

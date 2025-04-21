@@ -9,6 +9,14 @@ export class CloudProviderService {
   private integration: Integration;
 
   constructor(integration: Integration, tenantId?: string) {
+    if (!integration) {
+      throw new AppError('Integration is required for cloud operations', 400);
+    }
+
+    if (!integration.provider) {
+      throw new AppError('Provider is required for cloud operations', 400);
+    }
+
     this.integration = {
       ...integration,
       tenantId: tenantId || integration.tenantId
@@ -17,6 +25,9 @@ export class CloudProviderService {
     if (!this.integration.tenantId) {
       throw new AppError('TenantId is required for cloud provider operations', 400);
     }
+
+    // Validate provider early
+    ProviderFactory.validateProvider(this.integration.provider.toLowerCase());
   }
 
   async listFolders(options: ListFoldersOptions): Promise<ListFoldersResponse> {
