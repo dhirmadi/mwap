@@ -1,25 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi, get } from '../core/api/client';
 import { API_PATHS } from '../core/api/paths';
-import { IntegrationProvider } from '../types/tenant';
-import { handleApiError } from '../core/errors';
+import { ApiError } from '../types/api';
+import { CloudFolder, CloudFolderListResponse, IntegrationProvider } from '../types/tenant';
+import { validateFolderResponse } from '../utils/validation';
 
 // Debug flag - set to true to enable detailed logging
 const DEBUG = true;
 
-export interface CloudFolder {
-  id: string;
-  name: string;
-  path: string;
-  hasChildren: boolean;
-}
-
-interface CloudFolderListResponse {
-  data: CloudFolder[];
-}
-
-interface CloudFolderError extends Error {
-  status?: number;
+interface CloudFolderError extends ApiError {
   requestId?: string;
 }
 
@@ -76,7 +65,7 @@ export function useCloudFolders(
         if (!tenantId) throw new Error('Tenant ID is required');
         if (!normalizedProvider) throw new Error('Provider is required');
         
-        const response = await get<CloudFolderListResponse>(
+        const response = await get(
           api,
           API_PATHS.TENANT.INTEGRATIONS.LIST_FOLDERS(tenantId, normalizedProvider),
           {
@@ -93,24 +82,15 @@ export function useCloudFolders(
           console.info(`[${requestId}] Received response:`, {
             status: response?.status,
             hasData: !!response?.data,
-            dataLength: response?.data?.length,
             data: response?.data
           });
         }
 
-        // Handle empty or invalid response
-        if (!response || !response.data) {
-          console.warn(`[${requestId}] Invalid response structure from ${provider}`, {
-            response,
-            tenantId,
-            parentId,
-            search
-          });
-          return [];
-        }
+        // Validate and extract folders from response
+        const folders = validateFolderResponse(response);
 
         // Handle empty folder list
-        if (response.data.length === 0) {
+        if (folders.length === 0) {
           console.info(`[${requestId}] No folders found for ${provider}`, {
             tenantId,
             parentId,
@@ -119,7 +99,7 @@ export function useCloudFolders(
           });
         }
 
-        return response.data;
+        return folders;
       } catch (error) {
         const folderError = error as CloudFolderError;
         folderError.requestId = requestId;

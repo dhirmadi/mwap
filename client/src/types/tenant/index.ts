@@ -63,6 +63,21 @@ export interface AddIntegrationRequest {
 }
 
 /**
+ * Cloud folder types
+ */
+export interface CloudFolder {
+  id: string;
+  name: string;
+  path: string;
+  hasChildren: boolean;
+}
+
+export interface CloudFolderListResponse {
+  folders: CloudFolder[];
+  nextPageToken?: string;
+}
+
+/**
  * Response types
  */
 export type TenantResponse = SuccessResponse<Tenant>;
