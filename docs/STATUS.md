@@ -115,6 +115,16 @@
 
 ## Recent Updates
 
+### v0.4.0 - MongoDB Connection Management
+- ✅ Increased buffer timeout to 30 seconds
+- ✅ Added connection readiness check with retry
+- ✅ Enhanced health endpoint with MongoDB status
+- ✅ Added exponential backoff for retries
+- ✅ Improved error handling for connection issues
+- ✅ Added connection state monitoring
+- ✅ Implemented retry mechanism with backoff
+- ✅ Added MongoDB state to health endpoint
+
 ### v0.3.0 - Enhanced Cloud Provider Architecture
 - ✅ Base provider class with shared functionality
 - ✅ Provider-specific implementations (Google Drive, Dropbox)
