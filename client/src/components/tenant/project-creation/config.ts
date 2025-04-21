@@ -1,6 +1,24 @@
 import { IconCloudUpload, IconFolderPlus, IconFolderSearch, IconClipboardCheck } from '@tabler/icons-react';
 import { IntegrationProvider } from '../../../types';
 
+export const VALIDATION_RULES = {
+  name: {
+    required: 'Name is required',
+    min: { value: 3, message: 'Name must be at least 3 characters' },
+    max: { value: 50, message: 'Name must be at most 50 characters' },
+    description: 'Project name should be 3-50 characters long'
+  },
+  cloudProvider: {
+    required: 'Cloud provider is required',
+    description: 'Select where to store project files'
+  },
+  folderPath: {
+    required: 'Folder path is required',
+    max: { value: 200, message: 'Folder path must be at most 200 characters' },
+    description: 'Double-click a folder to select it as the project location'
+  }
+};
+
 export interface StepConfig {
   label: string;
   description: string;
@@ -94,3 +112,5 @@ export const PROVIDER_LABELS: Record<IntegrationProvider, string> = {
   'GDRIVE': 'Google Drive',
   'DROPBOX': 'Dropbox'
 };
+
+// Remove duplicate VALIDATION_RULES

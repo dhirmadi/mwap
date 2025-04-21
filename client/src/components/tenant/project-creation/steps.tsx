@@ -4,7 +4,7 @@ import { notifications } from '@mantine/notifications';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { FolderTree } from '../../common/FolderTree';
 import { FormSection, ReviewField } from './ui';
-import { FormValues, PROVIDER_LABELS } from './config';
+import { FormValues, PROVIDER_LABELS, VALIDATION_RULES } from './config';
 
 interface StepProps {
   form: UseFormReturnType<FormValues>;
