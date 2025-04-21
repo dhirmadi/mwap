@@ -4,7 +4,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { IntegrationProvider } from '../../types';
 import { STEPS } from './project-creation/config';
 import { ProviderStep, NameStep, FolderStep, ReviewStep } from './project-creation/steps';
-import { showValidationError } from './project-creation/errors';
+import { handleError } from '../../core/errors/handler';
 import { useProjectCreationForm } from '../../hooks/useProjectCreationForm';
 import { FormErrorBoundary } from './project-creation/FormErrorBoundary';
 

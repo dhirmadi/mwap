@@ -9,11 +9,13 @@ import { Stack, LoadingOverlay } from '@mantine/core';
 import { FormErrorBoundary } from './FormErrorBoundary';
 import { FormSection } from './ui';
 import { FormValues } from './config';
+import { handleError } from '../../../core/errors/handler';
 
 interface BaseStepProps {
   form: UseFormReturnType<FormValues>;
   isLoading?: boolean;
   children: ReactNode;
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -32,9 +34,14 @@ interface BaseStepProps {
  * </BaseStep>
  * ```
  */
-export function BaseStep({ form, isLoading, children }: BaseStepProps) {
+export function BaseStep({ form, isLoading, children, onError }: BaseStepProps) {
+  const handleStepError = (error: Error) => {
+    handleError(error, 'FormStep');
+    onError?.(error);
+  };
+
   return (
-    <FormErrorBoundary onReset={form.reset}>
+    <FormErrorBoundary onReset={form.reset} onError={handleStepError}>
       <FormSection>
         <Stack pos="relative">
           <LoadingOverlay 

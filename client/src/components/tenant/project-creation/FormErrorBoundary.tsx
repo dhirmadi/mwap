@@ -6,11 +6,13 @@
 import { Alert, Button, Stack, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
-import { showValidationError } from './errors';
+import { handleError } from '../../../core/errors/handler';
+import { isValidationError } from '../../../core/errors/types';
 
 interface Props {
   children: React.ReactNode;
   onReset?: () => void;
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -25,12 +27,11 @@ interface Props {
  * </FormErrorBoundary>
  * ```
  */
-export function FormErrorBoundary({ children, onReset }: Props) {
-  const handleError = (error: Error) => {
-    // Show validation error if it's a form error
-    if (error.name === 'ValidationError') {
-      showValidationError(error.message);
-    }
+export function FormErrorBoundary({ children, onReset, onError }: Props) {
+  const handleFormError = (error: Error) => {
+    // Handle error with proper context
+    handleError(error, 'FormBoundary');
+    onError?.(error);
   };
 
   const fallback = (
@@ -72,7 +73,7 @@ export function FormErrorBoundary({ children, onReset }: Props) {
   return (
     <ErrorBoundary
       fallback={fallback}
-      onError={handleError}
+      onError={handleFormError}
     >
       {children}
     </ErrorBoundary>

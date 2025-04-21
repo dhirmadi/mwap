@@ -5,6 +5,8 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { UseFormReturnType } from '@mantine/form';
+import { ValidationError, ErrorCode } from '../core/errors/types';
+import { handleError } from '../core/errors/handler';
 
 /**
  * Form state machine states
@@ -96,32 +98,49 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
     const step = config.steps[activeStep];
     if (!step) return false;
 
-    // Validate step-specific logic
-    const stepError = step.validate(form.values);
-    if (stepError) {
-      form.setFieldError(step.requiredFields[0], stepError);
-      return false;
-    }
+    try {
+      // Validate step-specific logic
+      const stepError = step.validate(form.values);
+      if (stepError) {
+        const error = new ValidationError(
+          'Step validation failed',
+          [{ field: String(step.requiredFields[0]), message: stepError }]
+        );
+        handleError(error, 'StepValidation');
+        form.setFieldError(step.requiredFields[0], stepError);
+        return false;
+      }
 
-    // Validate required fields
-    const fieldErrors = step.requiredFields.reduce((errors, field) => {
-      const error = form.validateField(field);
-      if (error) errors[field] = error;
-      return errors;
-    }, {} as Record<string, string>);
+      // Validate required fields
+      const fieldErrors = step.requiredFields.reduce((errors, field) => {
+        const error = form.validateField(field);
+        if (error) errors[field] = error;
+        return errors;
+      }, {} as Record<string, string>);
 
-    if (Object.keys(fieldErrors).length > 0) {
-      Object.entries(fieldErrors).forEach(([field, error]) => {
-        form.setFieldError(field as keyof T, error);
-      });
-      return false;
-    }
+      if (Object.keys(fieldErrors).length > 0) {
+        const error = new ValidationError(
+          'Field validation failed',
+          Object.entries(fieldErrors).map(([field, message]) => ({
+            field,
+            message
+          }))
+        );
+        handleError(error, 'FieldValidation');
+        Object.entries(fieldErrors).forEach(([field, message]) => {
+          form.setFieldError(field as keyof T, message);
+        });
+        return false;
+      }
 
     // Clear any previous errors and mark step as validated
     step.requiredFields.forEach(field => form.clearFieldError(field));
     setValidatedSteps(prev => new Set([...prev, activeStep]));
     return true;
-  }, [activeStep, config.steps, form]);
+  } catch (error) {
+    return false;
+  }
+}, [activeStep, config.steps, form]);
 
   /**
    * Check if a step is valid
@@ -194,6 +213,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
         setState('success');
       } catch (error) {
         setState('error');
+        handleError(error, 'FormSubmission');
         throw error;
       }
     } else {
