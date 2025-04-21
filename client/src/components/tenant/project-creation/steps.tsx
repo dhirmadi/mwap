@@ -1,10 +1,10 @@
 import { Select, Stack, TextInput, Text, Box, Alert } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { FolderTree } from '../../common/FolderTree';
 import { FormSection, ReviewField } from './ui';
 import { FormValues, PROVIDER_LABELS, VALIDATION_RULES } from './config';
+import { showSuccessNotification } from './errors';
 
 interface StepProps {
   form: UseFormReturnType<FormValues>;
@@ -77,13 +77,7 @@ export function FolderStep({ form, tenantId }: StepProps) {
             onSelect={(path) => {
               form.setFieldValue('folderPath', path);
               form.validateField('folderPath');
-              // Show success notification
-              notifications.show({
-                title: 'Folder Selected',
-                message: `Selected folder: ${path}`,
-                color: 'blue',
-                autoClose: 2000
-              });
+              showSuccessNotification('Folder Selected', `Selected folder: ${path}`);
             }}
           />
         </Box>

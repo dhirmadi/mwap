@@ -34,6 +34,14 @@ export interface FormValues {
   folderPath: string;
 }
 
+// Common validation function
+const validateField = (field: keyof FormValues, value: string | undefined, rules: typeof VALIDATION_RULES[keyof typeof VALIDATION_RULES]) => {
+  if (!value) return rules.required;
+  if ('min' in rules && value.length < rules.min.value) return rules.min.message;
+  if ('max' in rules && value.length > rules.max.value) return rules.max.message;
+  return null;
+};
+
 export const STEPS: StepConfig[] = [
   {
     label: 'Cloud Provider',
@@ -41,10 +49,7 @@ export const STEPS: StepConfig[] = [
     icon: IconCloudUpload,
     field: 'cloudProvider',
     requiredFields: ['cloudProvider'],
-    validateStep: (values) => {
-      if (!values.cloudProvider) return VALIDATION_RULES.cloudProvider.required;
-      return null;
-    }
+    validateStep: (values) => validateField('cloudProvider', values.cloudProvider, VALIDATION_RULES.cloudProvider)
   },
   {
     label: 'Project Name',
@@ -52,13 +57,7 @@ export const STEPS: StepConfig[] = [
     icon: IconFolderPlus,
     field: 'name',
     requiredFields: ['name'],
-    validateStep: (values) => {
-      const rules = VALIDATION_RULES.name;
-      if (!values.name) return rules.required;
-      if (values.name.length < rules.min.value) return rules.min.message;
-      if (values.name.length > rules.max.value) return rules.max.message;
-      return null;
-    }
+    validateStep: (values) => validateField('name', values.name, VALIDATION_RULES.name)
   },
   {
     label: 'Select Folder',
@@ -66,12 +65,7 @@ export const STEPS: StepConfig[] = [
     icon: IconFolderSearch,
     field: 'folderPath',
     requiredFields: ['folderPath', 'cloudProvider'],
-    validateStep: (values) => {
-      const rules = VALIDATION_RULES.folderPath;
-      if (!values.folderPath) return rules.required;
-      if (values.folderPath.length > rules.max.value) return rules.max.message;
-      return null;
-    }
+    validateStep: (values) => validateField('folderPath', values.folderPath, VALIDATION_RULES.folderPath)
   },
   {
     label: 'Review',
@@ -80,9 +74,8 @@ export const STEPS: StepConfig[] = [
     field: 'name',
     requiredFields: ['name', 'cloudProvider', 'folderPath'],
     validateStep: (values) => {
-      // Validate all fields
       for (const field of ['name', 'cloudProvider', 'folderPath'] as const) {
-        const error = STEPS.find(s => s.field === field)?.validateStep?.(values);
+        const error = validateField(field, values[field], VALIDATION_RULES[field]);
         if (error) return error;
       }
       return null;

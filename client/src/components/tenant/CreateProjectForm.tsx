@@ -28,26 +28,53 @@ export function CreateProjectForm({
   const [activeStep, setActiveStep] = useState(0);
   const { createProject, isLoading } = useCreateProject(tenantId);
 
+  // Common validation function
+  const validateStep = (step: typeof STEPS[number], values: FormValues) => {
+    // Validate step-specific logic
+    const stepError = step.validateStep?.(values);
+    if (stepError) {
+      form.setFieldError(step.field, stepError);
+      showValidationError(stepError);
+      return false;
+    }
+
+    // Validate required fields
+    const fieldErrors = step.requiredFields.reduce((errors, field) => {
+      const error = form.validateField(field);
+      if (error) errors[field] = error;
+      return errors;
+    }, {} as Record<string, string>);
+
+    if (Object.keys(fieldErrors).length > 0) {
+      Object.entries(fieldErrors).forEach(([field, error]) => {
+        form.setFieldError(field, error);
+      });
+      showValidationError('Please fix the validation errors before continuing.');
+      return false;
+    }
+
+    // Clear any previous errors
+    step.requiredFields.forEach(field => form.clearFieldError(field));
+    return true;
+  };
+
   const form = useForm<FormValues>({
     initialValues: {
       name: '',
       cloudProvider: availableProviders[0],
       folderPath: ''
     },
-    validate: {
-      name: (value, values) => STEPS.find(s => s.field === 'name')?.validateStep?.(values) || null,
-      cloudProvider: (value, values) => STEPS.find(s => s.field === 'cloudProvider')?.validateStep?.(values) || null,
-      folderPath: (value, values) => STEPS.find(s => s.field === 'folderPath')?.validateStep?.(values) || null
-    }
+    validate: Object.fromEntries(
+      ['name', 'cloudProvider', 'folderPath'].map(field => [
+        field,
+        (_, values) => STEPS.find(s => s.field === field)?.validateStep?.(values) || null
+      ])
+    )
   });
 
   const handleSubmit = form.onSubmit(async (values) => {
-    // Final validation before submission
-    const finalValidation = STEPS[STEPS.length - 1].validateStep?.(values);
-    if (finalValidation) {
-      showValidationError(finalValidation);
-      return;
-    }
+    const finalStep = STEPS[STEPS.length - 1];
+    if (!validateStep(finalStep, values)) return;
 
     try {
       await createProject({
@@ -76,36 +103,9 @@ export function CreateProjectForm({
 
   const nextStep = () => {
     const currentStep = STEPS[activeStep];
-    
-    // Validate all fields for current step
-    const stepError = currentStep.validateStep?.(form.values);
-    if (stepError) {
-      form.setFieldError(currentStep.field, stepError);
-      showValidationError(stepError);
-      return;
+    if (validateStep(currentStep, form.values)) {
+      setActiveStep((current) => current + 1);
     }
-
-    // Validate required fields
-    const fieldErrors = currentStep.requiredFields.reduce((errors, field) => {
-      const error = form.validateField(field);
-      if (error) errors[field] = error;
-      return errors;
-    }, {} as Record<string, string>);
-
-    if (Object.keys(fieldErrors).length > 0) {
-      Object.entries(fieldErrors).forEach(([field, error]) => {
-        form.setFieldError(field, error);
-      });
-      showValidationError('Please fix the validation errors before continuing.');
-      return;
-    }
-
-    // Clear any previous errors for the step's fields
-    currentStep.requiredFields.forEach(field => {
-      form.clearFieldError(field);
-    });
-
-    setActiveStep((current) => current + 1);
   };
 
   const prevStep = () => setActiveStep((current) => current - 1);

@@ -2,10 +2,10 @@ import { notifications } from '@mantine/notifications';
 import { AppError, ValidationError, ErrorCode } from '../../../core/errors';
 import { formatErrorMessage } from '../../../core/errors/handlers';
 
-export function showSuccessNotification() {
+export function showSuccessNotification(title = 'Project Created', message = 'Project has been created successfully. You will be redirected to the project page.') {
   notifications.show({
-    title: 'Project Created',
-    message: 'Project has been created successfully. You will be redirected to the project page.',
+    title,
+    message,
     color: 'green',
     autoClose: 3000,
     withCloseButton: true
