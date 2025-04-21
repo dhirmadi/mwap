@@ -6,6 +6,8 @@ export interface StepConfig {
   description: string;
   icon: typeof IconCloudUpload;
   field: keyof FormValues;
+  requiredFields: Array<keyof FormValues>;
+  validateStep?: (values: FormValues) => string | null;
 }
 
 export interface FormValues {
@@ -19,25 +21,54 @@ export const STEPS: StepConfig[] = [
     label: 'Cloud Provider',
     description: 'Select storage provider',
     icon: IconCloudUpload,
-    field: 'cloudProvider'
+    field: 'cloudProvider',
+    requiredFields: ['cloudProvider'],
+    validateStep: (values) => {
+      if (!values.cloudProvider) return VALIDATION_RULES.cloudProvider.required;
+      return null;
+    }
   },
   {
     label: 'Project Name',
     description: 'Enter project name',
     icon: IconFolderPlus,
-    field: 'name'
+    field: 'name',
+    requiredFields: ['name'],
+    validateStep: (values) => {
+      const rules = VALIDATION_RULES.name;
+      if (!values.name) return rules.required;
+      if (values.name.length < rules.min.value) return rules.min.message;
+      if (values.name.length > rules.max.value) return rules.max.message;
+      return null;
+    }
   },
   {
     label: 'Select Folder',
     description: 'Choose location',
     icon: IconFolderSearch,
-    field: 'folderPath'
+    field: 'folderPath',
+    requiredFields: ['folderPath', 'cloudProvider'],
+    validateStep: (values) => {
+      const rules = VALIDATION_RULES.folderPath;
+      if (!values.folderPath) return rules.required;
+      if (values.folderPath.length > rules.max.value) return rules.max.message;
+      return null;
+    }
   },
   {
     label: 'Review',
     description: 'Confirm details',
     icon: IconClipboardCheck,
-    field: 'name' // Review step validates all fields
+    field: 'name',
+    requiredFields: ['name', 'cloudProvider', 'folderPath'],
+    validateStep: (values) => {
+      // Validate all fields
+      for (const field of ['name', 'cloudProvider', 'folderPath'] as const) {
+        const error = STEPS.find(s => s.field === field)?.validateStep?.(values);
+        if (error) return error;
+      }
+      return null;
+    }
   }
 ];
 

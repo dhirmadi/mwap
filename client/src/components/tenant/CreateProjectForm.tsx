@@ -35,23 +35,9 @@ export function CreateProjectForm({
       folderPath: ''
     },
     validate: {
-      name: (value) => {
-        const rules = VALIDATION_RULES.name;
-        if (!value) return rules.required;
-        if (value.length < rules.min.value) return rules.min.message;
-        if (value.length > rules.max.value) return rules.max.message;
-        return null;
-      },
-      cloudProvider: (value) => {
-        if (!value) return VALIDATION_RULES.cloudProvider.required;
-        return null;
-      },
-      folderPath: (value) => {
-        const rules = VALIDATION_RULES.folderPath;
-        if (!value) return rules.required;
-        if (value.length > rules.max.value) return rules.max.message;
-        return null;
-      }
+      name: (value, values) => STEPS.find(s => s.field === 'name')?.validateStep?.(values) || null,
+      cloudProvider: (value, values) => STEPS.find(s => s.field === 'cloudProvider')?.validateStep?.(values) || null,
+      folderPath: (value, values) => STEPS.find(s => s.field === 'folderPath')?.validateStep?.(values) || null
     }
   });
 
@@ -79,15 +65,20 @@ export function CreateProjectForm({
 
   const nextStep = () => {
     const currentStep = STEPS[activeStep];
-    const isValid = currentStep.field === 'name' 
-      ? form.isValid()
-      : form.isValid(currentStep.field);
-
-    if (isValid) {
-      setActiveStep((current) => current + 1);
-    } else {
-      form.validate();
+    
+    // Validate only required fields for current step
+    const stepError = currentStep.validateStep?.(form.values);
+    if (stepError) {
+      form.setFieldError(currentStep.field, stepError);
+      return;
     }
+
+    // Clear any previous errors for the step's fields
+    currentStep.requiredFields.forEach(field => {
+      form.clearFieldError(field);
+    });
+
+    setActiveStep((current) => current + 1);
   };
 
   const prevStep = () => setActiveStep((current) => current - 1);
