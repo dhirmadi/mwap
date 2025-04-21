@@ -76,20 +76,22 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
 }: UseFormStateMachineOptions<T>): UseFormStateMachineReturn {
   // State
   const [state, setState] = useState<FormState>('initial');
-  const [activeStep, setActiveStep] = useState(0);
-  const [validatedSteps, setValidatedSteps] = useState<Set<number>>(new Set());
   const prevStateRef = useRef<FormState>(state);
+  
+  // Get step from form
+  const activeStep = form.values.activeStep;
 
-  // Track state changes for cleanup
+  // Track state changes
   useEffect(() => {
     prevStateRef.current = state;
-    return () => {
-      // Cleanup if component unmounts during async operations
-      if (['validating', 'submitting'].includes(prevStateRef.current)) {
-        setState('error');
-      }
-    };
   }, [state]);
+
+  // Handle cleanup on unmount
+  useEffect(() => {
+    return () => {
+      handleReset();
+    };
+  }, [handleReset]);
 
   /**
    * Validate current step
@@ -146,8 +148,10 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
    * Check if a step is valid
    */
   const isStepValid = useCallback((step: number) => {
-    return validatedSteps.has(step);
-  }, [validatedSteps]);
+    const stepConfig = config.steps[step];
+    if (!stepConfig) return false;
+    return stepConfig.requiredFields.every(field => !form.errors[field]);
+  }, [config.steps, form.errors]);
 
   /**
    * Check if can navigate to a step
@@ -171,7 +175,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
     
     if (isValid) {
       if (activeStep < config.steps.length - 1) {
-        setActiveStep(step => step + 1);
+        form.setFieldValue('activeStep', activeStep + 1);
         setState('editing');
       } else {
         setState('error');
@@ -179,17 +183,17 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
     } else {
       setState('error');
     }
-  }, [activeStep, config.steps.length, validateCurrentStep]);
+  }, [activeStep, config.steps.length, validateCurrentStep, form]);
 
   /**
    * Handle previous step
    */
   const handlePrev = useCallback(() => {
     if (activeStep > 0) {
-      setActiveStep(step => step - 1);
+      form.setFieldValue('activeStep', activeStep - 1);
       setState('editing');
     }
-  }, [activeStep]);
+  }, [activeStep, form]);
 
   /**
    * Handle form submission
@@ -225,8 +229,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
    * Handle form reset
    */
   const handleReset = useCallback(() => {
-    setActiveStep(0);
-    setValidatedSteps(new Set());
+    form.setFieldValue('activeStep', 0);
     setState('initial');
     form.reset();
   }, [form]);
@@ -234,7 +237,7 @@ export function useFormStateMachine<T extends Record<string, unknown>>({
   return {
     state,
     activeStep,
-    validatedSteps,
+    validatedSteps: new Set(Array.from({ length: activeStep }, (_, i) => i).filter(isStepValid)),
     isStepValid,
     canNavigateToStep,
     handleNext,

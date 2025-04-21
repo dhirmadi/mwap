@@ -54,7 +54,7 @@ export function CreateProjectForm({
 
   // Handle step navigation
   const handleStepClick = (step: number) => {
-    if (canNavigateToStep(step)) {
+    if (step < activeStep || form.isValid()) {
       form.setFieldValue('activeStep', step);
     } else {
       showValidationError('Please complete the current step before proceeding');

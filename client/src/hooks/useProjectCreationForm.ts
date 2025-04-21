@@ -39,19 +39,23 @@ export function useProjectCreationForm({
 }: UseProjectCreationFormOptions): UseProjectCreationFormReturn {
   const { createProject, isLoading } = useCreateProject(tenantId);
 
-  // Initialize form
-  const form = useForm<FormValues>({
+  // Initialize form with all state
+  const form = useForm<FormValues & { activeStep: number }>({
     initialValues: {
+      activeStep: 0,
       name: '',
       cloudProvider: availableProviders[0],
       folderPath: ''
     },
-    validate: Object.fromEntries(
-      ['name', 'cloudProvider', 'folderPath'].map(field => [
-        field,
-        (_, values) => STEPS.find(s => s.field === field)?.validateStep?.(values) || null
-      ])
-    )
+    validate: {
+      ...Object.fromEntries(
+        ['name', 'cloudProvider', 'folderPath'].map(field => [
+          field,
+          (_, values) => STEPS.find(s => s.field === field)?.validateStep?.(values) || null
+        ])
+      ),
+      activeStep: (value) => (value >= 0 && value < STEPS.length ? null : 'Invalid step')
+    }
   });
 
   // Handle form submission
