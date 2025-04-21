@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '@core/errors';
 import { TenantModel } from '../schemas';
-import { IntegrationProvider } from '../types/api';
+import { IntegrationProvider, validateIntegration } from '../types/api';
 import { logger } from '@core/utils';
 import { CloudProviderService } from '../services/cloud-provider.service';
+import { Document } from 'mongoose';
 
 interface ListFoldersQuery {
   parentId?: string;
@@ -55,27 +56,17 @@ export async function listFolders(
     }
 
     // Convert Mongoose document to plain object and validate
-    const rawData = integration.toObject();
-
-    // Log raw data for debugging
-    logger.debug('Raw integration data', {
-      tenantId,
-      provider: rawData.provider,
-      hasToken: !!rawData.token,
-      connectedAt: rawData.connectedAt
-    });
+    const rawData = (integration as unknown as Document).toObject();
 
     // Validate and normalize integration data
     const integrationData = validateIntegration(rawData);
 
-    // Log validated data
-    logger.debug('Validated integration data', {
+    // Log integration data for debugging
+    logger.debug('Integration data for cloud service', {
       tenantId,
       provider: integrationData.provider,
       hasToken: !!integrationData.token,
-      connectedAt: integrationData.connectedAt,
-      expiresAt: integrationData.expiresAt,
-      lastRefreshedAt: integrationData.lastRefreshedAt
+      connectedAt: integrationData.connectedAt
     });
 
     // Get cloud provider service

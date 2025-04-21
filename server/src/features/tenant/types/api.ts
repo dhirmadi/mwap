@@ -89,26 +89,34 @@ export interface TenantQueryParams {
 // Validation functions
 export function isIntegration(obj: unknown): obj is Integration {
   if (!obj || typeof obj !== 'object') {
-    return false;
+    throw new AppError('Integration object is required', 400);
   }
 
   const integration = obj as Integration;
-  return (
-    typeof integration.provider === 'string' &&
-    typeof integration.token === 'string' &&
-    integration.provider.length > 0 &&
-    integration.token.length > 0 &&
-    (integration.connectedAt instanceof Date || typeof integration.connectedAt === 'string')
-  );
+  const errors: string[] = [];
+
+  if (typeof integration.provider !== 'string' || integration.provider.length === 0) {
+    errors.push('provider is required');
+  }
+  if (typeof integration.token !== 'string' || integration.token.length === 0) {
+    errors.push('token is required');
+  }
+  if (!(integration.connectedAt instanceof Date) && typeof integration.connectedAt !== 'string') {
+    errors.push('connectedAt is required');
+  }
+
+  if (errors.length > 0) {
+    throw new AppError(`Invalid integration object: ${errors.join(', ')}`, 400);
+  }
+
+  return true;
 }
 
 export function validateIntegration(obj: unknown): Integration {
-  if (!isIntegration(obj)) {
-    throw new AppError('Invalid integration object: missing required fields', 400);
-  }
+  isIntegration(obj);
 
   // Convert string dates to Date objects if needed
-  const integration = { ...obj } as Integration;
+  const integration = obj as Integration;
   if (typeof integration.connectedAt === 'string') {
     integration.connectedAt = new Date(integration.connectedAt);
   }
