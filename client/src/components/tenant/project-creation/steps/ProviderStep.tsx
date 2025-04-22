@@ -15,7 +15,7 @@ import { PROVIDER_LABELS } from '../../../../types/integration';
  */
 export const ProviderStep = createWizardStep<ProjectFormData>({
   label: 'Cloud Provider',
-  fields: ['cloudProvider'],
+  fields: ['provider'],
   render: ({ data, onChange, error, isLoading, props }) => {
     const { availableProviders } = props as ProjectStepProps;
 
@@ -29,10 +29,10 @@ export const ProviderStep = createWizardStep<ProjectFormData>({
             label: PROVIDER_LABELS[provider]
           }))}
           required
-          description={VALIDATION_RULES.cloudProvider.description}
+          description={VALIDATION_RULES.provider.description}
           error={error}
-          value={data.cloudProvider}
-          onChange={(value) => onChange('cloudProvider', value)}
+          value={data.provider}
+          onChange={(value) => onChange('provider', value)}
           disabled={isLoading}
         />
 

@@ -16,7 +16,7 @@ import { showSuccessNotification } from '../errors';
  */
 export const FolderStep = createWizardStep<ProjectFormData>({
   label: 'Select Folder',
-  fields: ['folderPath', 'cloudProvider'],
+  fields: ['folderPath', 'provider'],
   render: ({ data, onChange, error, isLoading, props }) => {
     const { tenantId } = props as ProjectStepProps;
 
@@ -36,7 +36,7 @@ export const FolderStep = createWizardStep<ProjectFormData>({
         <Box mah={400} style={{ overflowY: 'auto' }}>
           <FolderTree
             tenantId={tenantId}
-            provider={data.cloudProvider}
+            provider={data.provider}
             selectedPath={data.folderPath}
             onSelect={(path) => {
               onChange('folderPath', path);

@@ -17,7 +17,7 @@ export const VALIDATION_RULES: ValidationRules = {
     max: { value: 50, message: 'Name must be at most 50 characters' },
     description: 'Project name should be 3-50 characters long'
   },
-  cloudProvider: {
+  provider: {
     required: 'Cloud provider is required',
     description: 'Select where to store project files'
   },
@@ -54,7 +54,7 @@ export const validateName: ValidateFunction<string> = async (value) => {
  */
 export const validateProvider: ValidateFunction<IntegrationProvider> = async (value) => {
   if (!value) {
-    return VALIDATION_RULES.cloudProvider.required;
+    return VALIDATION_RULES.provider.required;
   }
 
   return null;

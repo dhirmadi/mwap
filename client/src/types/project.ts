@@ -53,6 +53,6 @@ export interface CreateProjectRequest {
   name: string;
   description?: string;
   tenantId: string;
-  provider: string;
+  provider: 'GDRIVE' | 'DROPBOX' | 'BOX' | 'ONEDRIVE';
   folderPath: string;
 }

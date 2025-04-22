@@ -12,7 +12,7 @@ import { WizardStepConfig } from '../../wizard/types';
  */
 export interface ProjectFormData {
   name: string;
-  cloudProvider: IntegrationProvider;
+  provider: IntegrationProvider;
   folderPath: string;
 }
 
@@ -52,7 +52,7 @@ export interface ValidationRule {
  */
 export interface ValidationRules {
   name: ValidationRule;
-  cloudProvider: ValidationRule;
+  provider: ValidationRule;
   folderPath: ValidationRule;
 }
 

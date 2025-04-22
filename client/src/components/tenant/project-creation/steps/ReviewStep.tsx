@@ -16,7 +16,7 @@ import { PROVIDER_LABELS } from '../../../../types/integration';
  */
 export const ReviewStep = createWizardStep<ProjectFormData>({
   label: 'Review',
-  fields: ['name', 'cloudProvider', 'folderPath'],
+  fields: ['name', 'provider', 'folderPath'],
   render: ({ data, isLoading }) => (
     <Stack>
       <Alert 
@@ -30,7 +30,7 @@ export const ReviewStep = createWizardStep<ProjectFormData>({
 
       <ReviewField
         label="Cloud Provider"
-        value={PROVIDER_LABELS[data.cloudProvider]}
+        value={PROVIDER_LABELS[data.provider]}
       />
 
       <ReviewField

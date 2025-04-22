@@ -19,9 +19,9 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
     label: 'Cloud Provider',
     description: 'Select storage provider',
     icon: IconCloudUpload,
-    fields: ['cloudProvider'],
+    fields: ['provider'],
     validation: async (data) => {
-      const error = await validateProvider(data.cloudProvider);
+      const error = await validateProvider(data.provider);
       return !error;
     },
     render: ProviderStep
@@ -43,7 +43,7 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
     label: 'Select Folder',
     description: 'Choose location',
     icon: IconFolderSearch,
-    fields: ['folderPath', 'cloudProvider'],
+    fields: ['folderPath', 'provider'],
     validation: async (data) => {
       const error = await validateFolderPath(data.folderPath);
       return !error;
@@ -55,13 +55,13 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
     label: 'Review',
     description: 'Confirm details',
     icon: IconClipboardCheck,
-    fields: ['name', 'cloudProvider', 'folderPath'],
+    fields: ['name', 'provider', 'folderPath'],
     validation: async (data) => {
       // Validate all fields in sequence
       const nameError = await validateName(data.name);
       if (nameError) return false;
 
-      const providerError = await validateProvider(data.cloudProvider);
+      const providerError = await validateProvider(data.provider);
       if (providerError) return false;
 
       const folderError = await validateFolderPath(data.folderPath);
