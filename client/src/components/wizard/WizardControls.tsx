@@ -34,7 +34,7 @@ export function WizardControls({
         <Button
           variant="default"
           onClick={onCancel}
-          leftSection={<IconX size={ICON_SIZES.sm} />}
+          leftSection={<IconX size={ICON_SIZES.xs} />}
           aria-label="Cancel wizard"
         >
           Cancel
@@ -45,7 +45,7 @@ export function WizardControls({
           variant="default"
           onClick={onBack}
           disabled={!canGoBack}
-          leftSection={<IconArrowLeft size={ICON_SIZES.sm} />}
+          leftSection={<IconArrowLeft size={ICON_SIZES.xs} />}
           aria-label="Previous step"
         >
           Back
@@ -63,7 +63,7 @@ export function WizardControls({
           <Button
             onClick={onNext}
             disabled={!canGoForward}
-            rightSection={<IconArrowRight size={ICON_SIZES.sm} />}
+            rightSection={<IconArrowRight size={ICON_SIZES.xs} />}
             aria-label="Next step"
           >
             Next

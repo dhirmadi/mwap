@@ -37,7 +37,7 @@ export function FormErrorBoundary({ children, onReset, onError }: Props) {
 
   const fallback = (
     <Alert
-      icon={<IconAlertCircle size={ICON_SIZES.sm} />}
+      icon={<IconAlertCircle size={ICON_SIZES.md} />}
       title="Form Error"
       color="red"
       variant="filled"

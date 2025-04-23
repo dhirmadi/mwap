@@ -55,7 +55,7 @@ export function WizardNavigation({ steps, currentStep, onStepClick }: WizardNavi
           <Stepper.Step
             key={step.id}
             label={step.label}
-            completedIcon={status === 'error' ? <IconX size={ICON_SIZES.sm} /> : <IconCheck size={ICON_SIZES.sm} />}
+            completedIcon={status === 'error' ? <IconX size={ICON_SIZES.xs} /> : <IconCheck size={ICON_SIZES.xs} />}
             color={status === 'error' ? 'red' : undefined}
             aria-current={currentStep === index ? 'step' : undefined}
             allowStepClick={canNavigateToStep(index)}

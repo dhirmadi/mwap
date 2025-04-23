@@ -1,14 +1,13 @@
-import { rem } from '@mantine/core';
-
 /**
- * Standardized icon sizes for the application
+ * Standardized icon sizes for the application in pixels
+ * Note: Do not use rem() here as Mantine icon components handle unit conversion internally
  */
 export const ICON_SIZES = {
-  xs: rem(16),    // 1rem
-  sm: rem(20),    // 1.25rem
-  md: rem(24),    // 1.5rem
-  lg: rem(32),    // 2rem
-  xl: rem(40),    // 2.5rem
+  xs: 16,    // 1rem
+  sm: 18,    // 1.125rem
+  md: 20,    // 1.25rem
+  lg: 24,    // 1.5rem
+  xl: 32,    // 2rem
 } as const;
 
 /**
