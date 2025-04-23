@@ -5,9 +5,6 @@ import { WizardNavigation } from '../wizard/WizardNavigation';
 import { WizardControls } from '../wizard/WizardControls';
 import { useProjectWizard } from '../../hooks/useProjectWizard';
 import { FormErrorBoundary } from './project-creation/FormErrorBoundary';
-import { usePermissions } from '../../hooks/usePermissions';
-import { useEffect } from 'react';
-import { showNotification } from '@mantine/notifications';
 
 interface ProjectFormModalProps {
   opened: boolean;
@@ -17,7 +14,8 @@ interface ProjectFormModalProps {
 }
 
 /**
- * Modal component containing the project creation form
+ * Modal component containing the project creation form.
+ * Note: Permission checks are handled by the parent CreateProjectForm component.
  */
 export function ProjectFormModal({
   opened,
@@ -25,9 +23,6 @@ export function ProjectFormModal({
   tenantId,
   availableProviders
 }: ProjectFormModalProps) {
-  // Check permissions
-  const { canCreateProject, isPermissionLoading } = usePermissions(tenantId);
-
   // Initialize form with state machine
   const {
     form,
@@ -48,18 +43,6 @@ export function ProjectFormModal({
     availableProviders,
     onSuccess: onClose
   });
-
-  // Check permissions on mount
-  useEffect(() => {
-    if (!isPermissionLoading && !canCreateProject()) {
-      showNotification({
-        title: 'Permission Error',
-        message: 'You do not have permission to create projects in this tenant. Please contact your administrator.',
-        color: 'red'
-      });
-      onClose();
-    }
-  }, [isPermissionLoading, canCreateProject, onClose]);
 
   // Get current step component
   const CurrentStep = STEPS[activeStep]?.render;

@@ -12,7 +12,6 @@ import { usePermissions } from './usePermissions';
 export function useCreateProject(tenantId: string) {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { canCreateProject } = usePermissions(tenantId);
 
   const {
     mutate: createProject,
@@ -20,14 +19,6 @@ export function useCreateProject(tenantId: string) {
     error
   } = useMutation<ProjectResponse, AppError, CreateProjectRequest>({
     mutationFn: async (request) => {
-      // Check permissions first
-      if (!canCreateProject()) {
-        throw new AuthError(
-          ErrorCode.FORBIDDEN,
-          'You do not have permission to create projects in this tenant. Please contact your administrator.'
-        );
-      }
-
       // First verify token is valid
       try {
         const token = await api.defaults.headers['Authorization'];
