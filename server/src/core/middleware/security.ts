@@ -51,9 +51,10 @@ const corsOptions: cors.CorsOptions = {
     'Accept',
     'Origin',
     'Access-Control-Request-Method',
-    'Access-Control-Request-Headers'
+    'Access-Control-Request-Headers',
+    'x-tenant-id'  // Add tenant ID header
   ],
-  exposedHeaders: ['X-Response-Time', 'Content-Type'],
+  exposedHeaders: ['X-Response-Time', 'Content-Type', 'x-tenant-id'],
   maxAge: constants.security.cors.maxAge
 };
 
