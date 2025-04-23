@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Button, Box } from '@mantine/core';
+import { Button, Box, Tooltip } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { IntegrationProvider } from '../../types';
 import { ProjectFormModal } from './ProjectFormModal';
+import { usePermissions } from '../../hooks/usePermissions';
 
 interface CreateProjectFormProps {
   tenantId: string;
@@ -20,20 +21,36 @@ export function CreateProjectForm({
   trigger
 }: CreateProjectFormProps) {
   const [opened, setOpened] = useState(false);
+  const { canCreateProject } = usePermissions(tenantId);
+
+  const handleClick = () => {
+    if (canCreateProject()) {
+      setOpened(true);
+    }
+  };
+
+  const button = trigger ? (
+    <Box onClick={handleClick} style={{ cursor: canCreateProject() ? 'pointer' : 'not-allowed' }}>
+      {trigger}
+    </Box>
+  ) : (
+    <Button
+      leftSection={<IconPlus size="1rem" />}
+      onClick={handleClick}
+      disabled={!canCreateProject()}
+    >
+      Create New Project
+    </Button>
+  );
 
   return (
     <>
-      {trigger ? (
-        <Box onClick={() => setOpened(true)} style={{ cursor: 'pointer' }}>
-          {trigger}
-        </Box>
+      {canCreateProject() ? (
+        button
       ) : (
-        <Button
-          leftSection={<IconPlus size="1rem" />}
-          onClick={() => setOpened(true)}
-        >
-          Create New Project
-        </Button>
+        <Tooltip label="You don't have permission to create projects in this tenant">
+          {button}
+        </Tooltip>
       )}
 
       {opened && (

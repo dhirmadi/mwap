@@ -67,6 +67,10 @@ export function useCreateProject(tenantId: string) {
       console.error('Project creation failed:', {
         error,
         tenantId,
+        code: error.code,
+        name: error.name,
+        message: error.message,
+        path: API_PATHS.PROJECT.CREATE,
         timestamp: new Date().toISOString()
       });
     }
