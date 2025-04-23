@@ -1,6 +1,11 @@
-import React from 'react';
-import { Box, Stepper, Group, Text } from '@mantine/core';
+/**
+ * @fileoverview Navigation component for wizard steps
+ * @module components/wizard/WizardNavigation
+ */
+
+import { Stepper, rem } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
+import { useCallback } from 'react';
 
 export interface WizardNavigationProps {
   steps: {
@@ -13,57 +18,50 @@ export interface WizardNavigationProps {
   onStepClick: (stepIndex: number) => void;
 }
 
-export const WizardNavigation: React.FC<WizardNavigationProps> = ({
-  steps,
-  currentStep,
-  onStepClick,
-}) => {
+export function WizardNavigation({ steps, currentStep, onStepClick }: WizardNavigationProps) {
+  const getStepStatus = useCallback((step: { isValid: boolean; isDirty: boolean }, index: number) => {
+    if (index > currentStep) return 'pending';
+    if (step.isDirty && !step.isValid) return 'error';
+    if (step.isValid) return 'completed';
+    return 'progress';
+  }, [currentStep]);
+
+  const canNavigateToStep = useCallback((index: number) => {
+    // Can always go back
+    if (index < currentStep) return true;
+    // Can't skip steps
+    if (index > currentStep + 1) return false;
+    // Can go to next step if current is valid
+    if (index === currentStep + 1) return steps[currentStep]?.isValid ?? false;
+    return true;
+  }, [currentStep, steps]);
+
   return (
-    <Box role="navigation" aria-label="Form steps">
-      <Stepper
-        active={currentStep}
-        onStepClick={onStepClick}
-        breakpoint="sm"
-      >
-        {steps.map((step, index) => (
+    <Stepper
+      active={currentStep}
+      onStepClick={(index) => {
+        if (canNavigateToStep(index)) {
+          onStepClick(index);
+        }
+      }}
+      allowNextStepsSelect={false}
+      aria-label="Wizard navigation"
+      role="navigation"
+    >
+      {steps.map((step, index) => {
+        const status = getStepStatus(step, index);
+        return (
           <Stepper.Step
             key={step.id}
             label={step.label}
-            description={getStepStatus(step)}
-            icon={getStepIcon(step)}
-            allowStepClick={canNavigateToStep(step, index, currentStep, steps)}
+            completedIcon={status === 'error' ? <IconX size={rem(20)} /> : <IconCheck size={rem(20)} />}
+            color={status === 'error' ? 'red' : undefined}
             aria-current={currentStep === index ? 'step' : undefined}
+            allowStepClick={canNavigateToStep(index)}
+            aria-label={`Step ${index + 1}: ${step.label}`}
           />
-        ))}
-      </Stepper>
-    </Box>
+        );
+      })}
+    </Stepper>
   );
-};
-
-const getStepStatus = (step: WizardNavigationProps['steps'][0]): React.ReactNode => {
-  if (!step.isDirty) return <Text size="sm">Not started</Text>;
-  if (step.isValid) return <Text size="sm" color="green">Complete</Text>;
-  return <Text size="sm" color="red">Invalid</Text>;
-};
-
-const getStepIcon = (step: WizardNavigationProps['steps'][0]): React.ReactNode => {
-  if (!step.isDirty) return undefined;
-  if (step.isValid) return <IconCheck size={18} />;
-  return <IconX size={18} />;
-};
-
-const canNavigateToStep = (
-  step: WizardNavigationProps['steps'][0],
-  stepIndex: number,
-  currentStep: number,
-  steps: WizardNavigationProps['steps']
-): boolean => {
-  // Can always navigate to current or previous steps
-  if (stepIndex <= currentStep) return true;
-  
-  // Can only navigate forward if all previous steps are valid
-  const previousSteps = steps.slice(0, stepIndex);
-  return previousSteps.every(s => s.isValid);
-};
-
-export default WizardNavigation;
+}

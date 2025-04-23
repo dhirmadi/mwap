@@ -17,7 +17,7 @@ import { PROVIDER_LABELS } from '../../../../types/integration';
 export const ReviewStep = createWizardStep<ProjectFormData>({
   label: 'Review',
   fields: ['name', 'provider', 'folderPath'],
-  render: ({ data, isLoading }) => (
+  render: ({ data }) => (
     <Stack>
       <Alert 
         icon={<IconInfoCircle size="1rem" />}

@@ -15,7 +15,6 @@ import {
   IconSearch,
   IconFolderOff,
   IconLock,
-  IconRefresh,
 } from '@tabler/icons-react';
 import { useCloudFolders } from '../../hooks/useCloudFolders';
 import { useCloudIntegrations } from '../../hooks/useCloudIntegrations';
@@ -219,11 +218,6 @@ export function FolderTree({
 
   // Find the current provider's integration
   const currentIntegration = integrations.find(
-    i => i.provider.toUpperCase() === provider.toUpperCase()
-  );
-
-  // Check if provider is available
-  const isProviderAvailable = integrations.some(
     i => i.provider.toUpperCase() === provider.toUpperCase()
   );
 

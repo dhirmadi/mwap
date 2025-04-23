@@ -1,6 +1,10 @@
-import React from 'react';
-import { Group, Button } from '@mantine/core';
-import { IconArrowLeft, IconArrowRight, IconCheck, IconX } from '@tabler/icons-react';
+/**
+ * @fileoverview Control buttons for wizard navigation
+ * @module components/wizard/WizardControls
+ */
+
+import { Button, Group } from '@mantine/core';
+import { IconArrowLeft, IconArrowRight, IconDeviceFloppy, IconX } from '@tabler/icons-react';
 
 export interface WizardControlsProps {
   canGoBack: boolean;
@@ -13,7 +17,7 @@ export interface WizardControlsProps {
   onCancel: () => void;
 }
 
-export const WizardControls: React.FC<WizardControlsProps> = ({
+export function WizardControls({
   canGoBack,
   canGoForward,
   canSubmit,
@@ -21,16 +25,16 @@ export const WizardControls: React.FC<WizardControlsProps> = ({
   onBack,
   onNext,
   onSubmit,
-  onCancel,
-}) => {
+  onCancel
+}: WizardControlsProps) {
   return (
-    <Group position="apart" mt="xl" role="group" aria-label="Form navigation">
+    <Group justify="space-between" mt="xl" role="group" aria-label="Wizard controls">
       <Group>
         <Button
           variant="default"
           onClick={onCancel}
-          leftIcon={<IconX size={18} />}
-          aria-label="Cancel form"
+          leftSection={<IconX size={20} />}
+          aria-label="Cancel wizard"
         >
           Cancel
         </Button>
@@ -40,7 +44,7 @@ export const WizardControls: React.FC<WizardControlsProps> = ({
           variant="default"
           onClick={onBack}
           disabled={!canGoBack}
-          leftIcon={<IconArrowLeft size={18} />}
+          leftSection={<IconArrowLeft size={20} />}
           aria-label="Previous step"
         >
           Back
@@ -49,8 +53,8 @@ export const WizardControls: React.FC<WizardControlsProps> = ({
           <Button
             onClick={onSubmit}
             loading={isSubmitting}
-            leftIcon={<IconCheck size={18} />}
-            aria-label="Submit form"
+            leftSection={<IconDeviceFloppy size={20} />}
+            aria-label="Submit wizard"
           >
             Submit
           </Button>
@@ -58,7 +62,7 @@ export const WizardControls: React.FC<WizardControlsProps> = ({
           <Button
             onClick={onNext}
             disabled={!canGoForward}
-            rightIcon={<IconArrowRight size={18} />}
+            rightSection={<IconArrowRight size={20} />}
             aria-label="Next step"
           >
             Next
@@ -67,6 +71,4 @@ export const WizardControls: React.FC<WizardControlsProps> = ({
       </Group>
     </Group>
   );
-};
-
-export default WizardControls;
+}

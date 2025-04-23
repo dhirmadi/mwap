@@ -6,7 +6,7 @@
 import React from 'react';
 import { notifications } from '@mantine/notifications';
 import { IconX, IconExclamationMark, IconInfoCircle } from '@tabler/icons-react';
-import { AppError, ErrorCode, isAppError, isValidationError, isApiError, isAuthError } from './types';
+import { ErrorCode, isAppError, isValidationError, isApiError, isAuthError } from './types';
 
 // Error severity configuration
 const ERROR_CONFIG = {

@@ -94,10 +94,35 @@ const validation = async (data: FormData) => {
 
 ### Navigation
 
-Use the `useWizard` hook to access navigation functions:
+The wizard provides two navigation components:
+
+1. `WizardNavigation`: Displays step progress and allows navigation between steps
+```tsx
+<WizardNavigation
+  steps={steps}
+  currentStep={currentStep}
+  onStepClick={handleStepClick}
+/>
+```
+
+2. `WizardControls`: Provides navigation and action buttons
+```tsx
+<WizardControls
+  canGoBack={currentStep > 0}
+  canGoForward={isCurrentStepValid}
+  canSubmit={isLastStep}
+  isSubmitting={isSubmitting}
+  onBack={prev}
+  onNext={next}
+  onSubmit={submit}
+  onCancel={handleCancel}
+/>
+```
+
+You can also use the `useWizard` hook to access navigation functions directly:
 
 ```tsx
-function FormControls() {
+function CustomControls() {
   const { next, prev, submit } = useWizard();
   return (
     <div>

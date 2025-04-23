@@ -17,7 +17,7 @@ import { showSuccessNotification } from '../errors';
 export const FolderStep = createWizardStep<ProjectFormData>({
   label: 'Select Folder',
   fields: ['folderPath', 'provider'],
-  render: ({ data, onChange, error, isLoading, props }) => {
+  render: ({ data, onChange, error, props }) => {
     const { tenantId } = props as ProjectStepProps;
 
     return (

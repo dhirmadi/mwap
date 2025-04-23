@@ -8,7 +8,7 @@ import { WizardContextValue, WizardProviderProps } from './types';
 import { useWizardState } from './hooks';
 
 // Create context with type safety
-const WizardContext = createContext<WizardContextValue<any> | null>(null);
+const WizardContext = createContext<WizardContextValue<Record<string, unknown>> | null>(null);
 
 /**
  * Hook to access wizard context

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Button, Group, Modal, Stepper, Box } from '@mantine/core';
+import { Button, Modal, Box } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { IntegrationProvider } from '../../types';
 import { STEPS } from './project-creation/config';
-import { ProviderStep, NameStep, FolderStep, ReviewStep } from './project-creation/steps';
-import { handleError } from '../../core/errors/handler';
-import { useProjectCreationForm } from '../../hooks/useProjectCreationForm';
+import { WizardNavigation } from '../wizard/WizardNavigation';
+import { WizardControls } from '../wizard/WizardControls';
+import { useProjectWizard } from '../../hooks/useProjectWizard';
 import { FormErrorBoundary } from './project-creation/FormErrorBoundary';
 
 interface CreateProjectFormProps {
@@ -39,7 +39,7 @@ export function CreateProjectForm({
       handleReset
     },
     isLoading
-  } = useProjectCreationForm({
+  } = useProjectWizard({
     tenantId,
     availableProviders,
     onSuccess: () => setOpened(false)
@@ -52,32 +52,8 @@ export function CreateProjectForm({
     }
   }, [opened, handleReset]);
 
-  // Handle step navigation
-  const handleStepClick = (step: number) => {
-    if (step < activeStep || form.isValid()) {
-      form.setFieldValue('activeStep', step);
-    } else {
-      showValidationError('Please complete the current step before proceeding');
-    }
-  };
-
-  // Render current step
-  const renderStep = () => {
-    const stepProps = { form, tenantId, availableProviders };
-    
-    switch (activeStep) {
-      case 0:
-        return <ProviderStep {...stepProps} />;
-      case 1:
-        return <NameStep {...stepProps} />;
-      case 2:
-        return <FolderStep {...stepProps} />;
-      case 3:
-        return <ReviewStep {...stepProps} />;
-      default:
-        return null;
-    }
-  };
+  // Get current step component
+  const CurrentStep = STEPS[activeStep]?.render;
 
   return (
     <>
@@ -105,54 +81,35 @@ export function CreateProjectForm({
             e.preventDefault();
             handleSubmit();
           }}>
-            <Stepper 
-              active={activeStep} 
-              onStepClick={handleStepClick}
-            >
-              {STEPS.map((step, index) => (
-                <Stepper.Step
-                  key={index}
-                  label={step.label}
-                  description={step.description}
-                  icon={<step.icon size="1.2rem" />}
-                  allowStepSelect={canNavigateToStep(index)}
-                  completedIcon={validatedSteps.has(index) ? undefined : null}
-                >
-                  {activeStep === index && renderStep()}
-                </Stepper.Step>
-              ))}
-            </Stepper>
+            <WizardNavigation
+              steps={STEPS}
+              currentStep={activeStep}
+              onStepClick={goToStep}
+              validatedSteps={validatedSteps}
+              canNavigateToStep={canNavigateToStep}
+            />
 
-            <Group justify="flex-end" mt="xl">
-              {activeStep > 0 && (
-                <Button variant="default" onClick={handlePrev}>
-                  Back
-                </Button>
-              )}
-              {activeStep === STEPS.length - 1 ? (
-                <Button
-                  type="submit"
-                  loading={isLoading || state === 'submitting'}
-                  disabled={
-                    availableProviders.length === 0 ||
-                    !form.isValid() ||
-                    state === 'submitting'
-                  }
-                >
-                  Create Project
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  disabled={
-                    availableProviders.length === 0 ||
-                    state === 'validating'
-                  }
-                >
-                  Next
-                </Button>
-              )}
-            </Group>
+            {CurrentStep && (
+              <CurrentStep
+                data={form.values}
+                onChange={form.setFieldValue}
+                error={form.errors[STEPS[activeStep].id]}
+                isLoading={isLoading}
+                props={{ tenantId, availableProviders }}
+              />
+            )}
+
+            <WizardControls
+              canGoBack={activeStep > 0}
+              canGoForward={activeStep < STEPS.length - 1 && !state.validating}
+              canSubmit={activeStep === STEPS.length - 1 && form.isValid()}
+              isSubmitting={isLoading || state === 'submitting'}
+              onBack={handlePrev}
+              onNext={handleNext}
+              onSubmit={handleSubmit}
+              onCancel={() => setOpened(false)}
+              disabled={availableProviders.length === 0}
+            />
           </form>
         </FormErrorBoundary>
       </Modal>
