@@ -21,23 +21,24 @@ export function CreateProjectForm({
   trigger
 }: CreateProjectFormProps) {
   const [opened, setOpened] = useState(false);
-  const { canCreateProject } = usePermissions(tenantId);
+  const { canCreateProject, isLoading: permissionsLoading } = usePermissions(tenantId);
 
   const handleClick = () => {
-    if (canCreateProject()) {
+    if (!permissionsLoading && canCreateProject()) {
       setOpened(true);
     }
   };
 
   const button = trigger ? (
-    <Box onClick={handleClick} style={{ cursor: canCreateProject() ? 'pointer' : 'not-allowed' }}>
+    <Box onClick={handleClick} style={{ cursor: permissionsLoading ? 'wait' : (canCreateProject() ? 'pointer' : 'not-allowed') }}>
       {trigger}
     </Box>
   ) : (
     <Button
       leftSection={<IconPlus size="1rem" />}
       onClick={handleClick}
-      disabled={!canCreateProject()}
+      loading={permissionsLoading}
+      disabled={permissionsLoading || !canCreateProject()}
     >
       Create New Project
     </Button>
@@ -45,7 +46,9 @@ export function CreateProjectForm({
 
   return (
     <>
-      {canCreateProject() ? (
+      {permissionsLoading ? (
+        button
+      ) : canCreateProject() ? (
         button
       ) : (
         <Tooltip label="You don't have permission to create projects in this tenant">

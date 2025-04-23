@@ -53,12 +53,22 @@ export function usePermissions(tenantId: string) {
   });
 
   const hasPermission = (action: string, resource: string): boolean => {
-    // If loading or error, assume no permission to be safe
-    if (isLoading || error || !permissions) {
+    // If error or no permissions data, return false
+    if (error || (!isLoading && !permissions)) {
       console.log('Permission check state:', {
         isLoading,
         error: error ? { message: error.message, code: error.code } : null,
         hasPermissions: !!permissions,
+        action,
+        resource,
+        tenantId
+      });
+      return false;
+    }
+
+    // If loading, return null to indicate loading state
+    if (isLoading) {
+      console.log('Permissions are still loading...', {
         action,
         resource,
         tenantId
@@ -93,6 +103,8 @@ export function usePermissions(tenantId: string) {
     error,
     hasPermission,
     canCreateProject,
-    refetch
+    refetch,
+    // Expose loading state for better UI handling
+    isPermissionLoading: isLoading
   };
 }

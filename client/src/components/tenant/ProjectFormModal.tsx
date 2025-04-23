@@ -26,7 +26,7 @@ export function ProjectFormModal({
   availableProviders
 }: ProjectFormModalProps) {
   // Check permissions
-  const { canCreateProject } = usePermissions(tenantId);
+  const { canCreateProject, isPermissionLoading } = usePermissions(tenantId);
 
   // Initialize form with state machine
   const {
@@ -51,7 +51,7 @@ export function ProjectFormModal({
 
   // Check permissions on mount
   useEffect(() => {
-    if (!canCreateProject()) {
+    if (!isPermissionLoading && !canCreateProject()) {
       showNotification({
         title: 'Permission Error',
         message: 'You do not have permission to create projects in this tenant. Please contact your administrator.',
@@ -59,7 +59,7 @@ export function ProjectFormModal({
       });
       onClose();
     }
-  }, [canCreateProject, onClose]);
+  }, [isPermissionLoading, canCreateProject, onClose]);
 
   // Get current step component
   const CurrentStep = STEPS[activeStep]?.render;
