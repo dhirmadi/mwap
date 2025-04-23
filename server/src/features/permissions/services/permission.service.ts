@@ -3,6 +3,16 @@ import { TenantService } from '@features/tenant/services';
 import { Permission, PermissionResponse, PermissionService, PERMISSIONS } from '../types';
 import { logger } from '@core/utils/logger';
 
+/**
+ * Default implementation of the permission service
+ * Handles permission checks based on tenant roles and super admin status
+ * 
+ * Permission Rules:
+ * 1. Super admins have all permissions in all tenants
+ * 2. Tenant owners and admins can create projects
+ * 3. Project creators automatically become project owners
+ * 4. Project owners have full project permissions
+ */
 export class DefaultPermissionService implements PermissionService {
   private tenantService: TenantService;
 
@@ -10,6 +20,19 @@ export class DefaultPermissionService implements PermissionService {
     this.tenantService = new TenantService();
   }
 
+  /**
+   * Get all permissions for a user in a tenant
+   * @param user - The authenticated user
+   * @param tenantId - The tenant to check permissions in
+   * @returns PermissionResponse with list of permissions and roles
+   * 
+   * Permission Assignment Rules:
+   * - Super admins get all permissions
+   * - Tenant owners/admins can create projects
+   * - Non-members get no permissions
+   * 
+   * @throws Error if tenant service fails
+   */
   async getUserPermissions(user: User, tenantId: string): Promise<PermissionResponse> {
     try {
       // Super admin has all permissions
@@ -56,6 +79,19 @@ export class DefaultPermissionService implements PermissionService {
     }
   }
 
+  /**
+   * Check if a user has a specific permission
+   * @param user - The authenticated user
+   * @param action - The action to check (e.g., "create_project")
+   * @param resource - The resource type (e.g., "project")
+   * @param tenantId - The tenant context
+   * @returns boolean - Whether the action is permitted
+   * 
+   * Error Handling:
+   * - Returns false on error (fail-safe)
+   * - Logs errors for debugging
+   * - Does not throw exceptions
+   */
   async checkPermission(user: User, action: string, resource: string, tenantId: string): Promise<boolean> {
     try {
       const { permissions } = await this.getUserPermissions(user, tenantId);
@@ -77,6 +113,12 @@ export class DefaultPermissionService implements PermissionService {
     }
   }
 
+  /**
+   * Get all possible permissions for a super admin
+   * @private
+   * @param tenantId - The tenant context
+   * @returns PermissionResponse with all permissions enabled
+   */
   private getAllPermissions(tenantId: string): PermissionResponse {
     return {
       permissions: Object.values(PERMISSIONS.PROJECT).map(action => ({

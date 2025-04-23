@@ -12,7 +12,37 @@ const permissionService = new DefaultPermissionService();
 export const ProjectController: AsyncController = {
   /**
    * Create a new project in the tenant
+   * Project creator automatically becomes project owner
+   * 
+   * @route POST /api/v1/projects
    * @requires auth.validateRequest - User must be authenticated
+   * @requires permission - User must have 'create_project' permission in tenant
+   * 
+   * @body {
+   *   name: string,          // Project name
+   *   tenantId: string,      // Tenant ID
+   *   description?: string,  // Optional project description
+   * }
+   * 
+   * @returns 201 - Project created successfully
+   * @returns 400 - Invalid request body
+   * @returns 401 - User not authenticated
+   * @returns 403 - User lacks permission
+   * @returns 500 - Server error
+   * 
+   * Example Response:
+   * {
+   *   "data": {
+   *     "id": "proj-123",
+   *     "name": "New Project",
+   *     "tenantId": "tenant-123",
+   *     "role": "owner",
+   *     "createdAt": "2023-01-01T00:00:00Z"
+   *   },
+   *   "meta": {
+   *     "requestId": "req-123"
+   *   }
+   * }
    */
   createProject: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -40,6 +70,7 @@ export const ProjectController: AsyncController = {
         }]
       });
 
+      // Return project details in standard format
       res.status(201).json({
         data: {
           id: project._id,
