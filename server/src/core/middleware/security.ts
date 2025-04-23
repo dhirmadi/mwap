@@ -52,9 +52,17 @@ const corsOptions: cors.CorsOptions = {
     'Origin',
     'Access-Control-Request-Method',
     'Access-Control-Request-Headers',
-    'x-tenant-id'  // Add tenant ID header
+    'X-Tenant-ID',  // Tenant ID header (normalized case)
+    'x-tenant-id',  // Tenant ID header (lowercase for compatibility)
+    'X-Request-ID'  // Request tracking header
   ],
-  exposedHeaders: ['X-Response-Time', 'Content-Type', 'x-tenant-id'],
+  exposedHeaders: [
+    'X-Response-Time',
+    'Content-Type',
+    'X-Tenant-ID',
+    'x-tenant-id',
+    'X-Request-ID'
+  ],
   maxAge: constants.security.cors.maxAge
 };
 
