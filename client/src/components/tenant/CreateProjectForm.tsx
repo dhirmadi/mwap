@@ -36,7 +36,8 @@ export function CreateProjectForm({
       handleNext,
       handlePrev,
       handleSubmit,
-      handleReset
+      handleReset,
+      goToStep
     },
     isLoading
   } = useProjectWizard({

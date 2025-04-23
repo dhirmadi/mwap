@@ -79,8 +79,30 @@ export function useProjectWizard({
     }
   );
 
+  // Create form object
+  const form = {
+    values: wizard.data,
+    errors: wizard.errors,
+    setFieldValue: wizard.setData,
+    isValid: () => Object.keys(wizard.errors).length === 0
+  };
+
+  // Create state object with navigation handlers
+  const state = {
+    state: wizard.isSubmitting ? 'submitting' : 'idle',
+    activeStep: wizard.currentStep,
+    validatedSteps: wizard.steps.map(step => step.isValid),
+    canNavigateToStep: (step: number) => step <= Math.max(...wizard.steps.map((s, i) => s.isValid ? i + 1 : 0)),
+    handleNext: wizard.next,
+    handlePrev: wizard.prev,
+    handleSubmit: () => handleSubmit(wizard.data),
+    handleReset: wizard.reset,
+    goToStep: wizard.goToStep
+  };
+
   return {
-    wizard,
+    form,
+    state,
     isLoading
   };
 }
