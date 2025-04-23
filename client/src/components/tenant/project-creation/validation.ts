@@ -24,7 +24,7 @@ export const VALIDATION_RULES: ValidationRules = {
   folderPath: {
     required: 'Folder path is required',
     max: { value: 200, message: 'Folder path must be at most 200 characters' },
-    description: 'Double-click a folder to select it as the project location'
+    description: 'Select a folder by checking the box or double-clicking it'
   }
 } as const;
 

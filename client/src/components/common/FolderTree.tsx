@@ -6,6 +6,7 @@ import {
   UnstyledButton,
   Stack,
   TextInput,
+  Checkbox,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { 
@@ -102,9 +103,7 @@ function FolderNode({
           backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
           borderRadius: 'var(--mantine-radius-sm)',
           '&:hover': {
-            backgroundColor: isSelected 
-              ? 'var(--mantine-color-blue-light)' 
-              : 'var(--mantine-color-gray-0)'
+            backgroundColor: 'var(--mantine-color-gray-0)'
           }
         }}
       >
@@ -118,26 +117,23 @@ function FolderNode({
               }}
             />
           )}
-          {isOpen ? (
-            <IconFolderOpen 
-              size="1.2rem"
-              color={isSelected ? 'var(--mantine-color-blue-filled)' : undefined}
-            />
-          ) : (
-            <IconFolder 
-              size="1.2rem"
-              color={isSelected ? 'var(--mantine-color-blue-filled)' : undefined}
-            />
-          )}
-          <Text
-            size="sm"
-            style={{
-              fontWeight: isSelected ? 500 : 400,
-              color: isSelected ? 'var(--mantine-color-blue-filled)' : undefined,
+          <Checkbox
+            checked={isSelected}
+            onChange={(event) => {
+              if (event.currentTarget.checked) {
+                onSelect(path);
+              } else if (selectedPath === path) {
+                onSelect(''); // Deselect if unchecking current selection
+              }
             }}
-          >
-            {name}
-          </Text>
+            onClick={(e) => e.stopPropagation()} // Prevent folder expand/collapse
+          />
+          {isOpen ? (
+            <IconFolderOpen size="1.2rem" />
+          ) : (
+            <IconFolder size="1.2rem" />
+          )}
+          <Text size="sm">{name}</Text>
         </Group>
       </UnstyledButton>
 
