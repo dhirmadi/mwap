@@ -64,21 +64,20 @@ export function useProjectWizard({
   }, [createProject, onSuccess, tenantId]);
 
   // Initialize wizard
-  const wizard = useWizardState<ProjectFormData>({
-    steps: STEPS.map(step => ({
+  const wizard = useWizardState<ProjectFormData>(
+    STEPS.map(step => ({
       ...step,
       props: {
         tenantId,
         availableProviders
       }
     })),
-    initialValues: {
+    {
       name: '',
       provider: availableProviders[0] || '',
       folderPath: ''
-    },
-    onSubmit: handleSubmit
-  });
+    }
+  );
 
   return {
     wizard,
