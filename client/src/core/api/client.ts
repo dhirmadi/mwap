@@ -40,14 +40,6 @@ export function createApiClient(
 
   // Add auth token to requests
   client.interceptors.request.use(async (config) => {
-    console.log('Request interceptor:', {
-      url: config.url,
-      baseURL: config.baseURL,
-      fullPath: `${config.baseURL}${config.url}`,
-      method: config.method,
-      headers: config.headers
-    });
-
     // Skip auth for public endpoints
     if (config.url?.endsWith('/health') || config.url?.includes('/public/')) {
       return config;
@@ -56,8 +48,26 @@ export function createApiClient(
     try {
       const token = await getToken();
       if (!token) {
+        console.error('No auth token available for request:', {
+          url: config.url,
+          baseURL: config.baseURL,
+          method: config.method
+        });
         throw new AuthError(ErrorCode.UNAUTHORIZED, 'No auth token available');
       }
+
+      // Log request details for debugging
+      console.debug('Request interceptor:', {
+        url: config.url,
+        baseURL: config.baseURL,
+        fullPath: `${config.baseURL}${config.url}`,
+        method: config.method,
+        hasToken: !!token,
+        headers: {
+          ...config.headers,
+          Authorization: token ? 'Bearer [REDACTED]' : undefined
+        }
+      });
 
       return {
         ...config,
@@ -69,7 +79,12 @@ export function createApiClient(
         }
       };
     } catch (error) {
-      console.error('Auth error:', error);
+      console.error('Auth error in request interceptor:', {
+        error,
+        url: config.url,
+        baseURL: config.baseURL,
+        method: config.method
+      });
       throw new AuthError(ErrorCode.UNAUTHORIZED, 'Authentication required', error);
     }
   });
@@ -80,16 +95,30 @@ export function createApiClient(
     response => response,
     // Error handler - retry or transform error
     async (error) => {
-      // Log error for debugging
+      // Log error for debugging with better context
       console.error('API Error:', {
-        url: error.config?.url,
-        baseURL: error.config?.baseURL,
-        fullPath: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-        code: error.code,
-        name: error.name
+        request: {
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          fullPath: error.config ? `${error.config.baseURL}${error.config.url}` : 'unknown',
+          method: error.config?.method,
+          headers: error.config?.headers ? {
+            ...error.config.headers,
+            Authorization: error.config.headers.Authorization ? 'Bearer [REDACTED]' : undefined
+          } : undefined
+        },
+        response: {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        },
+        error: {
+          message: error.message,
+          code: error.code,
+          name: error.name,
+          stack: error.stack
+        },
+        timestamp: new Date().toISOString()
       });
 
       // Handle auth errors (401) and permission errors (403)

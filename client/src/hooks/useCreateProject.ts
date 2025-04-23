@@ -19,21 +19,15 @@ export function useCreateProject(tenantId: string) {
     error
   } = useMutation<ProjectResponse, AppError, CreateProjectRequest>({
     mutationFn: async (request) => {
-      // First verify token is valid
+      // Attempt to create project - auth token will be added by interceptor
       try {
-        const token = await api.defaults.headers['Authorization'];
-        if (!token) {
-          throw new AuthError(ErrorCode.UNAUTHORIZED, 'No valid authentication token');
-        }
-
-        // Attempt to create project
         const response = await post<ProjectResponse>(api, API_PATHS.PROJECT.CREATE, {
           ...request,
           tenantId
         }, {
           headers: {
-            'X-Tenant-ID': tenantId, // Explicitly set tenant ID in header
-            'X-Request-ID': `create-project-${Date.now()}` // Add request tracking
+            'X-Tenant-ID': tenantId,
+            'X-Request-ID': `create-project-${Date.now()}`
           }
         });
         return response;
