@@ -50,4 +50,10 @@ export const API_PATHS = {
     PROJECTS: '/v1/admin/projects',
     ARCHIVE_TENANT: (id: string) => `/v1/admin/tenant/${id}/archive`,
   },
+
+  // Permission endpoints
+  PERMISSIONS: {
+    LIST: '/v1/permissions',
+    CHECK: '/v1/permissions/check',
+  },
 } as const;
