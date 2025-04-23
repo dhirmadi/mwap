@@ -1,4 +1,4 @@
-import { ApiResponse } from '../types/api';
+
 import { CloudFolder, CloudFolderListResponse } from '../types/tenant';
 import { isApiResponse, isCloudFolderListResponse } from './type-guards';
 

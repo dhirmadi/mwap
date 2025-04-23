@@ -4,7 +4,7 @@
  */
 
 import { useCallback } from 'react';
-import { useWizard } from '../components/wizard/hooks';
+import { useWizardState } from '../components/wizard/hooks';
 import { useCreateProject } from './useCreateProject';
 import { handleApiError } from '../utils/error';
 import { ProjectFormData } from '../components/tenant/project-creation/types';
@@ -27,7 +27,7 @@ export interface UseProjectWizardOptions {
  * Hook return type
  */
 export interface UseProjectWizardReturn {
-  wizard: ReturnType<typeof useWizard<ProjectFormData>>;
+  wizard: ReturnType<typeof useWizardState<ProjectFormData>>;
   isLoading: boolean;
 }
 
@@ -64,7 +64,7 @@ export function useProjectWizard({
   }, [createProject, onSuccess, tenantId]);
 
   // Initialize wizard
-  const wizard = useWizard<ProjectFormData>({
+  const wizard = useWizardState<ProjectFormData>({
     steps: STEPS.map(step => ({
       ...step,
       props: {

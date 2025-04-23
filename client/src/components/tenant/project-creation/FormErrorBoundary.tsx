@@ -7,7 +7,7 @@ import { Alert, Button, Stack, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
 import { handleError } from '../../../core/errors/handler';
-import { isValidationError } from '../../../core/errors/types';
+
 
 interface Props {
   children: React.ReactNode;

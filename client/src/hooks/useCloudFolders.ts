@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi, get } from '../core/api/client';
 import { API_PATHS } from '../core/api/paths';
 import { ApiError } from '../types/api';
-import { CloudFolder, CloudFolderListResponse, IntegrationProvider } from '../types/tenant';
+import { CloudFolder, IntegrationProvider } from '../types/tenant';
 import { validateFolderResponse } from '../utils/validation';
 
 // Debug flag - set to true to enable detailed logging

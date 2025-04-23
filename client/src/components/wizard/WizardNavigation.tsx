@@ -3,7 +3,7 @@
  * @module components/wizard/WizardNavigation
  */
 
-import { Group, Stepper, rem } from '@mantine/core';
+import { Stepper, rem } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { useCallback } from 'react';
 
