@@ -42,19 +42,41 @@ List all accessible projects.
 ```
 
 ### POST /api/v1/projects
-Create a new project.
+Create a new project. The creator automatically becomes the project owner.
 
-**Authentication Required**: Yes (Admin or Owner)
+**Authentication Required**: Yes
+**Permission Required**: `create_project` in tenant
 
 **Request Body**:
 ```json
 {
   "name": "string",
-  "description": "string"
+  "description": "string",
+  "tenantId": "string"
 }
 ```
 
-**Response**: Same as project object in GET /api/v1/projects
+**Response**:
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "tenantId": "string",
+    "role": "owner",
+    "createdAt": "string"
+  },
+  "meta": {
+    "requestId": "string"
+  }
+}
+```
+
+**Notes**:
+- Project creator automatically gets owner role
+- Owner role is permanent and cannot be changed
+- Requires `create_project` permission in the tenant
+- Only tenant owners/admins can create projects by default
 
 ### GET /api/v1/projects/:id
 Get project details.

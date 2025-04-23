@@ -99,15 +99,24 @@ mwap/
 
 ## Key Components
 
-### Authentication System
+### Authentication & Authorization System
 
 1. **User Authentication (Auth0)**
    - JWT validation and refresh
-   - Role-based access control
    - User profile management
    - Protected route components
+   - Session handling
 
-2. **OAuth Integration**
+2. **Permission Management**
+   - Role-based access control (RBAC)
+   - Permission inheritance
+   - Super admin privileges
+   - Tenant-level permissions
+   - Project-level permissions
+   - Automatic role assignment
+   - Permission checking middleware
+
+3. **OAuth Integration**
    - Multiple provider support
    - Token exchange and refresh
    - State management
@@ -148,15 +157,23 @@ mwap/
 ### Project Management
 
 1. **Core Features**
-   - Project creation
-   - Member management
-   - Role assignment
-   - Resource access
-
-2. **Integration**
-   - Cloud storage access
-   - Permission management
+   - Project creation with automatic owner assignment
+   - Member management with role-based access
+   - Permission-based resource access
    - Project status tracking
+
+2. **Permission System**
+   - Role hierarchy (owner > admin > member)
+   - Permission inheritance from tenant roles
+   - Automatic owner assignment on creation
+   - Fine-grained access control
+   - Permission checking middleware
+
+3. **Integration**
+   - Cloud storage access with permission checks
+   - Permission-aware API endpoints
+   - Project status tracking
+   - Audit logging
 
 ## Development Guidelines
 
@@ -200,6 +217,20 @@ mwap/
    - Token management
    - Input validation
    - Rate limiting
+   - Permission checks
+   - Role validation
+   - Tenant isolation
+   - Audit logging
+
+4. **Permission Management**
+   - Check permissions before actions
+   - Use permission constants
+   - Validate tenant context
+   - Handle super admin bypass
+   - Log permission checks
+   - Fail closed on errors
+   - Clear error messages
+   - Audit important changes
 
 ### Development Workflow
 
