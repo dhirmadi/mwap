@@ -101,6 +101,49 @@ mwap/
 
 ### Authentication & Authorization System
 
+#### System Overview
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant API as API Gateway
+    participant Auth as Auth System
+    participant Perm as Permission System
+    participant T as Tenant Service
+    participant P as Project Service
+    participant D as Database
+
+    C->>API: Request with JWT
+    API->>Auth: Validate token
+    Auth->>Auth: Extract claims
+    Auth-->>API: User context
+
+    API->>Perm: Check permissions
+    
+    par Tenant Check
+        Perm->>T: Get tenant roles
+        T->>D: Query tenant
+        D-->>T: Tenant data
+        T-->>Perm: Tenant roles
+    and Project Check
+        Perm->>P: Get project roles
+        P->>D: Query project
+        D-->>P: Project data
+        P-->>Perm: Project roles
+    end
+
+    Perm->>Perm: Apply role hierarchy
+    Perm->>Perm: Check permissions
+    
+    alt Permitted
+        Perm-->>API: Allow
+        API->>P: Execute request
+        P-->>C: Success response
+    else Denied
+        Perm-->>API: Deny
+        API-->>C: 403 Forbidden
+    end
+```
+
 1. **User Authentication (Auth0)**
    - JWT validation and refresh
    - User profile management

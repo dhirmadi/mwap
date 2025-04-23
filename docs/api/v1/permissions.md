@@ -1,6 +1,96 @@
 # Permission Management API Documentation
 
 ## Overview
+
+## Sequence Diagrams
+
+### Permission Check Flow
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Auth Middleware
+    participant P as Permission Service
+    participant T as Tenant Service
+    participant D as Database
+
+    C->>A: Request with JWT
+    A->>A: Validate JWT
+    A->>A: Extract user info
+    A->>P: Check permission
+    
+    P->>T: Get tenant details
+    T->>D: Query tenant
+    D-->>T: Tenant data
+    T-->>P: Tenant with roles
+    
+    alt Super Admin
+        P-->>A: Grant all permissions
+    else Tenant Member
+        P->>P: Check role permissions
+        P-->>A: Return allowed actions
+    else Not Member
+        P-->>A: Return no permissions
+    end
+    
+    A-->>C: Response with 403/200
+```
+
+### Project Creation Flow
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Auth Middleware
+    participant P as Permission Service
+    participant Pr as Project Controller
+    participant D as Database
+
+    C->>A: POST /projects
+    A->>A: Validate JWT
+    A->>P: Check create_project
+    
+    alt Has Permission
+        P-->>Pr: Allow creation
+        Pr->>D: Create project
+        Pr->>D: Add creator as owner
+        D-->>Pr: Project created
+        Pr-->>C: 201 Created
+    else No Permission
+        P-->>A: Deny creation
+        A-->>C: 403 Forbidden
+    end
+```
+
+### Permission Inheritance
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant T as Tenant
+    participant P as Project
+    participant R as Resources
+
+    U->>T: Has tenant role
+    
+    alt Tenant Owner/Admin
+        T->>P: Can create projects
+        T->>R: Full tenant access
+    else Tenant Member
+        T->>P: View permitted projects
+        T->>R: Limited tenant access
+    end
+
+    U->>P: Has project role
+    
+    alt Project Owner
+        P->>R: Full project access
+        P->>P: Manage members
+    else Project Admin
+        P->>R: Manage resources
+        P->>P: Manage non-owners
+    else Project Member
+        P->>R: View resources
+        P->>P: View members
+    end
+```
 The permission management system provides functionality for checking and managing permissions across tenants and projects. It supports role-based access control with automatic permission inheritance and super admin privileges.
 
 ## Core Concepts

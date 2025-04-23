@@ -3,6 +3,127 @@
 ## Overview
 The project management system provides functionality for creating and managing projects within a tenant, with role-based access control.
 
+## Sequence Diagrams
+
+### Project Creation with Permissions
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Auth Middleware
+    participant P as Permission Service
+    participant Pr as Project Controller
+    participant T as Tenant Service
+    participant D as Database
+
+    C->>A: POST /projects
+    A->>A: Validate JWT
+    A->>A: Extract user info
+
+    A->>T: Get tenant
+    T->>D: Query tenant
+    D-->>T: Tenant data
+    T-->>A: Tenant info
+
+    A->>P: Check create_project
+    P->>P: Check tenant role
+    
+    alt Has Permission
+        P-->>Pr: Allow creation
+        Pr->>D: Create project
+        Pr->>D: Set creator as owner
+        D-->>Pr: Project created
+        Pr-->>C: 201 Created
+    else No Permission
+        P-->>A: Deny creation
+        A-->>C: 403 Forbidden
+    end
+```
+
+### Project Member Management
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Auth Middleware
+    participant P as Permission Service
+    participant Pr as Project Controller
+    participant D as Database
+
+    C->>A: PATCH /projects/:id/members
+    A->>A: Validate JWT
+    A->>P: Check manage_members
+
+    P->>D: Get project
+    D-->>P: Project data
+    P->>P: Check user role
+    
+    alt Project Owner
+        P-->>Pr: Allow all changes
+    else Project Admin
+        P->>P: Check target role
+        alt Target not owner
+            P-->>Pr: Allow change
+        else Target is owner
+            P-->>A: Deny change
+        end
+    else Insufficient Permission
+        P-->>A: Deny change
+    end
+
+    alt Change Allowed
+        Pr->>D: Update member
+        D-->>Pr: Updated
+        Pr-->>C: 200 Success
+    else Change Denied
+        A-->>C: 403 Forbidden
+    end
+```
+
+### Project Access Control
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as Auth Middleware
+    participant P as Permission Service
+    participant Pr as Project Controller
+    participant D as Database
+
+    C->>A: Request project action
+    A->>A: Validate JWT
+    A->>P: Check permission
+
+    P->>D: Get project
+    D-->>P: Project data
+    P->>P: Check user role
+
+    alt Super Admin
+        P-->>Pr: Allow all actions
+    else Project Owner
+        P-->>Pr: Allow all actions
+    else Project Admin
+        P->>P: Check action type
+        alt Allowed Action
+            P-->>Pr: Allow action
+        else Restricted Action
+            P-->>A: Deny action
+        end
+    else Project Member
+        P->>P: Check read-only
+        alt Read Action
+            P-->>Pr: Allow action
+        else Write Action
+            P-->>A: Deny action
+        end
+    end
+
+    alt Action Allowed
+        Pr->>D: Execute action
+        D-->>Pr: Action result
+        Pr-->>C: 200 Success
+    else Action Denied
+        A-->>C: 403 Forbidden
+    end
+```
+
 ## Endpoints
 
 ### GET /api/v1/projects
