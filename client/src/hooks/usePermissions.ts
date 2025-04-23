@@ -2,16 +2,7 @@ import { useApi, get } from '../core/api';
 import { API_PATHS } from '../core/api/paths';
 import { useQuery } from '@tanstack/react-query';
 import { AppError } from '../core/errors';
-
-interface Permission {
-  action: string;
-  resource: string;
-  tenantId: string;
-}
-
-interface PermissionResponse {
-  permissions: Permission[];
-}
+import { Permission, PermissionResponse, PERMISSIONS } from '../types/permissions';
 
 /**
  * Hook to check user permissions
@@ -55,8 +46,11 @@ export function usePermissions(tenantId: string) {
   /**
    * Type guard to check if the permissions response is valid
    */
+  /**
+   * Type guard to check if the permissions response is valid
+   */
   const isValidPermissionResponse = (data: PermissionResponse | undefined): data is PermissionResponse => {
-    return !!data && Array.isArray(data.permissions);
+    return !!data?.data?.permissions && Array.isArray(data.data.permissions);
   };
 
   /**
@@ -85,10 +79,11 @@ export function usePermissions(tenantId: string) {
     }
 
     // Check permission
-    const hasPermission = permissions.permissions.some(
+    const hasPermission = permissions.data.permissions.some(
       p => p.action === action && 
            p.resource === resource && 
-           p.tenantId === tenantId
+           p.tenantId === tenantId &&
+           p.allowed
     );
 
     console.log('Permission check result:', {
@@ -96,14 +91,14 @@ export function usePermissions(tenantId: string) {
       resource,
       tenantId,
       hasPermission,
-      availablePermissions: permissions.permissions
+      availablePermissions: permissions.data.permissions
     });
 
     return hasPermission;
   };
 
   const canCreateProject = (): boolean => {
-    return hasPermission('create', 'project');
+    return hasPermission(PERMISSIONS.PROJECT.CREATE, 'project');
   };
 
   return {
