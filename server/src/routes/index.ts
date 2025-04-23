@@ -4,6 +4,7 @@ import { projectRoutes } from '@features/projects/routes';
 import { userRoutes } from '@features/users/routes';
 import { inviteRoutes } from '@features/invites/routes';
 import { adminRoutes } from '@features/superadmin/routes';
+import permissionRoutes from '@features/permissions/routes';
 import authRoutes from './auth';
 
 const router = Router();
@@ -14,5 +15,6 @@ router.use('/projects', projectRoutes);
 router.use('/users', userRoutes);
 router.use('/invites', inviteRoutes);
 router.use('/admin', adminRoutes);
+router.use('/permissions', permissionRoutes);
 
 export { router };

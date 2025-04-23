@@ -3,18 +3,63 @@ import { AuthRequest } from '@core/types/express';
 import { ProjectModel } from '@features/projects/schemas';
 import { AsyncController } from '@core/types/express';
 import { logger } from '@core/utils';
+import { DefaultPermissionService } from '@features/permissions/services/permission.service';
+import { PERMISSIONS } from '@features/permissions/types';
+import { AuthorizationError } from '@core/errors';
+
+const permissionService = new DefaultPermissionService();
 
 export const ProjectController: AsyncController = {
   /**
    * Create a new project in the tenant
-   * @requires requireTenantOwner - Only tenant owner can create projects
+   * @requires auth.validateRequest - User must be authenticated
    */
-  createProject: async (req: AuthRequest, res: Response): Promise<void> => {
-    // Stub: Create project in tenant
-    res.status(201).json({
-      message: 'Project created successfully',
-      projectId: 'stub-project-id'
-    });
+  createProject: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { tenantId } = req.body;
+      
+      // Check if user has permission to create project
+      const canCreate = await permissionService.checkPermission(
+        req.user,
+        PERMISSIONS.PROJECT.CREATE,
+        'project',
+        tenantId
+      );
+
+      if (!canCreate) {
+        throw new AuthorizationError('You do not have permission to create projects in this tenant');
+      }
+
+      // Create project and automatically assign creator as owner
+      const project = await ProjectModel.create({
+        ...req.body,
+        members: [{
+          userId: req.user.id,
+          role: 'owner',
+          grantedAt: new Date()
+        }]
+      });
+
+      res.status(201).json({
+        data: {
+          id: project._id,
+          name: project.name,
+          tenantId: project.tenantId,
+          role: 'owner',
+          createdAt: project.createdAt
+        },
+        meta: {
+          requestId: req.id
+        }
+      });
+    } catch (error) {
+      logger.error('Error creating project', {
+        userId: req.user.id,
+        tenantId: req.body.tenantId,
+        error
+      });
+      next(error);
+    }
   },
 
   /**
