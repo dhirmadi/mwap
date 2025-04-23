@@ -52,13 +52,25 @@ export function usePermissions(tenantId: string) {
     retryDelay: 1000, // Wait 1 second between retries
   });
 
+  /**
+   * Type guard to check if the permissions response is valid
+   */
+  const isValidPermissionResponse = (data: PermissionResponse | undefined): data is PermissionResponse => {
+    return !!data && Array.isArray(data.permissions);
+  };
+
+  /**
+   * Check if user has a specific permission
+   * @param action - The action to check (e.g., 'create', 'read', 'update', 'delete')
+   * @param resource - The resource to check (e.g., 'project', 'tenant')
+   * @returns boolean indicating if user has permission
+   */
   const hasPermission = (action: string, resource: string): boolean => {
-    // If error or no permissions data, return false
-    if (error || (!isLoading && !permissions)) {
+    // Early return if loading or error
+    if (isLoading || error) {
       console.log('Permission check state:', {
         isLoading,
         error: error ? { message: error.message, code: error.code } : null,
-        hasPermissions: !!permissions,
         action,
         resource,
         tenantId
@@ -66,16 +78,13 @@ export function usePermissions(tenantId: string) {
       return false;
     }
 
-    // If loading, return null to indicate loading state
-    if (isLoading) {
-      console.log('Permissions are still loading...', {
-        action,
-        resource,
-        tenantId
-      });
+    // Validate permissions data
+    if (!isValidPermissionResponse(permissions)) {
+      console.warn('Invalid permissions data:', { permissions });
       return false;
     }
 
+    // Check permission
     const hasPermission = permissions.permissions.some(
       p => p.action === action && 
            p.resource === resource && 
