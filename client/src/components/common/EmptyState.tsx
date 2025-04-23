@@ -1,5 +1,6 @@
 import { Button, Center, Stack, Text } from '@mantine/core';
 import { IconRefresh } from '@tabler/icons-react';
+import { ICON_SIZES } from '../../core/theme/icons';
 
 /**
  * Props for EmptyState component
@@ -21,7 +22,7 @@ export interface EmptyStateProps {
  * @example
  * ```tsx
  * <EmptyState
- *   icon={<IconFolderOff size="2rem" />}
+ *   icon={<IconFolderOff size={ICON_SIZES.lg} />}
  *   message="No folders found"
  *   buttonText="Refresh"
  *   onAction={handleRefresh}
@@ -36,7 +37,7 @@ export function EmptyState({ icon, message, buttonText, onAction }: EmptyStatePr
         <Text c="dimmed" size="sm">{message}</Text>
         <Button 
           variant="light" 
-          leftSection={<IconRefresh size="1rem" />}
+          leftSection={<IconRefresh size={ICON_SIZES.xs} />}
           onClick={onAction}
         >
           {buttonText}

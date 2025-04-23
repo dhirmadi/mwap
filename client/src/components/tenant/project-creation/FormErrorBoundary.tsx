@@ -5,6 +5,7 @@
 
 import { Alert, Button, Stack, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
+import { ICON_SIZES } from '../../../core/theme/icons';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
 import { handleError } from '../../../core/errors/handler';
 
@@ -36,7 +37,7 @@ export function FormErrorBoundary({ children, onReset, onError }: Props) {
 
   const fallback = (
     <Alert
-      icon={<IconAlertCircle size="1.1rem" />}
+      icon={<IconAlertCircle size={ICON_SIZES.sm} />}
       title="Form Error"
       color="red"
       variant="filled"

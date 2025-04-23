@@ -92,22 +92,38 @@ export function createApiClient(
         name: error.name
       });
 
-      // Handle auth errors
-      if (error.response?.status === 401) {
-        // Get a fresh token and retry request
-        try {
-          const token = await getToken();
-          if (!token) {
-            throw new AuthError(ErrorCode.UNAUTHORIZED, 'Failed to refresh token');
+      // Handle auth errors (401) and permission errors (403)
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        // For 401, try to refresh token and retry
+        if (error.response?.status === 401) {
+          try {
+            const token = await getToken();
+            if (!token) {
+              throw new AuthError(ErrorCode.UNAUTHORIZED, 'Failed to refresh token');
+            }
+            error.config.headers.Authorization = `Bearer ${token}`;
+            return client(error.config);
+          } catch (refreshError) {
+            // Token refresh failed, trigger auth flow
+            throw new AuthError(
+              ErrorCode.UNAUTHORIZED,
+              'Session expired. Please log in again.',
+              refreshError
+            );
           }
-          error.config.headers.Authorization = `Bearer ${token}`;
-          return client(error.config);
-        } catch (refreshError) {
-          // Token refresh failed, trigger auth flow
+        }
+        
+        // For 403, provide clear permission error
+        if (error.response?.status === 403) {
+          const tenantId = error.config?.headers?.['X-Tenant-ID'];
+          const errorMessage = tenantId 
+            ? `You don't have permission to perform this action in tenant ${tenantId}. Please contact your administrator.`
+            : 'You don\'t have permission to perform this action. Please contact your administrator.';
+          
           throw new AuthError(
-            ErrorCode.UNAUTHORIZED,
-            'Session expired. Please log in again.',
-            refreshError
+            ErrorCode.FORBIDDEN,
+            errorMessage,
+            error
           );
         }
       }

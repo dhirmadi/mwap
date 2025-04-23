@@ -5,6 +5,7 @@
 
 import { Stack, Alert } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
+import { ICON_SIZES } from '../../../../core/theme/icons';
 import { createWizardStep } from '../../../wizard/WizardStep';
 import { ProjectFormData } from '../types';
 import { ReviewField } from '../ui';
@@ -20,7 +21,7 @@ export const ReviewStep = createWizardStep<ProjectFormData>({
   render: ({ data }) => (
     <Stack>
       <Alert 
-        icon={<IconInfoCircle size="1rem" />}
+        icon={<IconInfoCircle size={ICON_SIZES.xs} />}
         title="Please Review"
         color="blue"
       >

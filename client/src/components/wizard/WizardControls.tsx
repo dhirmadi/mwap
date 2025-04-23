@@ -5,6 +5,7 @@
 
 import { Button, Group } from '@mantine/core';
 import { IconArrowLeft, IconArrowRight, IconDeviceFloppy, IconX } from '@tabler/icons-react';
+import { ICON_SIZES } from '../../core/theme/icons';
 
 export interface WizardControlsProps {
   canGoBack: boolean;
@@ -33,7 +34,7 @@ export function WizardControls({
         <Button
           variant="default"
           onClick={onCancel}
-          leftSection={<IconX size={20} />}
+          leftSection={<IconX size={ICON_SIZES.sm} />}
           aria-label="Cancel wizard"
         >
           Cancel
@@ -44,7 +45,7 @@ export function WizardControls({
           variant="default"
           onClick={onBack}
           disabled={!canGoBack}
-          leftSection={<IconArrowLeft size={20} />}
+          leftSection={<IconArrowLeft size={ICON_SIZES.sm} />}
           aria-label="Previous step"
         >
           Back
@@ -53,7 +54,7 @@ export function WizardControls({
           <Button
             onClick={onSubmit}
             loading={isSubmitting}
-            leftSection={<IconDeviceFloppy size={20} />}
+            leftSection={<IconDeviceFloppy size={ICON_SIZES.sm} />}
             aria-label="Submit wizard"
           >
             Submit
@@ -62,7 +63,7 @@ export function WizardControls({
           <Button
             onClick={onNext}
             disabled={!canGoForward}
-            rightSection={<IconArrowRight size={20} />}
+            rightSection={<IconArrowRight size={ICON_SIZES.sm} />}
             aria-label="Next step"
           >
             Next

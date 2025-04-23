@@ -3,8 +3,9 @@
  * @module components/wizard/WizardNavigation
  */
 
-import { Stepper, rem } from '@mantine/core';
+import { Stepper } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
+import { ICON_SIZES } from '../../core/theme/icons';
 import { useCallback } from 'react';
 
 export interface WizardNavigationProps {
@@ -54,7 +55,7 @@ export function WizardNavigation({ steps, currentStep, onStepClick }: WizardNavi
           <Stepper.Step
             key={step.id}
             label={step.label}
-            completedIcon={status === 'error' ? <IconX size={rem(20)} /> : <IconCheck size={rem(20)} />}
+            completedIcon={status === 'error' ? <IconX size={ICON_SIZES.sm} /> : <IconCheck size={ICON_SIZES.sm} />}
             color={status === 'error' ? 'red' : undefined}
             aria-current={currentStep === index ? 'step' : undefined}
             allowStepClick={canNavigateToStep(index)}
