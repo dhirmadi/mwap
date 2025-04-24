@@ -6,7 +6,7 @@
 import { IconCloudUpload, IconFolderPlus, IconFolderSearch, IconClipboardCheck } from '@tabler/icons-react';
 import { WizardStepConfig } from '../../wizard/types';
 import { ProjectFormData } from './types';
-import { validateName, validateProvider, validateFolderPath } from './validation';
+import { validateProjectForm } from '../../../validation/projectValidation';
 import { ProviderStep, NameStep, FolderStep, ReviewStep } from './steps';
 
 /**
@@ -21,8 +21,8 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
     icon: IconCloudUpload,
     fields: ['provider'],
     validation: async (data) => {
-      const error = await validateProvider(data.provider);
-      return !error;
+      const result = await validateProjectForm(data);
+      return result.results.provider?.isValid ?? false;
     },
     render: ProviderStep
   },
@@ -33,8 +33,8 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
     icon: IconFolderPlus,
     fields: ['name'],
     validation: async (data) => {
-      const error = await validateName(data.name);
-      return !error;
+      const result = await validateProjectForm(data);
+      return result.results.name?.isValid ?? false;
     },
     render: NameStep
   },
@@ -45,8 +45,8 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
     icon: IconFolderSearch,
     fields: ['folderPath', 'provider'],
     validation: async (data) => {
-      const error = await validateFolderPath(data.folderPath);
-      return !error;
+      const result = await validateProjectForm(data);
+      return result.results.folderPath?.isValid ?? false;
     },
     render: FolderStep
   },
@@ -57,17 +57,8 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
     icon: IconClipboardCheck,
     fields: ['name', 'provider', 'folderPath'],
     validation: async (data) => {
-      // Validate all fields in sequence
-      const nameError = await validateName(data.name);
-      if (nameError) return false;
-
-      const providerError = await validateProvider(data.provider);
-      if (providerError) return false;
-
-      const folderError = await validateFolderPath(data.folderPath);
-      if (folderError) return false;
-
-      return true;
+      const result = await validateProjectForm(data);
+      return result.isValid;
     },
     render: ReviewStep
   }
