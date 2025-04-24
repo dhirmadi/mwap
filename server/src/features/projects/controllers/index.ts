@@ -138,13 +138,14 @@ export const ProjectController: AsyncController = {
       });
     } catch (error) {
       // Detailed error logging
+      const err = error as Error & { code?: string; status?: number };
       logger.error('[PROJECT CREATION - ERROR]', {
         error: {
-          name: error.name,
-          message: error.message,
-          code: error.code,
-          status: error.status,
-          stack: error.stack
+          name: err.name,
+          message: err.message,
+          code: err.code,
+          status: err.status,
+          stack: err.stack
         },
         context: {
           userId: req.user.id,

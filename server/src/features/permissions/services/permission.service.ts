@@ -199,6 +199,8 @@ export class DefaultPermissionService implements PermissionService {
           allowed: p.allowed
         }))
       });
+      
+      return hasPermission;
     } catch (error) {
       logger.error('Error checking permission', {
         userId: user.id,
