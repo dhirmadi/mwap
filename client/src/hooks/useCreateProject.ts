@@ -15,6 +15,7 @@ export function useCreateProject(tenantId: string) {
   const api = useApi();
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
+  const { canCreateProject, isPermissionLoading } = usePermissions(tenantId);
 
   const {
     mutate: createProject,
@@ -79,6 +80,15 @@ export function useCreateProject(tenantId: string) {
       debug.groupEnd();
 
       debug.groupEnd();
+
+      // Check permissions before making request
+      if (!canCreateProject()) {
+        debug.error('Permission denied: Cannot create project');
+        throw new AuthError(
+          ErrorCode.FORBIDDEN,
+          'You do not have permission to create projects in this tenant. Please contact your administrator.'
+        );
+      }
 
       // Get auth token before making request
       try {
@@ -186,7 +196,8 @@ export function useCreateProject(tenantId: string) {
 
   return {
     createProject,
-    isLoading,
-    error
+    isLoading: isLoading || isPermissionLoading,
+    error,
+    canCreateProject: canCreateProject()
   };
 }
