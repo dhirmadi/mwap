@@ -1,5 +1,5 @@
 /**
- * @fileoverview Project creation wizard hook
+ * @fileoverview Project creation wizard hook that manages form state and wizard navigation
  * @module hooks/useProjectWizard
  */
 
@@ -11,28 +11,65 @@ import { ProjectFormData } from '../components/tenant/project-creation/types';
 import { STEPS } from '../components/tenant/project-creation/config';
 
 /**
- * Hook options
+ * Hook options for project wizard configuration
  */
 export interface UseProjectWizardOptions {
+  /** ID of the tenant where the project will be created */
   tenantId: string;
+  /** List of available cloud providers */
   availableProviders: string[];
+  /** Optional callback when project creation succeeds */
   onSuccess?: () => void;
 }
 
 /**
- * Hook return type
+ * Form interface returned by the hook
+ */
+export interface ProjectWizardForm {
+  /** Current form values */
+  values: ProjectFormData;
+  /** Form validation errors */
+  errors: Record<string, string>;
+  /** Updates a single form field */
+  setFieldValue: (field: keyof ProjectFormData, value: any) => void;
+  /** Checks if form is valid */
+  isValid: () => boolean;
+}
+
+/**
+ * Wizard state interface returned by the hook
+ */
+export interface ProjectWizardState {
+  /** Current wizard state (validating/valid) */
+  state: string;
+  /** Current active step index */
+  activeStep: number;
+  /** Set of validated step indices */
+  validatedSteps: Set<number>;
+  /** Checks if a step can be navigated to */
+  canNavigateToStep: (step: number) => boolean;
+  /** Moves to next step if possible */
+  handleNext: () => void;
+  /** Moves to previous step if possible */
+  handlePrev: () => void;
+  /** Submits the form */
+  handleSubmit: () => Promise<void>;
+  /** Resets the wizard state */
+  handleReset: () => void;
+  /** Navigates to a specific step */
+  goToStep: (step: number) => void;
+}
+
+/**
+ * Hook return type with form and wizard state
  */
 export interface UseProjectWizardReturn {
-  currentStep: number;
-  data: ProjectFormData;
-  isValid: boolean;
+  /** Form state and methods */
+  form: ProjectWizardForm;
+  /** Wizard navigation state and methods */
+  state: ProjectWizardState;
+  /** Loading state */
   isLoading: boolean;
-  setStep: (step: number) => void;
-  setData: (data: Partial<ProjectFormData>) => void;
-  canGoNext: () => boolean;
-  canGoPrev: () => boolean;
-  submit: () => Promise<void>;
-  reset: () => void;
 }
 
 /**
