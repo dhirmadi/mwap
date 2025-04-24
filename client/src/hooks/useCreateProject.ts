@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@auth0/auth0-react';
 import { useApi, post } from '../core/api';
-import { AppError } from '../core/errors';
+import { AppError, AuthError, ErrorCode } from '../core/errors';
 import { API_PATHS } from '../core/api/paths';
 import { ProjectResponse, CreateProjectRequest } from '../types';
 import { debug } from '../utils/debug';
