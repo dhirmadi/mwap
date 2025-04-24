@@ -48,6 +48,39 @@ export const ProjectController: AsyncController = {
     try {
       const { tenantId } = req.body;
       
+      // Debug logging for request context
+      logger.info('[PROJECT CREATION - REQUEST]', {
+        headers: {
+          'x-tenant-id': req.headers['x-tenant-id'],
+          'x-request-id': req.id,
+          'authorization': req.headers.authorization ? 'Bearer [REDACTED]' : 'MISSING'
+        },
+        body: {
+          ...req.body,
+          tenantId
+        },
+        user: {
+          id: req.user.id,
+          sub: req.user.sub,
+          roles: req.user.roles
+        }
+      });
+
+      // Debug logging for permission check inputs
+      logger.info('[PROJECT CREATION - PERMISSION CHECK]', {
+        user: {
+          id: req.user.id,
+          sub: req.user.sub,
+          roles: req.user.roles
+        },
+        permission: PERMISSIONS.PROJECT.CREATE,
+        resource: 'project',
+        tenantId,
+        headers: {
+          'x-tenant-id': req.headers['x-tenant-id']
+        }
+      });
+      
       // Check if user has permission to create project
       const canCreate = await permissionService.checkPermission(
         req.user,
@@ -56,7 +89,27 @@ export const ProjectController: AsyncController = {
         tenantId
       );
 
+      // Debug logging for permission check result
+      logger.info('[PROJECT CREATION - PERMISSION RESULT]', {
+        canCreate,
+        user: req.user.id,
+        tenantId,
+        permission: PERMISSIONS.PROJECT.CREATE
+      });
+
       if (!canCreate) {
+        // Debug logging for permission denial
+        logger.warn('[PROJECT CREATION - PERMISSION DENIED]', {
+          user: {
+            id: req.user.id,
+            sub: req.user.sub,
+            roles: req.user.roles
+          },
+          tenantId,
+          permission: PERMISSIONS.PROJECT.CREATE,
+          headers: req.headers
+        });
+        
         throw new AuthorizationError('You do not have permission to create projects in this tenant');
       }
 
@@ -84,10 +137,32 @@ export const ProjectController: AsyncController = {
         }
       });
     } catch (error) {
-      logger.error('Error creating project', {
-        userId: req.user.id,
-        tenantId: req.body.tenantId,
-        error
+      // Detailed error logging
+      logger.error('[PROJECT CREATION - ERROR]', {
+        error: {
+          name: error.name,
+          message: error.message,
+          code: error.code,
+          status: error.status,
+          stack: error.stack
+        },
+        context: {
+          userId: req.user.id,
+          tenantId: req.body.tenantId,
+          requestId: req.id,
+          headers: {
+            'x-tenant-id': req.headers['x-tenant-id'],
+            'authorization': req.headers.authorization ? 'Bearer [REDACTED]' : 'MISSING'
+          }
+        },
+        request: {
+          body: req.body,
+          user: {
+            id: req.user.id,
+            sub: req.user.sub,
+            roles: req.user.roles
+          }
+        }
       });
       next(error);
     }

@@ -35,16 +35,59 @@ export class DefaultPermissionService implements PermissionService {
    */
   async getUserPermissions(user: User, tenantId: string): Promise<PermissionResponse> {
     try {
+      // Log initial request
+      logger.info('[GET USER PERMISSIONS - REQUEST]', {
+        user: {
+          id: user.id,
+          sub: user.sub,
+          roles: user.roles
+        },
+        tenantId
+      });
+
       // Super admin has all permissions
       if (user.roles.includes('SUPER_ADMIN')) {
+        logger.info('[GET USER PERMISSIONS - SUPER ADMIN]', {
+          userId: user.id,
+          tenantId
+        });
         return this.getAllPermissions(tenantId);
       }
 
       // Get tenant and check membership
       const tenant = await this.tenantService.getTenantById(tenantId);
+      
+      // Log tenant details
+      logger.info('[GET USER PERMISSIONS - TENANT]', {
+        userId: user.id,
+        tenantId,
+        tenant: {
+          id: tenant._id,
+          name: tenant.name,
+          memberCount: tenant.members.length
+        }
+      });
+
       const member = tenant.members.find(m => m.userId === user.sub);
 
+      // Log membership check
+      logger.info('[GET USER PERMISSIONS - MEMBERSHIP]', {
+        userId: user.id,
+        userSub: user.sub,
+        tenantId,
+        isMember: !!member,
+        memberDetails: member ? {
+          userId: member.userId,
+          role: member.role
+        } : null
+      });
+
       if (!member) {
+        logger.warn('[GET USER PERMISSIONS - NO MEMBERSHIP]', {
+          userId: user.id,
+          userSub: user.sub,
+          tenantId
+        });
         return {
           permissions: [],
           roles: []
@@ -64,6 +107,18 @@ export class DefaultPermissionService implements PermissionService {
           allowed: true
         });
       }
+
+      // Log final permissions
+      logger.info('[GET USER PERMISSIONS - RESULT]', {
+        userId: user.id,
+        tenantId,
+        memberRole,
+        grantedPermissions: permissions.map(p => ({
+          action: p.action,
+          resource: p.resource,
+          allowed: p.allowed
+        }))
+      });
 
       return {
         permissions,
@@ -94,13 +149,56 @@ export class DefaultPermissionService implements PermissionService {
    */
   async checkPermission(user: User, action: string, resource: string, tenantId: string): Promise<boolean> {
     try {
-      const { permissions } = await this.getUserPermissions(user, tenantId);
-      return permissions.some(p => 
+      // Log permission check request
+      logger.info('[PERMISSION CHECK - REQUEST]', {
+        user: {
+          id: user.id,
+          sub: user.sub,
+          roles: user.roles
+        },
+        action,
+        resource,
+        tenantId
+      });
+
+      const { permissions, roles } = await this.getUserPermissions(user, tenantId);
+      
+      // Log user's permissions
+      logger.info('[PERMISSION CHECK - USER PERMISSIONS]', {
+        userId: user.id,
+        tenantId,
+        roles,
+        permissions: permissions.map(p => ({
+          action: p.action,
+          resource: p.resource,
+          allowed: p.allowed
+        }))
+      });
+
+      const hasPermission = permissions.some(p => 
         p.action === action && 
         p.resource === resource && 
         p.tenantId === tenantId && 
         p.allowed
       );
+
+      // Log permission check result
+      logger.info('[PERMISSION CHECK - RESULT]', {
+        userId: user.id,
+        tenantId,
+        action,
+        resource,
+        hasPermission,
+        matchingPermissions: permissions.filter(p => 
+          p.action === action && 
+          p.resource === resource && 
+          p.tenantId === tenantId
+        ).map(p => ({
+          action: p.action,
+          resource: p.resource,
+          allowed: p.allowed
+        }))
+      });
     } catch (error) {
       logger.error('Error checking permission', {
         userId: user.id,
