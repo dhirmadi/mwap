@@ -20,13 +20,23 @@ export function useProjectSubmission(tenantId: string) {
 
   const submit = useCallback(async (data: ProjectFormData) => {
     try {
+      // Create project payload with validation
       const payload = createProjectPayload(data, tenantId);
-      const project = await createProject(payload);
-      
+      if (!payload) {
+        throw new Error('Invalid project payload');
+      }
+
+      // Attempt to create project
+      const response = await createProject(payload);
+      if (!response || !response.id) {
+        throw new Error('Invalid project response');
+      }
+
+      // Show success and navigate
       showSuccessNotification();
-      navigate(`/projects/${project.id}`);
+      navigate(`/projects/${response.id}`);
       
-      return project;
+      return response;
     } catch (error) {
       handleProjectError(error);
       return null;

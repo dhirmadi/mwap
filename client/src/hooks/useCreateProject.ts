@@ -82,22 +82,51 @@ export function useCreateProject(tenantId: string) {
 
       // Get auth token before making request
       try {
+        // Ensure we have a valid token
         const token = await getToken();
         if (!token) {
+          debug.error('No auth token available');
           throw new AuthError(ErrorCode.UNAUTHORIZED, 'No auth token available');
         }
 
-        // Attempt to create project with auth token
-        const response = await post<ProjectResponse>(api, API_PATHS.PROJECT.CREATE, {
-          ...request,
-          tenantId
-        }, {
+        // Validate request data
+        if (!request || !request.name || !tenantId) {
+          debug.error('Invalid request data', { request, tenantId });
+          throw new Error('Invalid request data');
+        }
+
+        // Create request config with auth token
+        const config = {
           headers: {
             'Authorization': `Bearer ${token}`,
             'X-Tenant-ID': tenantId,
             'X-Request-ID': `create-project-${Date.now()}`
           }
+        };
+
+        // Log request details for debugging
+        debug.info('Creating project with config:', {
+          ...config,
+          headers: {
+            ...config.headers,
+            Authorization: config.headers.Authorization ? 'Bearer [REDACTED]' : 'MISSING'
+          }
         });
+
+        // Attempt to create project
+        const response = await post<ProjectResponse>(
+          api,
+          API_PATHS.PROJECT.CREATE,
+          { ...request, tenantId },
+          config
+        );
+
+        // Validate response
+        if (!response || !response.id) {
+          debug.error('Invalid project response', { response });
+          throw new Error('Invalid project response');
+        }
+
         return response;
       } catch (error: any) {
         // Debug logging for error response

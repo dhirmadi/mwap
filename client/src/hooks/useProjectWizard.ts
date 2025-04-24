@@ -104,11 +104,30 @@ export function useProjectWizard({
 
   // Handle form submission
   const submit = useCallback(async () => {
-    const project = await submitProject(state.data);
-    if (project) {
+    try {
+      // Validate form data before submission
+      if (!state.data || !state.isValid) {
+        throw new Error('Form data is invalid');
+      }
+
+      // Attempt to create project
+      const project = await submitProject(state.data);
+      if (!project) {
+        throw new Error('Project creation failed');
+      }
+
+      // Handle success
       onSuccess?.();
+    } catch (error) {
+      debug.error('Project wizard submission failed:', {
+        error,
+        formData: state.data,
+        isValid: state.isValid,
+        currentStep: state.currentStep
+      });
+      throw error; // Let error boundary handle it
     }
-  }, [state.data, submitProject, onSuccess]);
+  }, [state.data, state.isValid, submitProject, onSuccess]);
 
   // Track validated steps
   const validatedSteps = new Set<number>();
