@@ -12,14 +12,15 @@ import { createProjectPayload } from '../utils/project/transforms';
 
 /**
  * Project submission hook
+ * @param tenantId - ID of the tenant where the project will be created
  */
-export function useProjectSubmission() {
+export function useProjectSubmission(tenantId: string) {
   const navigate = useNavigate();
-  const { createProject } = useCreateProject();
+  const { createProject } = useCreateProject(tenantId);
 
   const submit = useCallback(async (data: ProjectFormData) => {
     try {
-      const payload = createProjectPayload(data, 'default');
+      const payload = createProjectPayload(data, tenantId);
       const project = await createProject(payload);
       
       showSuccessNotification();
@@ -30,7 +31,7 @@ export function useProjectSubmission() {
       handleProjectError(error);
       return null;
     }
-  }, [createProject, navigate]);
+  }, [createProject, navigate, tenantId]);
 
   return {
     submit
