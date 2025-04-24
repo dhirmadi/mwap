@@ -3,6 +3,29 @@
 ## Base URL
 All API endpoints are prefixed with `/api/v1`. For example, `/tenant` becomes `/api/v1/tenant`.
 
+## Headers
+
+### Required Headers
+```http
+Authorization: Bearer <token>  // JWT token from Auth0
+X-Tenant-ID: <tenant-id>      // Current tenant ID
+```
+
+### Optional Headers
+```http
+X-Request-ID: <request-id>    // For request tracking (e.g., "create-project-1234567890")
+```
+
+### CORS Support
+The API supports CORS with the following configuration:
+- Allowed origins: Configured per environment
+- Credentials: Supported
+- Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+- Headers: 
+  - Standard: Content-Type, Authorization, Accept, etc.
+  - Custom: X-Tenant-ID, X-Request-ID
+- Max age: 600 seconds (10 minutes)
+
 ## Authentication
 All routes require authentication using Auth0. Include the JWT token in the Authorization header:
 ```

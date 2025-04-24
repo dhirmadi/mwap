@@ -115,6 +115,14 @@
 
 ## Recent Updates
 
+### v0.4.3 - Enhanced CORS and Security
+- ✅ Added custom header support in CORS configuration
+- ✅ Normalized header case handling (X-Tenant-ID)
+- ✅ Added request tracking with X-Request-ID
+- ✅ Enhanced security headers configuration
+- ✅ Improved CORS error handling and logging
+- ✅ Added backward compatibility for header cases
+
 ### v0.4.2 - Enhanced Integration Validation
 - ✅ Added type guard for Integration objects
 - ✅ Added validation function with date normalization
