@@ -58,13 +58,19 @@ const integrationSchema = new Schema<Integration>({
 // TypeScript interfaces
 export interface Tenant {
   name: string;
+  ownerId: string;
   members: TenantMember[];
   integrations: Integration[];
+  settings: Map<string, any>;
   createdAt: Date;
-  archived?: boolean;
+  updatedAt: Date;
+  archived: boolean;
 }
 
-export interface TenantDocument extends Tenant, Document {}
+export interface TenantDocument extends Tenant, Document {
+  _id: Types.ObjectId;
+  __v: number;
+}
 
 export interface TenantModel extends Model<TenantDocument> {}
 
@@ -77,6 +83,10 @@ const tenantSchema = new Schema<TenantDocument>({
     minlength: 2,
     maxlength: 100
   },
+  ownerId: {
+    type: String,
+    required: true
+  },
   members: {
     type: [tenantMemberSchema],
     required: true,
@@ -87,15 +97,18 @@ const tenantSchema = new Schema<TenantDocument>({
     required: true,
     default: []
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  settings: {
+    type: Map,
+    of: Schema.Types.Mixed,
+    default: new Map()
   },
   archived: {
     type: Boolean,
     default: false,
     index: true // Index for filtering archived/active tenants
   }
+}, {
+  timestamps: true
 });
 
 // Add compound index for user's active/archived tenants

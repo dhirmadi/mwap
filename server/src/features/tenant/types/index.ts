@@ -1,6 +1,6 @@
 import { Document, Types } from 'mongoose';
 
-export type TenantRole = 'owner' | 'admin' | 'member';
+import { TenantRole } from '../schemas';
 
 export interface TenantMember {
   userId: string;
@@ -17,9 +17,10 @@ export interface Integration {
 
 export interface Tenant {
   name: string;
-  ownerId: Types.ObjectId;
+  ownerId: string;
   members: TenantMember[];
   integrations: Integration[];
+  settings: Map<string, any>;
   archived: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +28,7 @@ export interface Tenant {
 
 export interface TenantDocument extends Tenant, Document {
   _id: Types.ObjectId;
+  __v: number;
 }
 
 export interface CreateTenantInput {

@@ -1,8 +1,9 @@
 import { Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import { AuthRequest } from '@core/types/express';
-import { TenantModel } from '@features/tenant/schemas';
+import { TenantModel, TenantRole } from '@features/tenant/schemas';
 import { ProjectModel, ProjectRole } from '@features/projects/schemas';
+import { TenantDocument } from '@features/tenant/types';
 import { 
   AuthenticationError, 
   AuthorizationError, 
@@ -80,7 +81,7 @@ export function requireTenantOwner() {
       // Check if user is owner
       const isOwner = tenant.members.some(member => 
         member.userId.toString() === userId && 
-        member.role === 'owner'
+        member.role === TenantRole.OWNER
       );
 
       logger.debug('Tenant ownership check result', {
