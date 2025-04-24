@@ -39,7 +39,7 @@ export class ProjectMemberController {
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        next(new ValidationError('Invalid role', error.errors));
+        next(new ValidationError('Invalid role', { errors: error.errors }));
         return;
       }
       next(error);

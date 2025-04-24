@@ -55,7 +55,7 @@ export const errorHandler: ErrorRequestHandler = (err, req: AuthenticatedRequest
     // Handle AppError instances
     if (err instanceof AppError) {
       res.status(err.statusCode).json(
-        createErrorResponse(err.code, err.message, requestId, err.data)
+        createErrorResponse(err.code || 'INTERNAL_ERROR', err.message, requestId, err.metadata)
       );
       return;
     }
