@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { OAuthProvider, getOAuthConfig } from './oauth-config';
-import { AppError, InternalServerError } from '../types/errors';
+import { AppError, InternalServerError } from '../errors';
 import { logger } from '../logging';
 
 interface TokenResponse {

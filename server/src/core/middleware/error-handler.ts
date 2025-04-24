@@ -1,5 +1,5 @@
 import { ErrorRequestHandler, Request } from 'express';
-import { AppError } from '../types/errors';
+import { AppError } from '../errors';
 import { env } from '../config/environment';
 import {
   ErrorResponseBase,

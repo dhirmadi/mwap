@@ -44,7 +44,7 @@ const configs: Record<OAuthProvider, OAuthConfig> = {
   }
 };
 
-import { ValidationError } from '../types/errors';
+import { ValidationError } from '../errors';
 import { logger } from '../logging';
 
 export const PROVIDER_ALIASES: Record<string, OAuthProvider> = {

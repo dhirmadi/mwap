@@ -1,4 +1,6 @@
-import type { ErrorMetadata } from '../types/errors/base';
+export interface ErrorMetadata {
+  [key: string]: unknown;
+}
 
 export class AppError extends Error {
   public readonly statusCode: number;

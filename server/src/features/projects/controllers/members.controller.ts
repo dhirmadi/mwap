@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { ProjectRole, hasHigherOrEqualRole } from '../types';
-import { ValidationError, AuthorizationError } from '@core/types/errors';
+import { ValidationError, AuthorizationError } from '@core/errors';
 
 // Validation schema for role update
 const updateRoleSchema = z.object({

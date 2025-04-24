@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { AppError, ValidationError } from '../core/types/errors';
+import { AppError, ValidationError } from '../core/errors';
 import { logger } from '../core/logging';
 import { OAuthProvider, getOAuthConfig, PROVIDER_ALIASES } from '../core/auth/oauth-config';
 import { exchangeCodeForToken } from '../core/auth/oauth-client';
