@@ -66,6 +66,47 @@ type WizardReducer<T> = (state: WizardState<T>, action: WizardAction<T>) => Wiza
  * }
  * ```
  */
+function createWizardReducer<T>(steps: WizardStepConfig<T>[]): WizardReducer<T> {
+  return (state: WizardState<T>, action: WizardAction<T>): WizardState<T> => {
+    switch (action.type) {
+      case 'SET_STEP':
+        // Validate step bounds
+        if (action.payload < 0 || action.payload >= steps.length) {
+          return state;
+        }
+        return {
+          ...state,
+          currentStep: action.payload,
+          isValid: false // Reset validation when changing steps
+        };
+
+      case 'SET_DATA':
+        return {
+          ...state,
+          data: {
+            ...state.data,
+            ...action.payload
+          }
+        };
+
+      case 'SET_VALID':
+        return {
+          ...state,
+          isValid: action.payload
+        };
+
+      case 'RESET':
+        return {
+          currentStep: 0,
+          data: {} as T,
+          isValid: false
+        };
+
+      default:
+        return state;
+    }
+  };
+}
 /**
  * Enhanced wizard state management hook
  * 
