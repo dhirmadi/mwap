@@ -144,8 +144,12 @@ export async function deleteIntegration(req: Request<{id: string, provider: Inte
     // TODO: Check if any projects are using this integration
     // This will be implemented when project schema is updated to reference integrations
 
-    tenant.integrations.splice(integrationIndex, 1);
-    await tenant.save();
+    // Remove integration using MongoDB's $pull operator to avoid validation issues
+    await TenantModel.findByIdAndUpdate(
+      tenantId,
+      { $pull: { integrations: { provider } } },
+      { new: true, runValidators: true }
+    );
 
     logger.info({
       msg: 'Deleted tenant integration',
