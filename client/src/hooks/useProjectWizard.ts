@@ -91,7 +91,7 @@ export function useProjectWizard({
   } = useWizardState<ProjectFormData>(STEPS);
 
   const { validateStep } = useProjectValidation();
-  const { submit: submitProject } = useProjectSubmission();
+  const { submit: submitProject } = useProjectSubmission(tenantId);
 
   // Validate current step when data changes
   useEffect(() => {
