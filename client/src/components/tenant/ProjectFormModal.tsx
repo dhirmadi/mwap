@@ -5,8 +5,7 @@ import { WizardNavigation } from '../wizard/WizardNavigation';
 import { WizardControls } from '../wizard/WizardControls';
 import { useProjectWizard } from '../../hooks/useProjectWizard';
 import { FormErrorBoundary } from './project-creation/FormErrorBoundary';
-import { Auth0Provider } from '@auth0/auth0-react';
-import { Auth0ProviderWithConfig } from '../../auth/Auth0Provider';
+import { usePortalContext } from '../../hooks/usePortalContext';
 
 interface ProjectFormModalProps {
   opened: boolean;
@@ -49,18 +48,20 @@ export function ProjectFormModal({
   // Get current step component
   const CurrentStep = STEPS[activeStep]?.render;
 
+  // Ensure auth context is maintained in portal
+  usePortalContext();
+
   return (
     <Modal
-      opened={opened}
-      onClose={() => {
-        handleReset();
-        onClose();
-      }}
-      title="Create New Project"
-      size="lg"
-      withinPortal={false} // Prevent portal creation to maintain auth context
-    >
-      <Auth0ProviderWithConfig>
+        opened={opened}
+        onClose={() => {
+          handleReset();
+          onClose();
+        }}
+        title="Create New Project"
+        size="lg"
+        centered
+      >
         <FormErrorBoundary onReset={handleReset}>
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -97,7 +98,6 @@ export function ProjectFormModal({
             />
           </form>
         </FormErrorBoundary>
-      </Auth0ProviderWithConfig>
-    </Modal>
+      </Modal>
   );
 }
