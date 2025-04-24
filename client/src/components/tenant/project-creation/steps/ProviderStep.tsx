@@ -6,8 +6,8 @@
 import { Select, Stack, Alert } from '@mantine/core';
 import { createWizardStep } from '../../../wizard/WizardStep';
 import { ProjectFormData, ProjectStepProps } from '../types';
-import { VALIDATION_RULES } from '../validation';
 import { PROVIDER_LABELS } from '../../../../types/integration';
+import { PROJECT_RULES } from '../../../../validation/projectValidation';
 
 /**
  * Cloud provider selection step
@@ -29,7 +29,7 @@ export const ProviderStep = createWizardStep<ProjectFormData>({
             label: PROVIDER_LABELS[provider]
           }))}
           required
-          description={VALIDATION_RULES.provider.description}
+          description={PROJECT_RULES.provider.description}
           error={error}
           value={data.provider}
           onChange={(value) => onChange('provider', value)}

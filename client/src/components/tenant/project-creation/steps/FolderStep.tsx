@@ -6,9 +6,9 @@
 import { Stack, Text, Box, Alert } from '@mantine/core';
 import { createWizardStep } from '../../../wizard/WizardStep';
 import { ProjectFormData, ProjectStepProps } from '../types';
-import { VALIDATION_RULES } from '../validation';
+import { PROJECT_RULES } from '../../../../validation/projectValidation';
 import { FolderTree } from '../../../common/FolderTree';
-import { showSuccessNotification } from '../errors';
+import { showSuccessNotification } from '../../../../utils/project/errors';
 
 /**
  * Folder selection step
@@ -23,7 +23,7 @@ export const FolderStep = createWizardStep<ProjectFormData>({
     return (
       <Stack spacing="xs">
         <Text size="sm" c="dimmed">
-          {VALIDATION_RULES.folderPath.description}
+          {PROJECT_RULES.folderPath.description}
           Selected folder will be highlighted in blue.
         </Text>
 

@@ -3,6 +3,7 @@
  * @module utils/project/errors
  */
 
+import React from 'react';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons-react';
 

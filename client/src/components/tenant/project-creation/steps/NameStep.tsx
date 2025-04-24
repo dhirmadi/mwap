@@ -6,7 +6,7 @@
 import { TextInput } from '@mantine/core';
 import { createWizardStep } from '../../../wizard/WizardStep';
 import { ProjectFormData } from '../types';
-import { VALIDATION_RULES } from '../validation';
+import { PROJECT_RULES } from '../../../../validation/projectValidation';
 
 /**
  * Project name input step
@@ -20,7 +20,7 @@ export const NameStep = createWizardStep<ProjectFormData>({
       label="Project Name"
       placeholder="Enter project name"
       required
-      description={VALIDATION_RULES.name.description}
+      description={PROJECT_RULES.name.description}
       error={error}
       value={data.name}
       onChange={(e) => onChange('name', e.target.value)}

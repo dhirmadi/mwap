@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ProjectFormData } from '../components/tenant/project-creation/types';
 import { useCreateProject } from './useCreateProject';
 import { handleProjectError, showSuccessNotification } from '../utils/project/errors';
-import { transformProjectPayload } from '../utils/project/transforms';
+import { createProjectPayload } from '../utils/project/transforms';
 
 /**
  * Project submission hook
@@ -19,7 +19,7 @@ export function useProjectSubmission() {
 
   const submit = useCallback(async (data: ProjectFormData) => {
     try {
-      const payload = transformProjectPayload(data);
+      const payload = createProjectPayload(data, 'default');
       const project = await createProject(payload);
       
       showSuccessNotification();
