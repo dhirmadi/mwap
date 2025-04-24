@@ -13,6 +13,7 @@ import { debug } from '../utils/debug';
 export function useCreateProject(tenantId: string) {
   const api = useApi();
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
   const {
     mutate: createProject,
@@ -78,13 +79,20 @@ export function useCreateProject(tenantId: string) {
 
       debug.groupEnd();
 
-      // Attempt to create project - auth token will be added by interceptor
+      // Get auth token before making request
       try {
+        const token = await getToken();
+        if (!token) {
+          throw new AuthError(ErrorCode.UNAUTHORIZED, 'No auth token available');
+        }
+
+        // Attempt to create project with auth token
         const response = await post<ProjectResponse>(api, API_PATHS.PROJECT.CREATE, {
           ...request,
           tenantId
         }, {
           headers: {
+            'Authorization': `Bearer ${token}`,
             'X-Tenant-ID': tenantId,
             'X-Request-ID': `create-project-${Date.now()}`
           }
