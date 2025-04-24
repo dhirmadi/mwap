@@ -6,7 +6,7 @@
 import { IconCloudUpload, IconFolderPlus, IconFolderSearch, IconClipboardCheck } from '@tabler/icons-react';
 import { WizardStepConfig } from '../../wizard/types';
 import { ProjectFormData } from './types';
-import { validateProjectForm } from '../../../validation/projectValidation';
+import { PROJECT_RULES } from '../../../validation/projectValidation';
 import { ProviderStep, NameStep, FolderStep, ReviewStep } from './steps';
 
 /**
@@ -17,49 +17,33 @@ export const STEPS: WizardStepConfig<ProjectFormData>[] = [
   {
     id: 'provider',
     label: 'Cloud Provider',
-    description: 'Select storage provider',
+    description: PROJECT_RULES.provider.description,
     icon: IconCloudUpload,
     fields: ['provider'],
-    validation: async (data) => {
-      const result = await validateProjectForm(data);
-      return result.results.provider?.isValid ?? false;
-    },
     render: ProviderStep
   },
   {
     id: 'name',
     label: 'Project Name',
-    description: 'Enter project name',
+    description: PROJECT_RULES.name.description,
     icon: IconFolderPlus,
     fields: ['name'],
-    validation: async (data) => {
-      const result = await validateProjectForm(data);
-      return result.results.name?.isValid ?? false;
-    },
     render: NameStep
   },
   {
     id: 'folder',
     label: 'Select Folder',
-    description: 'Choose location',
+    description: PROJECT_RULES.folderPath.description,
     icon: IconFolderSearch,
     fields: ['folderPath', 'provider'],
-    validation: async (data) => {
-      const result = await validateProjectForm(data);
-      return result.results.folderPath?.isValid ?? false;
-    },
     render: FolderStep
   },
   {
     id: 'review',
     label: 'Review',
-    description: 'Confirm details',
+    description: 'Confirm project details',
     icon: IconClipboardCheck,
     fields: ['name', 'provider', 'folderPath'],
-    validation: async (data) => {
-      const result = await validateProjectForm(data);
-      return result.isValid;
-    },
     render: ReviewStep
   }
 ] as const;

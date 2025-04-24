@@ -6,24 +6,14 @@
 import { ReactNode } from 'react';
 
 /**
- * Base type for wizard step data
- */
-export interface WizardStepData {
-  id: string;
-  isValid: boolean;
-  isDirty: boolean;
-  data: Record<string, unknown>;
-}
-
-/**
  * Wizard step configuration
  */
 export interface WizardStepConfig<T extends Record<string, unknown>> {
   id: string;
   label: string;
   description?: string;
+  icon?: React.ComponentType;
   fields: Array<keyof T>;
-  validation?: (data: T) => Promise<boolean>;
   render: (props: WizardStepProps<T>) => ReactNode;
 }
 
@@ -32,37 +22,28 @@ export interface WizardStepConfig<T extends Record<string, unknown>> {
  */
 export interface WizardStepProps<T extends Record<string, unknown>> {
   data: T;
-  onChange: (field: keyof T, value: unknown) => void;
-  onValidate: () => Promise<boolean>;
   isValid: boolean;
-  isDirty: boolean;
   isLoading: boolean;
-  error?: string;
+  onChange: (data: Partial<T>) => void;
 }
 
 /**
- * Wizard context state
+ * Wizard state
  */
 export interface WizardState<T extends Record<string, unknown>> {
   currentStep: number;
-  steps: WizardStepData[];
   data: T;
-  isSubmitting: boolean;
-  errors: Record<string, string>;
+  isValid: boolean;
 }
 
 /**
- * Wizard context value
+ * Wizard action types
  */
-export interface WizardContextValue<T extends Record<string, unknown>> extends WizardState<T> {
-  next: () => Promise<void>;
-  prev: () => void;
-  goToStep: (step: number) => void;
-  setData: (field: keyof T, value: unknown) => void;
-  validate: () => Promise<boolean>;
-  submit: () => Promise<void>;
-  reset: () => void;
-}
+export type WizardAction<T> =
+  | { type: 'SET_STEP'; payload: number }
+  | { type: 'SET_DATA'; payload: Partial<T> }
+  | { type: 'SET_VALID'; payload: boolean }
+  | { type: 'RESET' };
 
 /**
  * Props for WizardProvider component
@@ -72,5 +53,4 @@ export interface WizardProviderProps<T extends Record<string, unknown>> {
   steps: WizardStepConfig<T>[];
   initialData?: Partial<T>;
   onSubmit: (data: T) => Promise<void>;
-  onError?: (error: Error) => void;
 }

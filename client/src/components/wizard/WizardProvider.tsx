@@ -3,12 +3,12 @@
  * @module components/wizard/WizardProvider
  */
 
-import { createContext, useContext, useCallback } from 'react';
-import { WizardContextValue, WizardProviderProps } from './types';
-import { useWizardState } from './hooks';
+import { createContext, useContext, useMemo } from 'react';
+import { WizardState, WizardProviderProps } from './types';
+import { useWizardState } from '../../hooks/useWizardState';
 
 // Create context with type safety
-const WizardContext = createContext<WizardContextValue<Record<string, unknown>> | null>(null);
+const WizardContext = createContext<WizardState<Record<string, unknown>> | null>(null);
 
 /**
  * Hook to access wizard context
@@ -19,7 +19,7 @@ export function useWizard<T extends Record<string, unknown>>() {
   if (!context) {
     throw new Error('useWizard must be used within WizardProvider');
   }
-  return context as WizardContextValue<T>;
+  return context as WizardState<T>;
 }
 
 /**
@@ -29,29 +29,35 @@ export function WizardProvider<T extends Record<string, unknown>>({
   children,
   steps,
   initialData,
-  onSubmit,
-  onError
+  onSubmit
 }: WizardProviderProps<T>) {
-  const state = useWizardState(steps, initialData);
+  const {
+    state,
+    setStep,
+    setData,
+    setValid,
+    reset,
+    canGoNext,
+    canGoPrev
+  } = useWizardState<T>(steps);
 
-  const handleSubmit = useCallback(async () => {
-    try {
-      state.isSubmitting = true;
-      await onSubmit(state.data);
-    } catch (error) {
-      if (error instanceof Error) {
-        onError?.(error);
-      }
-      throw error;
-    } finally {
-      state.isSubmitting = false;
+  // Initialize with initial data if provided
+  useMemo(() => {
+    if (initialData) {
+      setData(initialData);
     }
-  }, [onSubmit, onError, state]);
+  }, [initialData, setData]);
 
-  const value: WizardContextValue<T> = {
-    ...state,
-    submit: handleSubmit
-  };
+  const value = useMemo(() => ({
+    state,
+    setStep,
+    setData,
+    setValid,
+    reset,
+    canGoNext,
+    canGoPrev,
+    onSubmit
+  }), [state, setStep, setData, setValid, reset, canGoNext, canGoPrev, onSubmit]);
 
   return (
     <WizardContext.Provider value={value}>
