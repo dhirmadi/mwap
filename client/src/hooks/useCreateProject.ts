@@ -82,8 +82,12 @@ export function useCreateProject(tenantId: string) {
 
       // Get auth token before making request
       try {
-        // Ensure we have a valid token
-        const token = await getToken();
+        // Force token refresh to ensure we have a valid token
+        const token = await getToken({
+          ignoreCache: true,
+          timeoutInSeconds: 60
+        });
+
         if (!token) {
           debug.error('No auth token available');
           throw new AuthError(ErrorCode.UNAUTHORIZED, 'No auth token available');
@@ -106,11 +110,13 @@ export function useCreateProject(tenantId: string) {
 
         // Log request details for debugging
         debug.info('Creating project with config:', {
-          ...config,
+          url: API_PATHS.PROJECT.CREATE,
+          method: 'POST',
           headers: {
             ...config.headers,
-            Authorization: config.headers.Authorization ? 'Bearer [REDACTED]' : 'MISSING'
-          }
+            Authorization: 'Bearer [REDACTED]'
+          },
+          data: { ...request, tenantId }
         });
 
         // Attempt to create project

@@ -9,6 +9,7 @@ import { ProjectFormData } from '../components/tenant/project-creation/types';
 import { useCreateProject } from './useCreateProject';
 import { handleProjectError, showSuccessNotification } from '../utils/project/errors';
 import { createProjectPayload } from '../utils/project/transforms';
+import { debug } from '../utils/debug';
 
 /**
  * Project submission hook
@@ -23,13 +24,29 @@ export function useProjectSubmission(tenantId: string) {
       // Create project payload with validation
       const payload = createProjectPayload(data, tenantId);
       if (!payload) {
+        debug.error('Failed to create project payload', { data, tenantId });
         throw new Error('Invalid project payload');
       }
 
+      // Log submission attempt
+      debug.info('Submitting project creation:', {
+        payload,
+        tenantId,
+        provider: data.provider
+      });
+
       // Attempt to create project
       const response = await createProject(payload);
-      if (!response || !response.id) {
-        throw new Error('Invalid project response');
+      
+      // Validate response
+      if (!response) {
+        debug.error('Empty project response');
+        throw new Error('Project creation failed - empty response');
+      }
+      
+      if (!response.id) {
+        debug.error('Invalid project response - missing ID', { response });
+        throw new Error('Project creation failed - invalid response');
       }
 
       // Show success and navigate
@@ -38,6 +55,11 @@ export function useProjectSubmission(tenantId: string) {
       
       return response;
     } catch (error) {
+      debug.error('Project submission failed:', {
+        error,
+        data,
+        tenantId
+      });
       handleProjectError(error);
       return null;
     }

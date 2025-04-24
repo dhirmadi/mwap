@@ -9,6 +9,7 @@ import { useProjectValidation } from './useProjectValidation';
 import { useProjectSubmission } from './useProjectSubmission';
 import { ProjectFormData } from '../components/tenant/project-creation/types';
 import { STEPS } from '../components/tenant/project-creation/config';
+import { debug } from '../utils/debug';
 
 /**
  * Hook options for project wizard configuration
