@@ -113,6 +113,19 @@ export const ProjectController: AsyncController = {
         throw new AuthorizationError('You do not have permission to create projects in this tenant');
       }
 
+      // Debug logging for project creation attempt
+      logger.info('[PROJECT CREATION - CREATING]', {
+        projectData: {
+          ...req.body,
+          userId: req.user.id,
+          role: 'owner'
+        },
+        context: {
+          requestId: req.id,
+          tenantId: req.body.tenantId
+        }
+      });
+
       // Create project and automatically assign creator as owner
       const project = await ProjectModel.create({
         ...req.body,
@@ -123,8 +136,27 @@ export const ProjectController: AsyncController = {
         }]
       });
 
+      // Debug logging for successful project creation
+      logger.info('[PROJECT CREATION - SUCCESS]', {
+        project: {
+          id: project._id,
+          name: project.name,
+          tenantId: project.tenantId,
+          members: project.members,
+          createdAt: project.createdAt
+        },
+        user: {
+          id: req.user.id,
+          role: 'owner'
+        },
+        context: {
+          requestId: req.id,
+          tenantHeaders: req.headers['x-tenant-id']
+        }
+      });
+
       // Return project details in standard format
-      res.status(201).json({
+      const response = {
         data: {
           id: project._id,
           name: project.name,
@@ -135,7 +167,18 @@ export const ProjectController: AsyncController = {
         meta: {
           requestId: req.id
         }
+      };
+
+      // Debug logging for response
+      logger.info('[PROJECT CREATION - RESPONSE]', {
+        response,
+        context: {
+          statusCode: 201,
+          requestId: req.id
+        }
       });
+
+      res.status(201).json(response);
     } catch (error) {
       // Detailed error logging
       const err = error as Error & { code?: string; status?: number };
