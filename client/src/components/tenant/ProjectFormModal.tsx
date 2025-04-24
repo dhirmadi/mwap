@@ -1,5 +1,4 @@
-import { Modal, Alert, Text } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { Modal } from '@mantine/core';
 import { IntegrationProvider } from '../../types';
 import { STEPS } from './project-creation/config';
 import { WizardNavigation } from '../wizard/WizardNavigation';
@@ -7,7 +6,6 @@ import { WizardControls } from '../wizard/WizardControls';
 import { useProjectWizard } from '../../hooks/useProjectWizard';
 import { FormErrorBoundary } from './project-creation/FormErrorBoundary';
 import { usePortalContext } from '../../hooks/usePortalContext';
-import { usePermissions } from '../../hooks/usePermissions';
 
 interface ProjectFormModalProps {
   opened: boolean;
@@ -53,9 +51,6 @@ export function ProjectFormModal({
   // Ensure auth context is maintained in portal
   usePortalContext();
 
-  // Check permissions
-  const { canCreateProject, isPermissionLoading } = usePermissions(tenantId);
-
   return (
     <Modal
         opened={opened}
@@ -67,20 +62,6 @@ export function ProjectFormModal({
         size="lg"
         centered
       >
-        {!isPermissionLoading && !canCreateProject() && (
-          <Alert
-            icon={<IconAlertCircle size="1.1rem" />}
-            title="Permission Denied"
-            color="red"
-            mb="md"
-          >
-            <Text size="sm">
-              You do not have permission to create projects in this tenant.
-              Please contact your administrator to request access.
-            </Text>
-          </Alert>
-        )}
-
         <FormErrorBoundary onReset={handleReset}>
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -113,7 +94,7 @@ export function ProjectFormModal({
               onNext={handleNext}
               onSubmit={handleSubmit}
               onCancel={onClose}
-              disabled={availableProviders.length === 0 || !canCreateProject()}
+              disabled={availableProviders.length === 0}
             />
           </form>
         </FormErrorBoundary>
