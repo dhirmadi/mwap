@@ -4,6 +4,7 @@ import { AppError, ErrorCode, AuthError } from '../core/errors';
 import { API_PATHS } from '../core/api/paths';
 import { ProjectResponse, CreateProjectRequest } from '../types';
 import { usePermissions } from './usePermissions';
+import { useAuth } from './useAuth';
 import { debug } from '../utils/debug';
 
 /**
