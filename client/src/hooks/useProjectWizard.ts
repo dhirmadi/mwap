@@ -73,16 +73,38 @@ export function useProjectWizard({
     }
   }, [state.data, submitProject, onSuccess]);
 
+  // Track validated steps
+  const validatedSteps = new Set<number>();
+  if (state.isValid) {
+    validatedSteps.add(state.currentStep);
+  }
+
+  // Form interface
+  const form = {
+    values: state.data,
+    errors: {},  // Errors handled by validation hook
+    setFieldValue: (field: keyof ProjectFormData, value: any) => {
+      setData({ [field]: value });
+    },
+    isValid: () => state.isValid
+  };
+
+  // Wizard state interface
+  const wizardState = {
+    state: state.isValid ? 'valid' : 'validating',
+    activeStep: state.currentStep,
+    validatedSteps,
+    canNavigateToStep: (step: number) => step <= state.currentStep,
+    handleNext: () => canGoNext() && setStep(state.currentStep + 1),
+    handlePrev: () => canGoPrev() && setStep(state.currentStep - 1),
+    handleSubmit: submit,
+    handleReset: reset,
+    goToStep: setStep
+  };
+
   return {
-    currentStep: state.currentStep,
-    data: state.data,
-    isValid: state.isValid,
-    isLoading: false,
-    setStep,
-    setData,
-    canGoNext,
-    canGoPrev,
-    submit,
-    reset
+    form,
+    state: wizardState,
+    isLoading: false
   };
 }
