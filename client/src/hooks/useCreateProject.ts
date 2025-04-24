@@ -4,6 +4,7 @@ import { AppError, ErrorCode, AuthError } from '../core/errors';
 import { API_PATHS } from '../core/api/paths';
 import { ProjectResponse, CreateProjectRequest } from '../types';
 import { usePermissions } from './usePermissions';
+import { debug } from '../utils/debug';
 
 /**
  * Hook for creating new projects
@@ -20,62 +21,62 @@ export function useCreateProject(tenantId: string) {
   } = useMutation<ProjectResponse, AppError, CreateProjectRequest>({
     mutationFn: async (request) => {
       // Debug logging for project creation request
-      console.group('[PROJECT CREATION - DEBUG]');
+      debug.group('PROJECT CREATION');
 
       // 1. Current Request Data
-      console.group('Actual Request Data:');
-      console.log('Endpoint:', API_PATHS.PROJECT.CREATE);
-      console.log('Method:', 'POST');
-      console.log('Headers:', {
+      debug.group('Actual Request Data');
+      debug.info('Endpoint:', API_PATHS.PROJECT.CREATE);
+      debug.info('Method:', 'POST');
+      debug.info('Headers:', {
         'Authorization': api.defaults.headers?.['Authorization'] ? 'Bearer [REDACTED]' : 'MISSING',
         'X-Tenant-ID': tenantId,
         'X-Request-ID': `create-project-${Date.now()}`,
         'Content-Type': 'application/json'
       });
-      console.log('Body:', {
+      debug.info('Body:', {
         ...request,
         tenantId
       });
-      console.groupEnd();
+      debug.groupEnd();
 
       // 2. API Expected Format
-      console.group('API Expected Format:');
-      console.log('Required Headers:', {
+      debug.group('API Expected Format');
+      debug.info('Required Headers:', {
         'Authorization': 'Bearer JWT_TOKEN',
         'X-Tenant-ID': 'Must match: 6808aaf66ed742686ff630b0',
         'Content-Type': 'application/json'
       });
-      console.log('Required Body Format:', {
+      debug.info('Required Body Format:', {
         name: 'string (required)',
         description: 'string (optional)',
         tenantId: 'string (required, must match X-Tenant-ID header)'
       });
-      console.groupEnd();
+      debug.groupEnd();
 
       // 3. Authentication Context
-      console.group('Auth & Tenant Context:');
+      debug.group('Auth & Tenant Context');
       const authHeader = api.defaults.headers?.['Authorization'] as string;
-      console.log('Auth Header Present:', Boolean(authHeader));
-      console.log('Tenant ID Match:', 
+      debug.info('Auth Header Present:', Boolean(authHeader));
+      debug.info('Tenant ID Match:', 
         tenantId === '6808aaf66ed742686ff630b0'
       );
-      console.groupEnd();
+      debug.groupEnd();
 
       // 4. Validation Summary
-      console.group('Request Validation:');
-      console.log('Headers Present:', {
+      debug.group('Request Validation');
+      debug.info('Headers Present:', {
         auth: Boolean(api.defaults.headers?.['Authorization']),
         tenantId: Boolean(tenantId),
         contentType: true
       });
-      console.log('Request Body Valid:', {
+      debug.info('Request Body Valid:', {
         hasName: Boolean(request.name),
         hasTenantId: Boolean(tenantId),
         nameLength: request.name?.length
       });
-      console.groupEnd();
+      debug.groupEnd();
 
-      console.groupEnd();
+      debug.groupEnd();
 
       // Attempt to create project - auth token will be added by interceptor
       try {
@@ -91,10 +92,10 @@ export function useCreateProject(tenantId: string) {
         return response;
       } catch (error: any) {
         // Debug logging for error response
-        console.group('[PROJECT CREATION - ERROR RESPONSE]');
-        console.log('Status:', error?.response?.status);
-        console.log('Error Data:', error?.response?.data);
-        console.log('Request Config:', {
+        debug.group('PROJECT CREATION - ERROR RESPONSE');
+        debug.error('Status:', error?.response?.status);
+        debug.error('Error Data:', error?.response?.data);
+        debug.error('Request Config:', {
           url: error?.config?.url,
           method: error?.config?.method,
           headers: {
@@ -102,13 +103,13 @@ export function useCreateProject(tenantId: string) {
             'Authorization': error?.config?.headers?.Authorization ? 'Bearer [REDACTED]' : 'MISSING'
           }
         });
-        console.log('Full Error:', {
+        debug.error('Full Error:', {
           name: error?.name,
           message: error?.message,
           code: error?.code,
           stack: error?.stack
         });
-        console.groupEnd();
+        debug.groupEnd();
 
         if (error?.response?.status === 403) {
           throw new AuthError(
@@ -127,7 +128,7 @@ export function useCreateProject(tenantId: string) {
     },
     onError: (error) => {
       // Log detailed error information
-      console.error('Project creation failed:', {
+      debug.error('Project creation failed:', {
         error,
         tenantId,
         code: error.code,

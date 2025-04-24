@@ -35,29 +35,5 @@ export type ProjectStepConfig = WizardStepConfig<ProjectFormData> & {
   availableProviders: string[];
 };
 
-/**
- * Validation rules for project creation form
- * @interface ValidationRule
- */
-export interface ValidationRule {
-  required?: string;
-  min?: { value: number; message: string };
-  max?: { value: number; message: string };
-  description: string;
-}
-
-/**
- * Validation rules for project creation form
- * @interface ValidationRules
- */
-export interface ValidationRules {
-  name: ValidationRule;
-  provider: ValidationRule;
-  folderPath: ValidationRule;
-}
-
-/**
- * Validation function type
- * @type ValidateFunction
- */
-export type ValidateFunction<T> = (value: T) => Promise<string | null>;
+// Validation types moved to /validation/types/rules.ts
+export type { ValidationRule, ValidationRules, ValidateFunction } from '../../../validation/types/rules';
