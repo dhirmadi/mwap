@@ -31,10 +31,8 @@ export function useCloudIntegrations(tenantId: string) {
         rawData: response?.data,
         integrations: response?.data?.map(i => ({
           provider: i.provider,
-          status: i.status,
-          id: i.id,
-          createdAt: i.createdAt,
-          updatedAt: i.updatedAt
+          token: i.token,
+          connectedAt: i.connectedAt
         })),
         hasDropbox: response?.data?.some(i => i.provider.toUpperCase() === 'DROPBOX'),
         providersList: response?.data?.map(i => i.provider.toUpperCase()).join(', ')
