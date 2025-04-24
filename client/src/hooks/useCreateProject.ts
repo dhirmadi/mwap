@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@auth0/auth0-react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { useApi, post } from '../core/api';
 import { AppError, AuthError, ErrorCode } from '../core/errors';
 import { API_PATHS } from '../core/api/paths';
@@ -13,7 +13,7 @@ import { debug } from '../utils/debug';
 export function useCreateProject(tenantId: string) {
   const api = useApi();
   const queryClient = useQueryClient();
-  const { getToken } = useAuth();
+  const { getAccessTokenSilently } = useAuth0();
 
   const {
     mutate: createProject,
