@@ -1,10 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi, post } from '../core/api';
-import { AppError, ErrorCode, AuthError } from '../core/errors';
+import { AppError } from '../core/errors';
 import { API_PATHS } from '../core/api/paths';
 import { ProjectResponse, CreateProjectRequest } from '../types';
-import { usePermissions } from './usePermissions';
-import { useAuth } from './useAuth';
 import { debug } from '../utils/debug';
 
 /**
@@ -80,29 +78,16 @@ export function useCreateProject(tenantId: string) {
 
       debug.groupEnd();
 
-      // Get auth token before making request
       try {
-        // Force token refresh to ensure we have a valid token
-        const token = await getToken({
-          ignoreCache: true,
-          timeoutInSeconds: 60
-        });
-
-        if (!token) {
-          debug.error('No auth token available');
-          throw new AuthError(ErrorCode.UNAUTHORIZED, 'No auth token available');
-        }
-
         // Validate request data
         if (!request || !request.name || !tenantId) {
           debug.error('Invalid request data', { request, tenantId });
           throw new Error('Invalid request data');
         }
 
-        // Create request config with auth token
+        // Create request config with tenant ID
         const config = {
           headers: {
-            'Authorization': `Bearer ${token}`,
             'X-Tenant-ID': tenantId,
             'X-Request-ID': `create-project-${Date.now()}`
           }

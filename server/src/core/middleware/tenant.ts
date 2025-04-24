@@ -33,18 +33,95 @@ export function requireNoTenant() {
  */
 export function requireTenantOwner() {
   return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
-    const { id: tenantId } = req.params;
-    const userId = req.user?.sub;
+    try {
+      // Get tenant ID from params, body, or headers
+      const tenantId = req.params.id || req.body.tenantId || req.headers['x-tenant-id'];
+      const userId = req.user?.id;
 
-    // Stub: Check if user owns the tenant
-    const isOwner = false;
-    if (!isOwner) {
-      res.status(403).json({
-        message: 'Only tenant owner can perform this action'
+      // Log request details
+      logger.debug('Tenant owner check started', {
+        userId,
+        tenantId,
+        path: req.path,
+        method: req.method,
+        source: {
+          params: !!req.params.id,
+          body: !!req.body.tenantId,
+          headers: !!req.headers['x-tenant-id']
+        }
       });
-      return;
+
+      // Validate inputs
+      if (!userId) {
+        logger.error('Missing user ID in request', { 
+          auth: req.user,
+          headers: req.headers 
+        });
+        throw new AuthenticationError('User not authenticated');
+      }
+
+      if (!tenantId) {
+        logger.error('Missing tenant ID', {
+          params: req.params,
+          body: req.body,
+          headers: req.headers
+        });
+        throw new ValidationError('Tenant ID is required');
+      }
+
+      // Find tenant and check ownership
+      const tenant = await TenantModel.findById(tenantId);
+      
+      if (!tenant) {
+        logger.error('Tenant not found', { tenantId });
+        throw new NotFoundError('Tenant not found');
+      }
+
+      // Check if user is owner
+      const isOwner = tenant.members.some(member => 
+        member.userId.toString() === userId && 
+        member.role === 'owner'
+      );
+
+      logger.debug('Tenant ownership check result', {
+        userId,
+        tenantId,
+        isOwner,
+        members: tenant.members.map(m => ({
+          userId: m.userId.toString(),
+          role: m.role
+        }))
+      });
+
+      if (!isOwner) {
+        logger.warn('User is not tenant owner', {
+          userId,
+          tenantId,
+          userRoles: req.user?.roles,
+          tenantMembers: tenant.members.map(m => ({
+            userId: m.userId.toString(),
+            role: m.role
+          }))
+        });
+        throw new AuthorizationError('Only tenant owner can perform this action');
+      }
+
+      // Add tenant to request for downstream use
+      req.tenant = tenant;
+      next();
+    } catch (error) {
+      logger.error('Tenant owner check failed', {
+        path: req.path,
+        method: req.method,
+        userId: req.user?.id,
+        error: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        } : error
+      });
+      next(error);
     }
-    next();
   };
 }
 
