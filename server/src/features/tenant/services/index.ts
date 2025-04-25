@@ -9,6 +9,7 @@ import {
   InternalServerError 
 } from '@core/errors';
 import { logger } from '@core/utils';
+import { getUserIdentifier } from '@core/utils/user-mapping';
 
 export class TenantService {
   /**
@@ -80,8 +81,9 @@ export class TenantService {
 
       const tenant = new TenantModel({
         ...input,
+        ownerId: userId, // Set ownerId to auth ID
         members: [{
-          userId,
+          userId, // userId is already auth ID from controller
           role: TenantRole.OWNER,
           joinedAt: new Date()
         }]

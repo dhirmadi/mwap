@@ -4,6 +4,7 @@ import { AsyncController } from '@core/types/express';
 import { TenantService } from '../services';
 import { ValidationError } from '@core/errors';
 import { logger } from '@core/utils/logger';
+import { getUserIdentifier } from '@core/utils/user-mapping';
 import { createTenantSchema } from '../schemas/validation';
 
 // Create a singleton instance of TenantService
@@ -66,8 +67,8 @@ export const TenantController: AsyncController = {
         requestId: req.id
       });
 
-      // Create tenant
-      const tenant = await tenantService.createTenant(req.user.id, { name: req.body.name });
+      // Create tenant using auth ID
+      const tenant = await tenantService.createTenant(getUserIdentifier(req.user, 'auth'), { name: req.body.name });
       
       logger.info('Tenant created successfully', {
         tenantId: tenant._id,
@@ -110,7 +111,7 @@ export const TenantController: AsyncController = {
    */
   getCurrentTenant: async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const tenant = await tenantService.getTenantByOwnerId(req.user.id);
+      const tenant = await tenantService.getTenantByOwnerId(getUserIdentifier(req.user, 'auth'));
       
       logger.debug('Retrieved tenant', {
         userId: req.user.id,
