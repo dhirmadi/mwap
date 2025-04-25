@@ -101,6 +101,7 @@ Permissions are defined by:
 - **Resource**: The target resource type (e.g., "project")
 - **Context**: The tenant or project scope
 - **Role**: The user's role in that context
+- **User ID**: Auth0 ID (`user.sub`) used for all permission checks
 
 ### Role Hierarchy
 1. **Super Admin**: Has all permissions across all tenants
@@ -223,8 +224,9 @@ export const PROJECT_PERMISSIONS = {
 ### Checking Permissions
 ```typescript
 // Check if user can create project
+const userId = getUserIdentifier(user, 'auth'); // Get Auth0 ID
 const canCreate = await permissionService.checkPermission(
-  user,
+  userId,
   PERMISSIONS.PROJECT.CREATE,
   'project',
   tenantId
@@ -238,8 +240,9 @@ if (!canCreate) {
 ### Getting User Permissions
 ```typescript
 // Get all permissions for user in tenant
+const userId = getUserIdentifier(user, 'auth'); // Get Auth0 ID
 const { permissions, roles } = await permissionService.getUserPermissions(
-  user,
+  userId,
   tenantId
 );
 

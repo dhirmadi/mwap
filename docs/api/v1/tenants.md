@@ -1,7 +1,12 @@
 # Tenant Management API Documentation
 
 ## Overview
-The tenant management system provides multi-tenancy support with role-based access control and resource isolation.
+The tenant management system provides multi-tenancy support with role-based access control and resource isolation. All tenant operations use Auth0 IDs (`user.sub`) for authentication and authorization.
+
+## ID Handling
+- All tenant operations use Auth0 IDs (`user.sub`) for member identification
+- Internal IDs (`user.id`) are used only for display purposes
+- The `getUserIdentifier` utility must be used to get the correct ID type
 
 ## Endpoints
 

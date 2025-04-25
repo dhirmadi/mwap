@@ -158,6 +158,8 @@ sequenceDiagram
    - Project-level permissions
    - Automatic role assignment
    - Permission checking middleware
+   - Auth0 ID (`user.sub`) based permission checks
+   - ID type separation (auth vs display)
 
 3. **OAuth Integration**
    - Multiple provider support
@@ -274,6 +276,9 @@ sequenceDiagram
    - Fail closed on errors
    - Clear error messages
    - Audit important changes
+   - Use `getUserIdentifier` utility for ID handling
+   - Consistent auth ID usage for security operations
+   - Separate display IDs from security IDs
 
 ### Development Workflow
 
