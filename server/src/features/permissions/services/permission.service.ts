@@ -68,7 +68,7 @@ export class DefaultPermissionService implements PermissionService {
         }
       });
 
-      const member = tenant.members.find(m => m.userId === user.sub);
+      const member = tenant.members.find(m => m.userId === user.id);
 
       // Log membership check
       logger.info('[GET USER PERMISSIONS - MEMBERSHIP]', {
