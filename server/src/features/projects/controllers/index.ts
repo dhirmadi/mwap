@@ -3,6 +3,7 @@ import { AuthRequest } from '@core/types/express';
 import { ProjectModel } from '@features/projects/schemas';
 import { AsyncController } from '@core/types/express';
 import { logger } from '@core/utils';
+import { getUserIdentifier } from '@core/utils/user-mapping';
 import { DefaultPermissionService } from '@features/permissions/services/permission.service';
 import { PERMISSIONS } from '@features/permissions/types';
 import { AuthorizationError } from '@core/errors';
@@ -126,11 +127,11 @@ export const ProjectController: AsyncController = {
         }
       });
 
-      // Create project and automatically assign creator as owner
+      // Create project and automatically assign creator as owner using auth ID
       const project = await ProjectModel.create({
         ...req.body,
         members: [{
-          userId: req.user.id,
+          userId: getUserIdentifier(req.user, 'auth'),
           role: 'owner',
           grantedAt: new Date()
         }]
