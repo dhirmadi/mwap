@@ -10,7 +10,7 @@ const router = Router();
 router.post(
   '/invites',
   auth.validateToken,
-  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
+  requireProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
   InviteController.createInvite
 );
 

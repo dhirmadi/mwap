@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '@core/types/express';
-import { ProjectModel } from '@features/projects/schemas';
+import { ProjectModel, ProjectRole } from '@features/projects/schemas';
 import { AsyncController } from '@core/types/express';
 import { logger } from '@core/utils';
 import { getUserIdentifier } from '@core/utils/user-mapping';
@@ -119,7 +119,7 @@ export const ProjectController: AsyncController = {
         projectData: {
           ...req.body,
           userId: req.user.id,
-          role: 'owner'
+          role: ProjectRole.OWNER
         },
         context: {
           requestId: req.id,
@@ -132,7 +132,7 @@ export const ProjectController: AsyncController = {
         ...req.body,
         members: [{
           userId: getUserIdentifier(req.user, 'auth'),
-          role: 'owner',
+          role: ProjectRole.OWNER,
           grantedAt: new Date()
         }]
       });
@@ -148,7 +148,7 @@ export const ProjectController: AsyncController = {
         },
         user: {
           id: req.user.id,
-          role: 'owner'
+          role: ProjectRole.OWNER
         },
         context: {
           requestId: req.id,
@@ -162,7 +162,7 @@ export const ProjectController: AsyncController = {
           id: project._id,
           name: project.name,
           tenantId: project.tenantId,
-          role: 'owner',
+          role: ProjectRole.OWNER,
           createdAt: project.createdAt
         },
         meta: {

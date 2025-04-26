@@ -28,7 +28,7 @@ router.get(
 router.get(
   '/:id',
   ...auth.validateRequest,
-  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR]),
+  requireProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY, ProjectRole.MEMBER]),
   ProjectController.getProject
 );
 
@@ -36,7 +36,7 @@ router.get(
 router.patch(
   '/:id',
   ...auth.validateRequest,
-  requireProjectRole([ProjectRole.ADMIN]),
+  requireProjectRole([ProjectRole.OWNER]),
   ProjectController.updateProject
 );
 
@@ -44,7 +44,7 @@ router.patch(
 router.delete(
   '/:id',
   ...auth.validateRequest,
-  requireProjectRole([ProjectRole.ADMIN]),
+  requireProjectRole([ProjectRole.OWNER]),
   ProjectController.deleteProject
 );
 
@@ -54,7 +54,7 @@ router.delete(
 router.patch(
   '/:id/members/:userId',
   ...auth.validateRequest,
-  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
+  requireProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
   ProjectMemberController.updateMemberRole
 );
 
@@ -62,7 +62,7 @@ router.patch(
 router.delete(
   '/:id/members/:userId',
   ...auth.validateRequest,
-  requireProjectRole([ProjectRole.ADMIN, ProjectRole.DEPUTY]),
+  requireProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
   ProjectMemberController.removeMember
 );
 

@@ -7,6 +7,26 @@ MWAP implements a role-based access control (RBAC) system with:
 - Project-level permissions
 - Integration access control
 
+## Role Standardization
+
+### Project Roles
+Project roles follow a standardized hierarchy:
+1. OWNER (highest) - Full control over project
+2. DEPUTY (middle) - Can manage members except owners
+3. MEMBER (base) - Basic access and collaboration
+
+This aligns with tenant roles for consistency:
+- Tenant OWNER maps to Project OWNER
+- Tenant ADMIN maps to Project DEPUTY
+- Tenant MEMBER maps to Project MEMBER
+
+### Role Validation
+- Validate roles at assignment using ProjectRole enum
+- Check role hierarchy using PROJECT_ROLE_HIERARCHY
+- Ensure role changes maintain hierarchy integrity
+- Deputies cannot modify Owner roles
+- Only Owners can delete projects
+
 ## Implementation
 
 ### Permission Service
@@ -61,10 +81,19 @@ All permission checks use Auth0 ID (`user.sub`):
 
 ### Project Permissions
 
-Project permissions inherit from tenant roles and add:
-- Project-specific roles
-- Resource-level access
-- Integration permissions
+Project permissions build on the standardized role system:
+- OWNER has full control over project and members
+- DEPUTY can manage members (except owners) and resources
+- MEMBER has basic access and collaboration rights
+
+Role hierarchy ensures consistent permission checks:
+```typescript
+export const PROJECT_ROLE_HIERARCHY = {
+  [ProjectRole.OWNER]: 3,   // Highest level
+  [ProjectRole.DEPUTY]: 2,  // Middle tier
+  [ProjectRole.MEMBER]: 1   // Base level
+};
+```
 
 ## Middleware
 
@@ -104,8 +133,9 @@ const requireTenantOwner = async (req: Request, res: Response, next: NextFunctio
 
 2. **Role Validation**:
    - Validate roles at assignment
-   - Check inheritance rules
-   - Maintain role hierarchy
+   - Check role hierarchy (OWNER > DEPUTY > MEMBER)
+   - Maintain consistent role naming
+   - Prevent unauthorized role changes
 
 3. **Error Handling**:
    - Clear error messages
@@ -120,14 +150,16 @@ const requireTenantOwner = async (req: Request, res: Response, next: NextFunctio
 - Validate ID format
 
 ### Role Assignment
-- Validate role changes
-- Check assigner permissions
-- Maintain role hierarchy
+- Validate role changes against hierarchy
+- Check assigner permissions (OWNER or DEPUTY)
+- Prevent escalation of privileges
+- Maintain role separation
 
 ### Access Control
 - Check permissions early
 - Use middleware consistently
 - Log access attempts
+- Validate role boundaries
 
 ## Troubleshooting
 
@@ -136,12 +168,13 @@ const requireTenantOwner = async (req: Request, res: Response, next: NextFunctio
 1. **Permission Denied**:
    - Check ID type used
    - Verify role assignment
-   - Check inheritance
+   - Check hierarchy level
 
 2. **Role Issues**:
-   - Verify role exists
-   - Check assignment
-   - Validate hierarchy
+   - Verify role exists in ProjectRole enum
+   - Check role hierarchy (OWNER > DEPUTY > MEMBER)
+   - Validate role change permissions
+   - Ensure Deputy can't modify Owner roles
 
 3. **Integration Access**:
    - Check provider permissions

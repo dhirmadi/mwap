@@ -5,7 +5,7 @@ import { ValidationError, AuthorizationError } from '@core/errors';
 
 // Validation schema for role update
 const updateRoleSchema = z.object({
-  role: z.enum([ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR])
+  role: z.enum([ProjectRole.OWNER, ProjectRole.DEPUTY, ProjectRole.MEMBER])
 });
 
 export class ProjectMemberController {
@@ -25,7 +25,7 @@ export class ProjectMemberController {
       }
 
       // Stub: Check if current user can assign the target role
-      const currentUserRole: ProjectRole = ProjectRole.ADMIN; // This would come from middleware
+      const currentUserRole: ProjectRole = ProjectRole.OWNER; // This would come from middleware
       if (!hasHigherOrEqualRole(currentUserRole, role)) {
         throw new AuthorizationError('Cannot assign a role higher than or equal to your own');
       }
@@ -60,7 +60,7 @@ export class ProjectMemberController {
       }
 
       // Stub: Check if target user has higher role
-      const targetRole: ProjectRole = ProjectRole.ADMIN; // This would come from DB lookup
+      const targetRole: ProjectRole = ProjectRole.OWNER; // This would come from DB lookup
       const currentUserRole: ProjectRole = ProjectRole.DEPUTY; // This would come from middleware
 
       // Check if current user has sufficient role to remove target user

@@ -455,7 +455,7 @@ Authorization: Required + Project Admin/Deputy
 
 Request:
 {
-  "role": "ADMIN" | "DEPUTY" | "CONTRIBUTOR"
+  "role": "OWNER" | "DEPUTY" | "MEMBER"
 }
 
 Response: Same as member object in List Members
@@ -576,8 +576,8 @@ enum TenantRole {
 ### Project Roles
 ```typescript
 enum ProjectRole {
-  ADMIN = 'ADMIN',          // Level 3
-  DEPUTY = 'DEPUTY',        // Level 2
-  CONTRIBUTOR = 'CONTRIBUTOR' // Level 1
+  OWNER = 'OWNER',       // Level 3
+  DEPUTY = 'DEPUTY',     // Level 2
+  MEMBER = 'MEMBER'      // Level 1
 }
 ```

@@ -8,7 +8,7 @@ import { ProjectRole } from '../../types';
  */
 const ROLE_COLORS: Record<ProjectRole, string> = {
   OWNER: 'blue',
-  ADMIN: 'green',
+  DEPUTY: 'green',
   MEMBER: 'gray'
 } as const;
 

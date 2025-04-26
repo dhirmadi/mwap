@@ -124,12 +124,12 @@ Example:
 ```typescript
 describe('hasHigherOrEqualRole', () => {
   it('should return true for higher role', () => {
-    expect(hasHigherOrEqualRole(TenantRole.OWNER, TenantRole.ADMIN))
+    expect(hasHigherOrEqualRole(ProjectRole.OWNER, ProjectRole.DEPUTY))
       .toBe(true);
   });
 
   it('should return false for lower role', () => {
-    expect(hasHigherOrEqualRole(TenantRole.MEMBER, TenantRole.ADMIN))
+    expect(hasHigherOrEqualRole(ProjectRole.MEMBER, ProjectRole.DEPUTY))
       .toBe(false);
   });
 });

@@ -2,9 +2,9 @@ import { Schema, model, Document, Model, Types } from 'mongoose';
 
 // Project member role enum
 export enum ProjectRole {
-  ADMIN = 'admin',
-  DEPUTY = 'deputy',
-  CONTRIBUTOR = 'contributor'
+  OWNER = 'OWNER',
+  DEPUTY = 'DEPUTY',
+  MEMBER = 'MEMBER'
 }
 
 // TypeScript interfaces

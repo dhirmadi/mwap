@@ -1,13 +1,13 @@
 export enum ProjectRole {
-  ADMIN = 'admin',
-  DEPUTY = 'deputy',
-  CONTRIBUTOR = 'contributor'
+  OWNER = 'OWNER',
+  DEPUTY = 'DEPUTY',
+  MEMBER = 'MEMBER'
 }
 
 export const PROJECT_ROLE_HIERARCHY: Record<ProjectRole, number> = {
-  [ProjectRole.ADMIN]: 3,
+  [ProjectRole.OWNER]: 3,
   [ProjectRole.DEPUTY]: 2,
-  [ProjectRole.CONTRIBUTOR]: 1
+  [ProjectRole.MEMBER]: 1
 };
 
 export function hasHigherOrEqualRole(userRole: ProjectRole, requiredRole: ProjectRole): boolean {

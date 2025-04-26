@@ -41,8 +41,8 @@ export function ProjectAdmin() {
 
   const { role, isLoadingRole } = useProjectRole(id);
 
-  // Only allow ADMIN access
-  if (!isLoadingRole && role !== ProjectRole.ADMIN) {
+  // Only allow OWNER access
+  if (!isLoadingRole && role !== ProjectRole.OWNER) {
     navigate('/');
     return null;
   }

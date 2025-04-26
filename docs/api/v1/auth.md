@@ -89,16 +89,16 @@ AUTH0_AUDIENCE=your-auth0-api-identifier
 ## Role-Based Access Control
 
 ### Available Roles
-- OWNER: Full tenant access
-- ADMIN: Project management access
-- MEMBER: Basic access
+- OWNER: Full tenant/project access
+- DEPUTY: Project management access (except owners)
+- MEMBER: Basic access and collaboration
 
 ### Role Hierarchy
 ```typescript
-export const TENANT_ROLE_HIERARCHY = {
-  OWNER: 3,
-  ADMIN: 2,
-  MEMBER: 1
+export const ROLE_HIERARCHY = {
+  OWNER: 3,   // Highest level
+  DEPUTY: 2,  // Middle tier
+  MEMBER: 1   // Base level
 };
 ```
 

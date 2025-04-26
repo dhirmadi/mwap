@@ -209,7 +209,7 @@ Get project details.
 ### PATCH /api/v1/projects/:id
 Update project details.
 
-**Authentication Required**: Yes (Project Admin)
+**Authentication Required**: Yes (Project Owner)
 
 **Request Body**:
 ```json
@@ -225,7 +225,7 @@ Update project details.
 ### DELETE /api/v1/projects/:id
 Delete project.
 
-**Authentication Required**: Yes (Project Admin)
+**Authentication Required**: Yes (Project Owner)
 
 **Response**:
 ```json
@@ -274,7 +274,7 @@ List project members.
 ### PATCH /api/v1/projects/:id/members/:userId
 Update member role.
 
-**Authentication Required**: Yes (Project Admin)
+**Authentication Required**: Yes (Project Owner or Deputy*)
 
 **Request Body**:
 ```json
@@ -283,12 +283,14 @@ Update member role.
 }
 ```
 
+\* Deputies cannot modify Owner roles
+
 **Response**: Same as member object in GET /api/v1/projects/:id/members
 
 ### DELETE /api/v1/projects/:id/members/:userId
 Remove member from project.
 
-**Authentication Required**: Yes (Project Admin)
+**Authentication Required**: Yes (Project Owner or Deputy*)
 
 **Response**:
 ```json
@@ -302,21 +304,23 @@ Remove member from project.
 }
 ```
 
+\* Deputies cannot remove Owners
+
 ## Role-Based Access Control
 
 ### Project Roles
 ```typescript
 export enum ProjectRole {
-  ADMIN = 'admin',
-  DEPUTY = 'deputy',
-  CONTRIBUTOR = 'contributor'
+  OWNER = 'owner',    // Highest permission level
+  DEPUTY = 'deputy',  // Middle tier
+  MEMBER = 'member'   // Base level
 }
 ```
 
 ### Permission Matrix
 
-| Action | Admin | Deputy | Contributor |
-|--------|-------|--------|-------------|
+| Action | Owner | Deputy | Member |
+|--------|-------|--------|--------|
 | View Project | ✓ | ✓ | ✓ |
 | Update Project | ✓ | - | - |
 | Delete Project | ✓ | - | - |
@@ -325,14 +329,14 @@ export enum ProjectRole {
 | Update Members | ✓ | ✓* | - |
 | Remove Members | ✓ | ✓* | - |
 
-\* Deputies cannot modify Admin roles
+\* Deputies cannot modify Owner roles
 
 ### Role Hierarchy
 ```typescript
 export const PROJECT_ROLE_HIERARCHY = {
-  [ProjectRole.ADMIN]: 3,
-  [ProjectRole.DEPUTY]: 2,
-  [ProjectRole.CONTRIBUTOR]: 1
+  [ProjectRole.OWNER]: 3,   // Highest level
+  [ProjectRole.DEPUTY]: 2,  // Middle tier
+  [ProjectRole.MEMBER]: 1   // Base level
 };
 ```
 

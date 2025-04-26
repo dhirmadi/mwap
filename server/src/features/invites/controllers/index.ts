@@ -7,7 +7,7 @@ import { AsyncController } from '@core/types/express';
 // Validation schemas
 const createInviteSchema = z.object({
   projectId: z.string().min(1),
-  role: z.enum([ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR]),
+  role: z.enum([ProjectRole.OWNER, ProjectRole.DEPUTY, ProjectRole.MEMBER]),
   expiresIn: z.number().min(300).max(86400).optional() // 5min to 24h, optional
 });
 
@@ -56,7 +56,7 @@ export const InviteController: AsyncController = {
       res.status(200).json({
         message: 'Invite code redeemed successfully',
         projectId: 'stub-project-id',
-        role: ProjectRole.CONTRIBUTOR
+        role: ProjectRole.MEMBER
       });
     } catch (error) {
       if (error instanceof z.ZodError) {

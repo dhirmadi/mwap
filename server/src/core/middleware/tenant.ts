@@ -130,7 +130,7 @@ export function requireTenantOwner() {
  * Middleware to ensure user has required project role(s)
  * @param roles Array of roles that can access the resource
  */
-export function requireProjectRole(roles: ProjectRole[] = [ProjectRole.ADMIN, ProjectRole.DEPUTY, ProjectRole.CONTRIBUTOR]) {
+export function requireProjectRole(roles: ProjectRole[] = [ProjectRole.OWNER, ProjectRole.DEPUTY, ProjectRole.MEMBER]) {
   return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       // Log incoming request details
