@@ -185,10 +185,40 @@ function ProjectList() {
 }
 ```
 
+## Middleware Usage
+
+### Authentication Chain
+```typescript
+import { validateToken } from '@core/middleware/auth/validateToken';
+import { requireUser } from '@core/middleware/auth/requireUser';
+import { verifyTenantAdmin } from '@core/middleware/scoping/verifyTenantAdmin';
+import { validateRequest } from '@core/middleware/validation/requestValidation';
+
+router.post('/tenant/settings',
+  validateToken,        // Verify JWT token
+  requireUser,         // Ensure user is authenticated
+  verifyTenantAdmin,   // Check tenant admin privileges
+  validateRequest(settingsSchema), // Validate request body
+  tenantController.updateSettings
+);
+```
+
+### Error Handling
+```typescript
+import { errorHandler } from '@core/middleware/errors';
+import { requestLogger } from '@core/middleware/security/requestLogger';
+
+// Global error handling
+app.use(requestLogger);  // Log all requests
+app.use(errorHandler);   // Transform and log errors
+```
+
 ## Benefits
 
 1. Cleaner Code:
-   - No error handling for expected empty states
+   - Modular middleware organization
+   - Clear separation of concerns
+   - Type-safe middleware chains
    - Simpler component logic
    - More predictable behavior
 

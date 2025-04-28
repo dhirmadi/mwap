@@ -160,7 +160,12 @@ mwap/
 │   │   │   ├── unit/     # Unit tests
 │   │   │   └── utils/    # Test utilities
 │   │   ├── config/       # Configuration files
-│   │   ├── middleware/   # Custom middleware
+│   │   ├── middleware/   # Modular middleware
+│   │   │   ├── auth/     # Authentication middleware
+│   │   │   ├── errors/   # Error handling middleware
+│   │   │   ├── scoping/  # Tenant/Project scoping
+│   │   │   ├── security/ # Security middleware
+│   │   │   └── validation/ # Request validation
 │   │   ├── routes/       # Express routes
 │   │   └── index.js      # Entry point
 │   └── package.json      # Backend dependencies

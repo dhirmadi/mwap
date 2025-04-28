@@ -78,6 +78,11 @@ mwap/
 │   │   │   ├── errors/   # Error definitions
 │   │   │   ├── logging/  # Logging infrastructure
 │   │   │   ├── middleware/ # Core middleware
+│   │   │   │   ├── auth/     # Authentication middleware
+│   │   │   │   ├── errors/   # Error handling
+│   │   │   │   ├── scoping/  # Tenant/Project scoping
+│   │   │   │   ├── security/ # Security middleware
+│   │   │   │   └── validation/ # Request validation
 │   │   │   ├── routes/   # Core routes
 │   │   │   ├── types/    # Core type definitions
 │   │   │   ├── utils/    # Shared utilities
