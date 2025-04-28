@@ -249,5 +249,5 @@ export const env = {
     audience: process.env.AUTH0_AUDIENCE!,
   },
   mongoUri: process.env.MONGO_URI!,
-  allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
+  allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:5173',
 };
