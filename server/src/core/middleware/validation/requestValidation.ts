@@ -1,25 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
-import { AppError, ErrorCode } from '@core/errors';
+import { AppError } from '@core/errors';
 
+/**
+ * Middleware for validating request payloads against a Zod schema
+ */
 export const validateRequest = (schema: AnyZodObject) => {
-  return async (
-    req: Request,
-    _res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
-      await schema.parseAsync({
+      schema.parse({
         body: req.body,
         query: req.query,
-        params: req.params
+        params: req.params,
       });
       next();
     } catch (error) {
-      next(new AppError(
-        'Invalid request data: ' + error.errors.map(e => e.message).join(', '),
-        400
-      ));
+      const validationError = error as { errors: { message: string }[] };
+
+      const message =
+        'Invalid request data: ' +
+        validationError.errors.map((e) => e.message).join(', ');
+
+      return next(new AppError(message, 400));
     }
   };
 };
