@@ -1,4 +1,5 @@
 import { SuccessResponse } from '../common/responses';
+import { User } from '../auth/user';
 
 /**
  * Project role enumeration
@@ -6,9 +7,16 @@ import { SuccessResponse } from '../common/responses';
  */
 export enum ProjectRole {
   OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
   DEPUTY = 'DEPUTY',
-  MEMBER = 'MEMBER'
+  MEMBER = 'MEMBER',
+  VIEWER = 'VIEWER'
 }
+
+/**
+ * Cloud storage provider types
+ */
+export type CloudProvider = 'GDRIVE' | 'DROPBOX' | 'BOX' | 'ONEDRIVE';
 
 /**
  * Project information
@@ -22,6 +30,7 @@ export interface Project {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly archived: boolean;
+  readonly members: ProjectMember[];
 }
 
 /**
@@ -29,6 +38,7 @@ export interface Project {
  */
 export interface ProjectMember {
   readonly userId: string;
+  readonly user: User;
   readonly role: ProjectRole;
   readonly joinedAt: string;
 }
@@ -39,6 +49,9 @@ export interface ProjectMember {
 export interface CreateProjectRequest {
   readonly name: string;
   readonly description?: string;
+  readonly tenantId: string;
+  readonly provider: CloudProvider;
+  readonly folderPath: string;
 }
 
 /**

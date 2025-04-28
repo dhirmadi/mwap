@@ -1,6 +1,6 @@
 import { notifications } from '@mantine/notifications';
 import { AppError, ValidationError, ErrorCode } from '../core/errors';
-import { formatErrorMessage } from '../core/errors/handlers';
+import { formatErrorMessage } from '../core/errors';
 
 export function handleApiError(error: unknown, title = 'Error') {
   const appError = error instanceof AppError ? error : new AppError(

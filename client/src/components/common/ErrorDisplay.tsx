@@ -1,6 +1,6 @@
 import { Alert, Text, Stack } from '@mantine/core';
 import { AppError, ValidationError } from '../../core/errors';
-import { formatErrorMessage } from '../../core/errors/handlers';
+import { formatErrorMessage } from '../../core/errors';
 
 /**
  * Props for ErrorDisplay component

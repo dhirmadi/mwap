@@ -7,7 +7,7 @@ import { Alert, Button, Stack, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { ICON_SIZES } from '../../../core/theme/icons';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
-import { handleError } from '../../../core/errors/handler';
+import { handleError } from '../../../core/errors';
 
 
 interface Props {
