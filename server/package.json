@@ -12,7 +12,7 @@
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
     "build": "node --max-old-space-size=4096 ./node_modules/.bin/tsc -p tsconfig.json",
     "build:prod": "npm run clean && node --max-old-space-size=4096 ./node_modules/.bin/tsc -p tsconfig.prod.json",
-    "deploy": "ts-node scripts/deploy.ts",
+    "deploy": "ts-node scripts/heroku/deploy.ts",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "clean": "rm -rf dist",
