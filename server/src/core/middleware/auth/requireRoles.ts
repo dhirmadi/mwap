@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError, ErrorCode } from '../../errors';
+import { AppError, ErrorCode } from '@core/errors';
 import { AuthRequest } from '../../types/auth';
 
 export const requireRoles = (...roles: string[]) => {

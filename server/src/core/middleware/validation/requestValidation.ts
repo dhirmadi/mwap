@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AnyZodObject } from 'zod';
-import { AppError, ErrorCode } from '../../errors';
+import { AppError, ErrorCode } from '@core/errors';
 
 export const validateRequest = (schema: AnyZodObject) => {
   return async (

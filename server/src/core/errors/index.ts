@@ -5,6 +5,20 @@ export interface ErrorMetadata {
   [key: string]: unknown;
 }
 
+export enum ErrorCode {
+  UNAUTHORIZED = 401,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  CONFLICT = 409,
+  INTERNAL_SERVER_ERROR = 500,
+  VALIDATION = 'VALIDATION_ERROR',
+  SERVER = 'SERVER_ERROR',
+  NETWORK = 'NETWORK_ERROR',
+  TIMEOUT = 'TIMEOUT_ERROR',
+  PARSE = 'PARSE_ERROR',
+  UNKNOWN = 'UNKNOWN_ERROR'
+}
+
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;

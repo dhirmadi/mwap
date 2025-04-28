@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthRequest } from '../../types/auth';
-import { AppError, ErrorCode } from '../../errors';
+import { AppError, ErrorCode } from '@core/errors';
 
 export const extractUser = async (
   req: Request,

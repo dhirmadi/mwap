@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError, ErrorCode } from '../../errors';
+import { AppError, ErrorCode } from '@core/errors';
 import { ProjectService } from '../../../features/project/services/project.service';
 import { ProjectRole } from '../../../features/project/types';
 
