@@ -12,14 +12,14 @@ export const verifyProjectRole = (requiredRole: ProjectRole) => {
     const { projectId } = req.params;
     
     if (!req.user?.id) {
-      return next(new AppError(ErrorCode.UNAUTHORIZED, 'User not authenticated'));
+      return next(new AppError('User not authenticated', 401));
     }
 
     const projectService = new ProjectService();
     const project = await projectService.findById(projectId);
 
     if (!project) {
-      return next(new AppError(ErrorCode.NOT_FOUND, 'Project not found'));
+      return next(new AppError('Project not found', 404));
     }
 
     const member = project.members.find(m => m.userId === req.user?.id);
@@ -30,10 +30,7 @@ export const verifyProjectRole = (requiredRole: ProjectRole) => {
     };
 
     if (!member || roleLevel[member.role] < roleLevel[requiredRole]) {
-      return next(new AppError(
-        ErrorCode.FORBIDDEN,
-        `Insufficient project role. Required: ${requiredRole}`
-      ));
+      return next(new AppError(`Insufficient project role. Required: ${requiredRole}`, 403));
     }
 
     req.project = project;

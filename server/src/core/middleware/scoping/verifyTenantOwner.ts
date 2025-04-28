@@ -10,18 +10,18 @@ export const verifyTenantOwner = async (
   const { tenantId } = req.params;
   
   if (!req.user?.id) {
-    return next(new AppError(ErrorCode.UNAUTHORIZED, 'User not authenticated'));
+    return next(new AppError('User not authenticated', 401));
   }
 
   const tenantService = new TenantService();
   const tenant = await tenantService.findById(tenantId);
 
   if (!tenant) {
-    return next(new AppError(ErrorCode.NOT_FOUND, 'Tenant not found'));
+    return next(new AppError('Tenant not found', 404));
   }
 
   if (tenant.ownerId !== req.user.id) {
-    return next(new AppError(ErrorCode.FORBIDDEN, 'Not tenant owner'));
+    return next(new AppError('Not tenant owner', 403));
   }
 
   req.tenant = tenant;

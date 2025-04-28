@@ -10,13 +10,13 @@ export const extractUser = async (
   const authReq = req as AuthRequest;
   
   if (!authReq.auth?.payload) {
-    return next(new AppError(ErrorCode.UNAUTHORIZED, 'No auth payload found'));
+    return next(new AppError('No auth payload found', 401));
   }
 
   const { sub: id, email } = authReq.auth.payload;
   
   if (!id || !email) {
-    return next(new AppError(ErrorCode.UNAUTHORIZED, 'Invalid auth payload'));
+    return next(new AppError('Invalid auth payload', 401));
   }
 
   req.user = { id, email };

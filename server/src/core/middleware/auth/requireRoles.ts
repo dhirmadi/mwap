@@ -7,13 +7,13 @@ export const requireRoles = (...roles: string[]) => {
     const authReq = req as AuthRequest;
     
     if (!authReq.user?.roles) {
-      return next(new AppError(ErrorCode.FORBIDDEN, 'User roles not found'));
+      return next(new AppError('User roles not found', 403));
     }
 
     const hasRequiredRole = roles.some(role => authReq.user.roles.includes(role));
     
     if (!hasRequiredRole) {
-      return next(new AppError(ErrorCode.FORBIDDEN, 'Insufficient permissions'));
+      return next(new AppError('Insufficient permissions', 403));
     }
 
     next();

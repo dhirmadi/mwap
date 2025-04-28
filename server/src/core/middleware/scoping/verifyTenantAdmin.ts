@@ -11,20 +11,20 @@ export const verifyTenantAdmin = async (
   const { tenantId } = req.params;
   
   if (!req.user?.id) {
-    return next(new AppError(ErrorCode.UNAUTHORIZED, 'User not authenticated'));
+    return next(new AppError('User not authenticated', 401));
   }
 
   const tenantService = new TenantService();
   const tenant = await tenantService.findById(tenantId);
 
   if (!tenant) {
-    return next(new AppError(ErrorCode.NOT_FOUND, 'Tenant not found'));
+    return next(new AppError('Tenant not found', 404));
   }
 
   const member = tenant.members.find(m => m.userId === req.user?.id);
   
   if (!member || member.role !== TenantRole.ADMIN) {
-    return next(new AppError(ErrorCode.FORBIDDEN, 'Not tenant admin'));
+    return next(new AppError('Not tenant admin', 403));
   }
 
   req.tenant = tenant;

@@ -7,7 +7,7 @@ export const requireUser = async (
   next: NextFunction
 ): Promise<void> => {
   if (!req.user?.id) {
-    return next(new AppError(ErrorCode.UNAUTHORIZED, 'User not authenticated'));
+    return next(new AppError('User not authenticated', 401));
   }
 
   next();

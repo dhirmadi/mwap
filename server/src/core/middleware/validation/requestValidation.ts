@@ -17,8 +17,8 @@ export const validateRequest = (schema: AnyZodObject) => {
       next();
     } catch (error) {
       next(new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        'Invalid request data: ' + error.errors.map(e => e.message).join(', ')
+        'Invalid request data: ' + error.errors.map(e => e.message).join(', '),
+        400
       ));
     }
   };

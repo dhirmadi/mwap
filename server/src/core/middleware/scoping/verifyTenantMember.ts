@@ -10,20 +10,20 @@ export const verifyTenantMember = async (
   const { tenantId } = req.params;
   
   if (!req.user?.id) {
-    return next(new AppError(ErrorCode.UNAUTHORIZED, 'User not authenticated'));
+    return next(new AppError('User not authenticated', 401));
   }
 
   const tenantService = new TenantService();
   const tenant = await tenantService.findById(tenantId);
 
   if (!tenant) {
-    return next(new AppError(ErrorCode.NOT_FOUND, 'Tenant not found'));
+    return next(new AppError('Tenant not found', 404));
   }
 
   const isMember = tenant.members.some(m => m.userId === req.user?.id);
   
   if (!isMember) {
-    return next(new AppError(ErrorCode.FORBIDDEN, 'Not tenant member'));
+    return next(new AppError('Not tenant member', 403));
   }
 
   req.tenant = tenant;

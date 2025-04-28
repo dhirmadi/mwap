@@ -8,17 +8,14 @@ export const requireNoTenant = async (
   next: NextFunction
 ): Promise<void> => {
   if (!req.user?.id) {
-    return next(new AppError(ErrorCode.UNAUTHORIZED, 'User not authenticated'));
+    return next(new AppError('User not authenticated', 401));
   }
 
   const tenantService = new TenantService();
   const existingTenant = await tenantService.findByOwnerId(req.user.id);
 
   if (existingTenant) {
-    return next(new AppError(
-      ErrorCode.CONFLICT,
-      'User already owns a tenant'
-    ));
+    return next(new AppError('User already owns a tenant', 409));
   }
 
   next();
