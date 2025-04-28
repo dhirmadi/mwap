@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { TenantController } from '@features/tenant/controllers';
 import { validateToken } from '@core/middleware/auth/validateToken';
+import { extractUser } from '@core/middleware/auth/extractUser';
+import { requireUser } from '@core/middleware/auth/requireUser';
 import { verifyTenantOwner } from '@core/middleware/scoping/verifyTenantOwner';
 import { validateRequest } from '@core/middleware/validation/requestValidation';
 import { logger } from '@core/utils/logger';
@@ -47,6 +49,8 @@ router.post(
 router.get(
   '/me',
   validateToken,
+  extractUser,  
+  requireUser, 
   TenantController.getCurrentTenant
 );
 

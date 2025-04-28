@@ -20,8 +20,9 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(requestLogger);
 app.use(helmetConfig);
-app.use(configureCors());
 app.use(rateLimiter);
+app.use(configureCors());
+
 
 // Health check
 app.get('/health', (_req, res) => {
