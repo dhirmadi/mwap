@@ -1,6 +1,7 @@
-import { Handler, Request, Response, NextFunction } from 'express';
+import { Handler, Request, Response, NextFunction, RequestHandler } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import { ParsedQs } from 'qs';
+import { CorsOptions } from 'cors';
 
 export type AsyncHandler = (
   req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
@@ -38,4 +39,10 @@ export interface ValidationMiddleware {
 export interface TenantMiddleware {
   requireNoTenant: () => Handler;
   requireTenantAccess: (role?: string) => Handler;
+}
+
+// Security middleware
+export interface SecurityMiddleware {
+  configureCors: () => RequestHandler;
+  corsConfig: CorsOptions;
 }
