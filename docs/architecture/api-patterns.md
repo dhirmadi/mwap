@@ -50,8 +50,8 @@
 // Validation error
 {
   "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input",
+    "message": "Invalid input: Name is required",
+    "statusCode": 400,
     "requestId": "req-123",
     "data": [
       {
@@ -129,8 +129,8 @@
 // Project doesn't exist - this IS an error
 {
   "error": {
-    "code": "NOT_FOUND_ERROR",
     "message": "Project abc-123 not found",
+    "statusCode": 404,
     "requestId": "req-123"
   }
 }

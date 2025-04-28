@@ -127,10 +127,17 @@ router.get('/admin/users',
    - End with validation
 
 2. **Error Handling**
-   - Use appropriate error types
+   - Use AppError with message and status code
    - Include request IDs
    - Log detailed errors
    - Return safe messages
+   - Status codes:
+     - 400: Bad Request/Validation
+     - 401: Unauthorized
+     - 403: Forbidden
+     - 404: Not Found
+     - 429: Rate Limit
+     - 500: Internal Error
 
 3. **Type Safety**
    - Use TypeScript interfaces

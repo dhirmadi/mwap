@@ -9,8 +9,14 @@ The error handling system provides a centralized way to handle, display, and rec
 ```typescript
 // Base error type
 class AppError extends Error {
-  readonly code: ErrorCode;
+  readonly statusCode: number;
   readonly details?: Record<string, unknown>;
+
+  constructor(message: string, statusCode: number, details?: Record<string, unknown>) {
+    super(message);
+    this.statusCode = statusCode;
+    this.details = details;
+  }
 }
 
 // Form validation error
@@ -109,17 +115,36 @@ export function FormErrorBoundary({ children, onReset }) {
 ```typescript
 // Error severity configuration
 const ERROR_CONFIG = {
-  [ErrorCode.VALIDATION]: {
+  400: { // Validation/Bad Request
     color: 'yellow',
     icon: IconExclamationMark,
     title: 'Validation Error'
   },
-  [ErrorCode.NOT_FOUND]: {
+  401: { // Unauthorized
+    color: 'red',
+    icon: IconLock,
+    title: 'Authentication Required'
+  },
+  403: { // Forbidden
+    color: 'red',
+    icon: IconBan,
+    title: 'Access Denied'
+  },
+  404: { // Not Found
     color: 'yellow',
-    icon: IconExclamationMark,
+    icon: IconSearch,
     title: 'Not Found'
   },
-  // ... more configurations
+  429: { // Rate Limit
+    color: 'yellow',
+    icon: IconClock,
+    title: 'Rate Limit Exceeded'
+  },
+  500: { // Internal Error
+    color: 'red',
+    icon: IconAlertTriangle,
+    title: 'Server Error'
+  }
 };
 ```
 
