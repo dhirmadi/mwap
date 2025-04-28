@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { ProjectController } from '@features/projects/controllers';
 import { ProjectMemberController } from '@features/projects/controllers/members.controller';
-import { auth } from '@core/middleware/auth';
-import { requireTenantOwner, requireProjectRole } from '@core/middleware/tenant';
+import { validateToken } from '@core/middleware/auth/validateToken';
+import { verifyTenantOwner } from '@core/middleware/scoping/verifyTenantOwner';
+import { verifyProjectRole } from '@core/middleware/scoping/verifyProjectRole';
 import { ProjectRole } from '@features/projects/schemas';
 
 const router = Router();
@@ -12,39 +13,39 @@ const router = Router();
 // Create new project (requires tenant owner)
 router.post(
   '/',
-  ...auth.validateRequest,
-  requireTenantOwner(),
+  validateToken,
+  verifyTenantOwner(),
   ProjectController.createProject
 );
 
 // List all projects user has access to
 router.get(
   '/',
-  ...auth.validateRequest,  // Only need auth, no role check needed as the query will filter by user
+  validateToken,  // Only need auth, no role check needed as the query will filter by user
   ProjectController.listProjects
 );
 
 // Get project by ID
 router.get(
   '/:id',
-  ...auth.validateRequest,
-  requireProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY, ProjectRole.MEMBER]),
+  validateToken,
+  verifyProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY, ProjectRole.MEMBER]),
   ProjectController.getProject
 );
 
 // Update project (requires admin role)
 router.patch(
   '/:id',
-  ...auth.validateRequest,
-  requireProjectRole([ProjectRole.OWNER]),
+  validateToken,
+  verifyProjectRole([ProjectRole.OWNER]),
   ProjectController.updateProject
 );
 
 // Delete project (requires admin role)
 router.delete(
   '/:id',
-  ...auth.validateRequest,
-  requireProjectRole([ProjectRole.OWNER]),
+  validateToken,
+  verifyProjectRole([ProjectRole.OWNER]),
   ProjectController.deleteProject
 );
 
@@ -53,16 +54,16 @@ router.delete(
 // Update member role (requires admin/deputy role)
 router.patch(
   '/:id/members/:userId',
-  ...auth.validateRequest,
-  requireProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
+  validateToken,
+  verifyProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
   ProjectMemberController.updateMemberRole
 );
 
 // Remove member (requires admin/deputy role)
 router.delete(
   '/:id/members/:userId',
-  ...auth.validateRequest,
-  requireProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
+  validateToken,
+  verifyProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
   ProjectMemberController.removeMember
 );
 

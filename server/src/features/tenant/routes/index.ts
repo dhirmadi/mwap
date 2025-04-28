@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { TenantController } from '@features/tenant/controllers';
-import { auth } from '@core/middleware/auth';
+import { validateToken } from '@core/middleware/auth/validateToken';
+import { verifyTenantOwner } from '@core/middleware/scoping/verifyTenantOwner';
 import { validateRequest } from '@core/middleware/validation';
 import { logger } from '@core/utils/logger';
 import { 
@@ -37,7 +38,7 @@ router.use((req, res, next) => {
 // Create new tenant (requires auth)
 router.post(
   '/',
-  auth.requireUserAndToken,
+  validateToken,
   validateRequest(createTenantSchema),
   TenantController.createTenant
 );
@@ -45,14 +46,15 @@ router.post(
 // Get current user's tenant
 router.get(
   '/me',
-  auth.requireUserAndToken,
+  validateToken,
   TenantController.getCurrentTenant
 );
 
 // Get specific tenant (requires auth + tenant ownership)
 router.get(
   '/:id',
-  ...auth.requireTenantOwner,
+  validateToken,
+  verifyTenantOwner(),
   validateRequest(tenantIdSchema, 'params'),
   TenantController.getTenant
 );
@@ -60,7 +62,8 @@ router.get(
 // Update tenant (requires auth + tenant ownership)
 router.patch(
   '/:id',
-  ...auth.requireTenantOwner,
+  validateToken,
+  verifyTenantOwner(),
   validateRequest(tenantIdSchema, 'params'),
   validateRequest(updateTenantSchema, 'body'),
   TenantController.updateTenant
@@ -69,7 +72,8 @@ router.patch(
 // Delete tenant (requires auth + tenant ownership)
 router.delete(
   '/:id',
-  ...auth.requireTenantOwner,
+  validateToken,
+  verifyTenantOwner(),
   validateRequest(tenantIdSchema, 'params'),
   TenantController.archiveTenant
 );
@@ -85,7 +89,7 @@ router.get('/health', (_req, res) => {
 // Integration routes (requires auth + tenant ownership)
 router.use(
   '/:id/integrations',
-  auth.requireUserAndToken,
+  validateToken,
   validateRequest(tenantIdSchema, 'params'),
   integrationRoutes
 );

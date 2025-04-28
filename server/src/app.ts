@@ -3,9 +3,11 @@ import express from 'express';
 import type { RequestHandler } from 'express';
 import compression from 'compression';
 import path from 'path';
-import { setupSecurity } from '@core/middleware/security';
-import { errorHandler, notFoundHandler } from '@core/middleware/error';
-import { requestLogger } from '@core/middleware/request-logger';
+import { helmetConfig } from '@core/middleware/security/helmetConfig';
+import { corsConfig } from '@core/middleware/security/corsConfig';
+import { rateLimiter } from '@core/middleware/security/rateLimiter';
+import { errorHandler } from '@core/middleware/errors';
+import { requestLogger } from '@core/middleware/security/requestLogger';
 import { router as apiRoutes } from './routes';
 import { logger } from '@core/utils/logger';
 
@@ -16,7 +18,9 @@ app.use(compression());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(requestLogger);
-setupSecurity(app);
+app.use(helmetConfig);
+app.use(corsConfig);
+app.use(rateLimiter);
 
 // Health check
 app.get('/health', (_req, res) => {
