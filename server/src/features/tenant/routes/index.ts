@@ -58,6 +58,7 @@ router.get(
 router.get(
   '/:id',
   validateToken,
+  extractUser,
   verifyTenantOwner,
   validateRequest(tenantIdSchema),
   TenantController.getTenant
@@ -67,6 +68,7 @@ router.get(
 router.patch(
   '/:id',
   validateToken,
+  extractUser,
   verifyTenantOwner,
   validateRequest(tenantIdSchema),
   validateRequest(updateTenantSchema),
@@ -77,6 +79,7 @@ router.patch(
 router.delete(
   '/:id',
   validateToken,
+  extractUser,
   verifyTenantOwner,
   validateRequest(tenantIdSchema),
   TenantController.archiveTenant

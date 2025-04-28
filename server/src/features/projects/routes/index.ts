@@ -16,6 +16,7 @@ const router = Router();
 router.post(
   '/',
   validateToken,
+  extractUser,
   verifyTenantOwner,
   ProjectController.createProject
 );
@@ -43,6 +44,7 @@ router.get(
 router.patch(
   '/:id',
   validateToken,
+  extractUser,
   verifyProjectRole([ProjectRole.OWNER]),
   ProjectController.updateProject
 );
@@ -51,6 +53,7 @@ router.patch(
 router.delete(
   '/:id',
   validateToken,
+  extractUser,
   verifyProjectRole([ProjectRole.OWNER]),
   ProjectController.deleteProject
 );
@@ -61,6 +64,7 @@ router.delete(
 router.patch(
   '/:id/members/:userId',
   validateToken,
+  extractUser,
   verifyProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
   ProjectMemberController.updateMemberRole
 );
@@ -69,6 +73,7 @@ router.patch(
 router.delete(
   '/:id/members/:userId',
   validateToken,
+  extractUser,
   verifyProjectRole([ProjectRole.OWNER, ProjectRole.DEPUTY]),
   ProjectMemberController.removeMember
 );
