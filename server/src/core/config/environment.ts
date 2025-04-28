@@ -241,4 +241,13 @@ class Environment {
 }
 
 // Create and export a singleton instance
-export const env = Object.freeze(new Environment());
+export const env = {
+  nodeEnv: process.env.NODE_ENV || 'development',
+  port: process.env.PORT || 5000,
+  auth0: {
+    domain: process.env.AUTH0_DOMAIN!,
+    audience: process.env.AUTH0_AUDIENCE!,
+  },
+  mongoUri: process.env.MONGO_URI!,
+  allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
+};

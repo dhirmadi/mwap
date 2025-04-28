@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError, ErrorCode } from '@core/errors';
-//import { TenantService } from '@features/tenant/services/tenant.service';
 import { TenantService } from '@features/tenant/services';
 
 export const requireNoTenant = async (

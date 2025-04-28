@@ -1,11 +1,8 @@
 import cors from 'cors';
-import { config } from '../../../config';
+import { env } from '@core/config/environment';
 
 export const corsConfig = cors({
-  origin: config.cors.origins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  origin: env.allowedOrigins.split(','),
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true,
-  maxAge: 600
 });

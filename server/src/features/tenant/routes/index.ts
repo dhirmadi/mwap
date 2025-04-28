@@ -54,8 +54,8 @@ router.get(
 router.get(
   '/:id',
   validateToken,
-  verifyTenantOwner(),
-  validateRequest(tenantIdSchema, 'params'),
+  verifyTenantOwner,
+  validateRequest(tenantIdSchema),
   TenantController.getTenant
 );
 
@@ -63,9 +63,9 @@ router.get(
 router.patch(
   '/:id',
   validateToken,
-  verifyTenantOwner(),
-  validateRequest(tenantIdSchema, 'params'),
-  validateRequest(updateTenantSchema, 'body'),
+  verifyTenantOwner,
+  validateRequest(tenantIdSchema),
+  validateRequest(updateTenantSchema),
   TenantController.updateTenant
 );
 
@@ -73,8 +73,8 @@ router.patch(
 router.delete(
   '/:id',
   validateToken,
-  verifyTenantOwner(),
-  validateRequest(tenantIdSchema, 'params'),
+  verifyTenantOwner,
+  validateRequest(tenantIdSchema),
   TenantController.archiveTenant
 );
 
@@ -90,7 +90,7 @@ router.get('/health', (_req, res) => {
 router.use(
   '/:id/integrations',
   validateToken,
-  validateRequest(tenantIdSchema, 'params'),
+  validateRequest(tenantIdSchema),
   integrationRoutes
 );
 

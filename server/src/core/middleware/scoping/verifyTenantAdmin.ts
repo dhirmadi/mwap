@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError, ErrorCode } from '@core/errors';
 import { TenantService } from '@features/tenant/services/index';
-import { TenantRole } from '@features/tenant/types';
+import { TenantRole } from '@features/tenant/schemas';
 
 export const verifyTenantAdmin = async (
   req: Request,

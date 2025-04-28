@@ -1,30 +1,32 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthRequest } from '../../types/auth';
-import { AppError, ErrorCode } from '@core/errors';
+import { AppError } from '@core/errors';
+import { AuthRequest } from '@core/types/express';
+import { User } from '@core/types/auth';
 
 export const extractUser = async (
   req: Request,
   _res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const authReq = req as AuthRequest;
-  
-  if (!authReq.auth?.payload) {
-    return next(new AppError('No auth payload found', 401));
+  try {
+    const authReq = req as any;
+    const payload = authReq.auth?.payload;
+
+    if (!payload) {
+      return next(new AppError('No auth payload found', 401));
+    }
+
+    const user: User = {
+      id: payload.sub,
+      sub: payload.sub,
+      email: payload.email ?? '',
+      roles: Array.isArray(payload.roles) ? payload.roles : [],
+      tenantId: payload.tenantId,
+    };
+
+    (req as AuthRequest).user = user;
+    return next();
+  } catch (error) {
+    return next(error);
   }
-
-  const { sub: id, email, roles = [], tenantId } = authReq.auth.payload;
-
-  if (!id || !email) {
-    return next(new AppError('Invalid auth payload', 401));
-  }
-
-  req.user = {
-    id,
-    email,
-    roles,
-    tenantId
-  };
-
-  next();
 };

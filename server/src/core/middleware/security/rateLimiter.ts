@@ -1,10 +1,10 @@
 import rateLimit from 'express-rate-limit';
-import { config } from '../../../config';
+import { env } from '@core/config/environment';
 
 export const rateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: config.security.rateLimit.maxRequests || 100,
-  message: 'Too many requests from this IP, please try again later',
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests, please try again later.',
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
 });
