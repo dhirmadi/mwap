@@ -181,7 +181,7 @@ class Environment {
   // Validation
   private validateConfig(): void {
     // Temporarily disable validation for development
-    if (this.isDevelopment()) {
+    if (this.server.nodeEnv === 'development') {
       return;
     }
 

@@ -152,7 +152,7 @@ export const connectDB = async (): Promise<void> => {
       } : error,
       mongoUri: process.env.MONGO_URI ? 'present' : 'missing'
     });
-    if (!env.isDevelopment()) {
+    if (env.nodeEnv !== 'development') {
       process.exit(1);
     }
   }
