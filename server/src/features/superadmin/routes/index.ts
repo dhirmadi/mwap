@@ -9,7 +9,7 @@ const router = Router();
 router.get(
   '/admin/tenants',
   validateToken,
-  requireSuperAdmin(),
+  requireSuperAdmin,
   SuperAdminController.listTenants
 );
 
@@ -17,7 +17,7 @@ router.get(
 router.get(
   '/admin/projects',
   validateToken,
-  requireSuperAdmin(),
+  requireSuperAdmin,
   SuperAdminController.listProjects
 );
 
@@ -25,7 +25,7 @@ router.get(
 router.patch(
   '/admin/tenant/:id/archive',
   validateToken,
-  requireSuperAdmin(),
+  requireSuperAdmin,
   SuperAdminController.archiveTenant
 );
 

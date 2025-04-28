@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError, ErrorCode } from '@core/errors';
-import { TenantService } from '../../../features/tenant/services/tenant.service';
-import { TenantRole } from '../../../features/tenant/types';
+import { TenantService } from '@features/tenant/services/index';
+import { TenantRole } from '@features/tenant/types';
 
 export const verifyTenantAdmin = async (
   req: Request,
@@ -15,7 +15,7 @@ export const verifyTenantAdmin = async (
   }
 
   const tenantService = new TenantService();
-  const tenant = await tenantService.findById(tenantId);
+  const tenant = await tenantService.getTenantById(tenantId);
 
   if (!tenant) {
     return next(new AppError('Tenant not found', 404));

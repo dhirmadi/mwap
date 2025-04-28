@@ -24,7 +24,7 @@ export const errorHandler = (
   res.status(500).json({
     success: false,
     error: {
-      code: ErrorCode.INTERNAL_ERROR,
+      code: ErrorCode.INTERNAL_SERVER_ERROR,
       message: 'Internal server error'
     }
   });
@@ -37,24 +37,30 @@ export const transformApiError = (error: any): AppError => {
 
   // Handle Auth0 errors
   if (error.error === 'invalid_token') {
-    return new AppError(ErrorCode.UNAUTHORIZED, 'Invalid token');
+    return new AppError('Invalid token',ErrorCode.UNAUTHORIZED);
   }
 
   // Handle validation errors
   if (error.name === 'ValidationError') {
-    return new AppError(ErrorCode.VALIDATION_ERROR, error.message);
+    return new AppError('Validation Error', ErrorCode.VALIDATION, error.message);
   }
 
   // Handle database errors
   if (error.name === 'MongoError') {
     if (error.code === 11000) {
-      return new AppError(ErrorCode.DUPLICATE_ERROR, 'Duplicate key error');
+      return new AppError('Duplicate key error', ErrorCode.CONFLICT);
     }
   }
 
   // Default error
-  return new AppError(
-    ErrorCode.INTERNAL_ERROR,
-    'An unexpected error occurred'
-  );
+  return new AppError('An unexpected error occurred',ErrorCode.INTERNAL_SERVER_ERROR);
+};
+
+/**
+ * Middleware to handle 404 Not Found errors
+ */
+export const notFoundHandler = (req: Request, res: Response, next: NextFunction): void => {
+  res.status(404).json({
+    message: `Route ${req.originalUrl} not found`,
+  });
 };

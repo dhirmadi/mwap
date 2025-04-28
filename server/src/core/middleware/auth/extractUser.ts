@@ -13,12 +13,18 @@ export const extractUser = async (
     return next(new AppError('No auth payload found', 401));
   }
 
-  const { sub: id, email } = authReq.auth.payload;
-  
+  const { sub: id, email, roles = [], tenantId } = authReq.auth.payload;
+
   if (!id || !email) {
     return next(new AppError('Invalid auth payload', 401));
   }
 
-  req.user = { id, email };
+  req.user = {
+    id,
+    email,
+    roles,
+    tenantId
+  };
+
   next();
 };

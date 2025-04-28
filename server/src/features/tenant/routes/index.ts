@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { TenantController } from '@features/tenant/controllers';
 import { validateToken } from '@core/middleware/auth/validateToken';
 import { verifyTenantOwner } from '@core/middleware/scoping/verifyTenantOwner';
-import { validateRequest } from '@core/middleware/validation';
+import { validateRequest } from '@core/middleware/validation/requestValidation';
 import { logger } from '@core/utils/logger';
 import { 
   createTenantSchema,

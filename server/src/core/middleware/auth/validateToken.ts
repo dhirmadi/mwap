@@ -1,10 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
-import { auth } from 'express-oauth2-jwt-bearer';
-import { config } from '../../../config';
+import { auth as auth0 } from 'express-oauth2-jwt-bearer';
+import { env } from '@core/config/environment';
 
-// Validate JWT using Auth0's express-oauth2-jwt-bearer
-export const validateToken = auth({
-  audience: config.auth.audience,
-  issuerBaseURL: config.auth.issuer,
+const authConfig = {
+  audience: env.auth0.audience,
+  issuer: `https://${env.auth0.domain}/`,
+  jwksUri: `https://${env.auth0.domain}/.well-known/jwks.json`,
   tokenSigningAlg: 'RS256'
-});
+};
+
+export const validateToken = auth0(authConfig);

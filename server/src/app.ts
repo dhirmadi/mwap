@@ -7,6 +7,7 @@ import { helmetConfig } from '@core/middleware/security/helmetConfig';
 import { corsConfig } from '@core/middleware/security/corsConfig';
 import { rateLimiter } from '@core/middleware/security/rateLimiter';
 import { errorHandler } from '@core/middleware/errors';
+import { notFoundHandler } from '@core/middleware/errors';
 import { requestLogger } from '@core/middleware/security/requestLogger';
 import { router as apiRoutes } from './routes';
 import { logger } from '@core/utils/logger';

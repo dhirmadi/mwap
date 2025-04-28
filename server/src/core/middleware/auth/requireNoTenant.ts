@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError, ErrorCode } from '@core/errors';
-import { TenantService } from '../../../features/tenant/services/tenant.service';
+//import { TenantService } from '@features/tenant/services/tenant.service';
+import { TenantService } from '@features/tenant/services';
 
 export const requireNoTenant = async (
   req: Request,
@@ -12,7 +13,7 @@ export const requireNoTenant = async (
   }
 
   const tenantService = new TenantService();
-  const existingTenant = await tenantService.findByOwnerId(req.user.id);
+  const existingTenant = await tenantService.getTenantByOwnerId(req.user.id);
 
   if (existingTenant) {
     return next(new AppError('User already owns a tenant', 409));
