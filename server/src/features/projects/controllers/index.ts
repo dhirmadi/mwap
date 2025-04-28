@@ -11,40 +11,7 @@ import { AuthorizationError } from '@core/errors';
 const permissionService = new DefaultPermissionService();
 
 export const ProjectController: AsyncController = {
-  /**
-   * Create a new project in the tenant
-   * Project creator automatically becomes project owner
-   * 
-   * @route POST /api/v1/projects
-   * @requires auth.validateRequest - User must be authenticated
-   * @requires permission - User must have 'create_project' permission in tenant
-   * 
-   * @body {
-   *   name: string,          // Project name
-   *   tenantId: string,      // Tenant ID
-   *   description?: string,  // Optional project description
-   * }
-   * 
-   * @returns 201 - Project created successfully
-   * @returns 400 - Invalid request body
-   * @returns 401 - User not authenticated
-   * @returns 403 - User lacks permission
-   * @returns 500 - Server error
-   * 
-   * Example Response:
-   * {
-   *   "data": {
-   *     "id": "proj-123",
-   *     "name": "New Project",
-   *     "tenantId": "tenant-123",
-   *     "role": "owner",
-   *     "createdAt": "2023-01-01T00:00:00Z"
-   *   },
-   *   "meta": {
-   *     "requestId": "req-123"
-   *   }
-   * }
-   */
+
   createProject: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { tenantId } = req.body;
@@ -220,17 +187,17 @@ export const ProjectController: AsyncController = {
    */
   listProjects: async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
-      logger.debug('Listing projects for user', { userId: req.user.id });
-
-      // Find all projects where user is a member
+      // CRITICAL: Query should use auth ID
+      // Current:   req.user.id
+      // Should be: getUserIdentifier(req.user, 'auth')
       const projects = await ProjectModel.find({
-        'members.userId': req.user.id,
+        'members.userId': req.user.id, 
         archived: false
       }).select({
         _id: 1,
         name: 1,
         tenantId: 1,
-        'members.$': 1, // Only include the matching member
+        'members.$': 1,
         createdAt: 1,
         archived: 1
       });

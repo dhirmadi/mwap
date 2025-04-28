@@ -3,6 +3,7 @@ import { AppError } from '@core/errors';
 import { ProjectModel } from '@features/projects/schemas';
 import { AuthRequest } from '@core/types/express';
 import { ProjectRole } from '@features/projects/types/roles';
+import { getUserIdentifier } from '@core/utils/user-mapping';
 
 /**
  * Middleware to verify if the user has the required role(s) in a project
@@ -28,7 +29,7 @@ export const verifyProjectRole = (allowedRoles: ProjectRole[]) => {
       }
 
       const member = project.members.find(
-        (m) => m.userId.toString() === authReq.user!.id
+        (m) => m.userId === getUserIdentifier(authReq.user, 'auth')
       );
 
       if (!member) {
