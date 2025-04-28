@@ -9,11 +9,10 @@ import { logger } from '@core/utils/logger';
 connectDB();
 
 // Start server
-const server = app.listen(env.server.port, () => {
+const server = app.listen(env.port, () => {
   logger.info('Server started', {
-    port: env.server.port,
-    environment: env.getEnvironmentName()
-  });
+    port: env.port,
+    environment: env.nodeEnv
 });
 
 // Graceful shutdown

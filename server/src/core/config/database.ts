@@ -103,7 +103,7 @@ export const connectDB = async (): Promise<void> => {
         host: mongoose.connection.host,
         readyState: mongoose.connection.readyState
       });
-      if (!env.isDevelopment()) {
+      if (env.nodeEnv != 'development') {
         process.exit(1);
       }
     });

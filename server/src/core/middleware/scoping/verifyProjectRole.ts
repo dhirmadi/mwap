@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError, ErrorCode } from '@core/errors';
-import { ProjectModel } from '@/features/projects/schemas';
-import { ProjectRole } from '@/features/projects/types/roles';
+import { ProjectModel } from '@features/projects/schemas';
+import { ProjectRole } from '@features/projects/types/roles';
 
 export const verifyProjectRole = (requiredRole: ProjectRole) => {
   return async (

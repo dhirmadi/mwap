@@ -3,7 +3,7 @@ import { env } from '@core/config/environment';
 
 // Create base logger
 const baseLogger = winston.createLogger({
-  level: env.isDevelopment() ? 'debug' : 'info',
+  level: env.nodeEnv === 'development' ? 'debug' : 'info',
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
@@ -11,7 +11,7 @@ const baseLogger = winston.createLogger({
   ),
   defaultMeta: {
     service: 'mwap-api',
-    environment: env.getEnvironmentName()
+    environment: env.nodeEnv
   },
   transports: [
     new winston.transports.Console({

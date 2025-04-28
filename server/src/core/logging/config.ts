@@ -14,7 +14,7 @@ const customFormat = winston.format.combine(
   winston.format.errors({ stack: true }),
   winston.format((info) => {
     // Add environment metadata
-    info.env = env.getEnvironmentName();
+    info.env = env.nodeEnv;
     info.service = 'mwap-server';
     return info;
   })(),
@@ -28,11 +28,11 @@ const customFormat = winston.format.combine(
  * - JSON format for structured logging
  */
 export const logger = winston.createLogger({
-  level: env.isDevelopment() ? 'debug' : 'info',
+  level: env.nodeEnv === 'development' ? 'debug' : 'info',
   format: customFormat,
   defaultMeta: {
     service: 'mwap-server',
-    environment: env.getEnvironmentName(),
+    environment: env.nodeEnv,
   },
   transports: [
     new winston.transports.Console({
@@ -47,7 +47,7 @@ export const logger = winston.createLogger({
 /**
  * Development-specific settings
  */
-if (env.isDevelopment()) {
+if (env.nodeEnv === 'development') {
   logger.debug('Logger initialized in development mode');
 }
 
