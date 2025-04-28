@@ -14,7 +14,7 @@ import { notifications } from '@mantine/notifications';
 import { IconArchive, IconTrash } from '@tabler/icons-react';
 import { useProjectAdmin } from '../hooks/useProjectAdmin';
 import { LoadingState } from '../components/common';
-import { handleApiError } from '../core/errors';
+import { transformApiError } from '../core/errors';
 import { useProjectRole } from '../hooks/useProjectRole';
 import { ProjectRole } from '../types';
 
@@ -78,7 +78,7 @@ export function ProjectAdmin() {
       setArchiveModalOpen(false);
       navigate('/');
     } catch (error) {
-      handleApiError(error, 'Failed to archive project');
+      transformApiError(error, 'Failed to archive project');
     }
   };
 
@@ -102,7 +102,7 @@ export function ProjectAdmin() {
       setDeleteModalOpen(false);
       navigate('/');
     } catch (error) {
-      handleApiError(error, 'Failed to delete project');
+      transformApiError(error, 'Failed to delete project');
     }
   };
 

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { API_CONFIG, ApiConfig, RetryConfig, DEFAULT_RETRY_CONFIG } from './config';
 import { createRetryHandler } from './retry';
-import { handleApiError, AuthError, ErrorCode } from '../errors';
+import { transformApiError, AuthError, ErrorCode } from '../errors';
 import { useAuth } from '../../hooks/useAuth';
 
 /**
@@ -225,7 +225,7 @@ export async function get<T>(
     const response = await client.get<T>(url, config);
     return response.data;
   } catch (error) {
-    throw handleApiError(error);
+    throw transformApiError(error);
   }
 }
 
@@ -239,7 +239,7 @@ export async function post<T, D = unknown>(
     const response = await client.post<T>(url, data, config);
     return response.data;
   } catch (error) {
-    throw handleApiError(error);
+    throw transformApiError(error);
   }
 }
 
@@ -253,7 +253,7 @@ export async function put<T, D = unknown>(
     const response = await client.put<T>(url, data, config);
     return response.data;
   } catch (error) {
-    throw handleApiError(error);
+    throw transformApiError(error);
   }
 }
 
@@ -267,7 +267,7 @@ export async function patch<T, D = unknown>(
     const response = await client.patch<T>(url, data, config);
     return response.data;
   } catch (error) {
-    throw handleApiError(error);
+    throw transformApiError(error);
   }
 }
 
@@ -280,6 +280,6 @@ export async function del<T>(
     const response = await client.delete<T>(url, config);
     return response.data;
   } catch (error) {
-    throw handleApiError(error);
+    throw transformApiError(error);
   }
 }

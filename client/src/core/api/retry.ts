@@ -1,6 +1,6 @@
 import { AxiosError, AxiosInstance } from 'axios';
 import { RetryConfig, DEFAULT_RETRY_CONFIG } from './config';
-import { handleApiError } from '../errors';
+import { transformApiError } from '../errors';
 
 /**
  * Calculate delay with exponential backoff
@@ -52,7 +52,7 @@ export function createRetryHandler(
       requestConfig.method !== 'get' ||
       !shouldRetry(response?.status, requestConfig.retryCount, config)
     ) {
-      return Promise.reject(handleApiError(error));
+      return Promise.reject(transformApiError(error));
     }
 
     // Increment retry count

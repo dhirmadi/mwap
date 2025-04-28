@@ -6,7 +6,7 @@
 import React from 'react';
 import { Alert, Button, Stack, Text } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { handleApiError } from '../../core/errors';
+import { transformApiError } from '../../core/errors';
 
 interface Props {
   children: React.ReactNode;
@@ -49,7 +49,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     
     // Handle API errors
     if (error.name === 'ApiError') {
-      handleApiError(error);
+      transformApiError(error);
     }
 
     // Call error handler if provided
