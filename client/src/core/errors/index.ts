@@ -18,7 +18,7 @@ import {
   isValidationError,
   isApiError,
   isAuthError
-} from './types';
+} from '@/types/error';
 
 // Error severity configuration
 const ERROR_CONFIG = {
@@ -279,4 +279,4 @@ export function handleError(error: unknown, context?: string) {
 }
 
 // Re-export error types
-export * from './types';
+export * from '@/types/error';
