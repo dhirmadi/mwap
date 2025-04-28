@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '@/core/errors';
-import { ProjectModel } from '@/features/projects/schemas';
-import { AuthRequest } from '@/core/types/express';
-import { ProjectRole } from '@/features/projects/types/roles';
+import { AppError } from '@core/errors';
+import { ProjectModel } from '@features/projects/schemas';
+import { AuthRequest } from '@core/types/express';
+import { ProjectRole } from '@features/projects/types/roles';
 
 /**
  * Middleware to verify if the user has the required role(s) in a project

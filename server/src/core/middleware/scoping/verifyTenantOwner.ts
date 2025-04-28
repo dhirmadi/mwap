@@ -14,7 +14,7 @@ export const verifyTenantOwner = async (
   }
 
   const tenantService = new TenantService();
-  const tenant = await tenantService.findById(tenantId);
+  const tenant = await tenantService.getTenantById(tenantId);
 
   if (!tenant) {
     return next(new AppError('Tenant not found', 404));
