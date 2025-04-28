@@ -12,7 +12,7 @@ export * from './tenant';
 
 // Project types
 export * from './project';
-export type { ProjectRole } from './project';
+export type { ProjectRole } from './project/index';
 
 // Integration types
 export * from './integration';
