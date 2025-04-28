@@ -7,8 +7,8 @@ import { User } from '../auth/user';
  */
 export enum ProjectRole {
   OWNER = 'OWNER',
-  ADMIN = 'ADMIN',
   DEPUTY = 'DEPUTY',
+  CONTRIBUTOR = 'CONTRIBUTOR',
   MEMBER = 'MEMBER',
   VIEWER = 'VIEWER'
 }

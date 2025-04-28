@@ -42,7 +42,7 @@ export const transformApiError = (error: any): AppError => {
 
   // Handle validation errors
   if (error.name === 'ValidationError') {
-    return new AppError('Validation Error', ErrorCode.VALIDATION, error.message);
+    return new AppError('Validation Error', 400, error.message);
   }
 
   // Handle database errors

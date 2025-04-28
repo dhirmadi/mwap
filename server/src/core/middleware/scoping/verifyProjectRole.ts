@@ -1,39 +1,52 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError, ErrorCode } from '@core/errors';
-import { ProjectModel } from '@features/projects/schemas';
-import { ProjectRole } from '@features/projects/types/roles';
+import { AppError } from '@/core/errors';
+import { ProjectModel } from '@/features/projects/schemas';
+import { AuthRequest } from '@/core/types/express';
+import { ProjectRole } from '@/features/projects/types/roles';
 
-export const verifyProjectRole = (requiredRole: ProjectRole) => {
-  return async (
-    req: Request,
-    _res: Response,
-    next: NextFunction
-  ): Promise<void> => {
-    const { projectId } = req.params;
-    
-    if (!req.user?.id) {
-      return next(new AppError('User not authenticated', 401));
+/**
+ * Middleware to verify if the user has the required role(s) in a project
+ */
+export const verifyProjectRole = (allowedRoles: ProjectRole[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authReq = req as AuthRequest;
+      const { projectId } = req.params;
+
+      if (!authReq.user?.id) {
+        return next(new AppError('User not authenticated', 401));
+      }
+
+      if (!projectId) {
+        return next(new AppError('Project ID is missing', 400));
+      }
+
+      const project = await ProjectModel.findById(projectId);
+
+      if (!project) {
+        return next(new AppError('Project not found', 404));
+      }
+
+      const member = project.members.find(
+        (m) => m.userId.toString() === authReq.user!.id
+      );
+
+      if (!member) {
+        return next(new AppError('User is not a member of this project', 403));
+      }
+
+      const role = member.role as ProjectRole;
+
+      if (!allowedRoles.includes(role)) {
+        return next(new AppError('Insufficient project permissions', 403));
+      }
+
+      // Attach project to request for downstream access if needed
+      (authReq as any).project = project;
+
+      return next();
+    } catch (error) {
+      return next(error);
     }
-
-    const projectService = new ProjectModel();
-    const project = await projectService.findById(projectId);
-
-    if (!project) {
-      return next(new AppError('Project not found', 404));
-    }
-
-    const member = project.members.find(m => m.userId === req.user?.id);
-    const roleLevel = {
-      [ProjectRole.ADMIN]: 3,
-      [ProjectRole.DEPUTY]: 2,
-      [ProjectRole.CONTRIBUTOR]: 1
-    };
-
-    if (!member || roleLevel[member.role] < roleLevel[requiredRole]) {
-      return next(new AppError(`Insufficient project role. Required: ${requiredRole}`, 403));
-    }
-
-    req.project = project;
-    next();
   };
 };

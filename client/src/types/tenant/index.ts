@@ -6,8 +6,8 @@ import { SuccessResponse } from '../common/responses';
  */
 export enum TenantRole {
   OWNER = 'OWNER',
-  ADMIN = 'ADMIN',
-  MEMBER = 'MEMBER'
+  DEPUTY = 'DEPUTY',
+  CONTRIBUTOR = 'CONTRIBUTOR'
 }
 
 /**

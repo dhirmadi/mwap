@@ -14,7 +14,7 @@ const router = Router();
 router.post(
   '/',
   validateToken,
-  verifyTenantOwner(),
+  verifyTenantOwner,
   ProjectController.createProject
 );
 
