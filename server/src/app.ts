@@ -4,7 +4,7 @@ import type { RequestHandler } from 'express';
 import compression from 'compression';
 import path from 'path';
 import { helmetConfig } from '@core/middleware/security/helmetConfig';
-import { corsConfig } from '@core/middleware/security/corsConfig';
+import { configureCors, corsConfig } from '@core/middleware/security';
 import { rateLimiter } from '@core/middleware/security/rateLimiter';
 import { errorHandler } from '@core/middleware/errors';
 import { notFoundHandler } from '@core/middleware/errors';
@@ -20,7 +20,7 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(requestLogger);
 app.use(helmetConfig);
-app.use(corsConfig);
+app.use(configureCors());
 app.use(rateLimiter);
 
 // Health check
