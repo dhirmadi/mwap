@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { validateRequest } from '@core/middleware';
+import { validateRequest } from '@core/middleware/validation/requestValidation';
 import { getIntegrations, addIntegration, deleteIntegration } from '../controllers/integrations.controller';
 import { addIntegrationSchema } from '../schemas/validation';
 import { validateProvider } from '../middleware/validate-provider';
