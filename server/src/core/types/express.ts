@@ -17,7 +17,7 @@ declare global {
 
 // 2. Keep AuthRequest for backwards compatibility
 export interface AuthRequest extends Request {
-  user?: User;
+  user: User;
   id: string;
   project?: ProjectDocument; // Added by requireProjectRole middleware
   tenant?: TenantDocument; // Added by requireTenantOwner middleware
