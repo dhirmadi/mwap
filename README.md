@@ -203,12 +203,20 @@ This project uses Auth0 for authentication, implementing a Single Page Applicati
   - Token management and renewal
   - Secure session handling
   - Protected API routes
+  - Consistent ID handling (auth vs internal)
 
 - **Developer Experience**:
   - Custom useAuth hook
   - TypeScript support
   - Error handling
   - Loading states
+  - ID mapping utilities
+
+- **ID Management**:
+  - Auth0 sub for storage/queries
+  - Internal IDs for responses/logs
+  - Type-safe ID handling
+  - Consistent middleware chain
 
 ### Usage in Components
 
@@ -374,6 +382,8 @@ Note: The deployment pipeline is under development. Manual deployment is current
 ### Architecture
 - [Overview](./docs/architecture/overview.md)
 - [API Patterns](./docs/architecture/api-patterns.md)
+- [Middleware Architecture](./docs/architecture/middleware.md)
+- [Auth ID Handling](./docs/architecture/auth-id-handling.md)
 
 ### Standards & Guidelines
 - [DRY Principles](./docs/standards/DRY.md)
