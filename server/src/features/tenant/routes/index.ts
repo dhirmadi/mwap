@@ -58,9 +58,9 @@ router.get(
 router.get(
   '/:id',
   validateToken,
+  validateRequest(tenantIdSchema),
   extractUser,
   verifyTenantOwner,
-  validateRequest(tenantIdSchema),
   TenantController.getTenant
 );
 
@@ -68,9 +68,9 @@ router.get(
 router.patch(
   '/:id',
   validateToken,
+  validateRequest(tenantIdSchema),
   extractUser,
   verifyTenantOwner,
-  validateRequest(tenantIdSchema),
   validateRequest(updateTenantSchema),
   TenantController.updateTenant
 );
@@ -79,9 +79,9 @@ router.patch(
 router.delete(
   '/:id',
   validateToken,
+  validateRequest(tenantIdSchema),
   extractUser,
   verifyTenantOwner,
-  validateRequest(tenantIdSchema),
   TenantController.archiveTenant
 );
 
@@ -98,6 +98,8 @@ router.use(
   '/:id/integrations',
   validateToken,
   validateRequest(tenantIdSchema),
+  extractUser,
+  verifyTenantOwner,
   integrationRoutes
 );
 

@@ -16,8 +16,10 @@ export const updateTenantSchema = z.object({
 });
 
 export const tenantIdSchema = z.object({
-  id: z.string()
-    .regex(/^[0-9a-fA-F]{24}$/, 'Invalid tenant ID')
+  params: z.object({
+    id: z.string()
+      .regex(/^[0-9a-fA-F]{24}$/, 'Invalid tenant ID')
+  })
 });
 
 export const addIntegrationSchema = z.object({
