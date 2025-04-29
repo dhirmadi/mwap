@@ -5,28 +5,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export function TenantStatus() {
-  const { tenant, isLoading, error, createTenant, isCreating, createError } = useTenant();
+  const { tenant, isLoadingTenant, tenantError, createTenant, isCreatingTenant, createError } = useTenant();
   const [newTenantName, setNewTenantName] = useState('');
-
-  if (isLoading) {
-    return (
-      <Card withBorder p="md">
-        <Stack>
-          <Skeleton height={20} width="60%" />
-          <Skeleton height={36} />
-        </Stack>
-      </Card>
-    );
-  }
-
-  if (error) {
-    console.error('[TenantStatus] Error:', error);
-    return (
-      <Card withBorder p="md">
-        <Text c="red">Error loading workspace information. Please try again later.</Text>
-      </Card>
-    );
-  }
 
   const handleCreateTenant = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,14 +30,38 @@ export function TenantStatus() {
     }
   };
 
+  if (isLoadingTenant) {
+    return (
+      <Card withBorder p="md">
+        <Stack>
+          <Skeleton height={20} width="60%" />
+          <Skeleton height={36} />
+        </Stack>
+      </Card>
+    );
+  }
+
+  if (tenantError) {
+    console.error('[TenantStatus] Error:', tenantError);
+    return (
+      <Card withBorder p="md">
+        <Text c="red">Error loading workspace information. Please try again later.</Text>
+      </Card>
+    );
+  }
+
   if (tenant) {
     console.log('[TenantStatus] Tenant data:', tenant);
     return (
       <Card withBorder p="md">
         <Text size="sm" c="dimmed">Your Workspace</Text>
-        <Anchor component={Link} to={`/tenant/${tenant.id}/manage`} size="xl" fw={500}>
-          {tenant.name}
-        </Anchor>
+        {tenant.id ? (
+          <Anchor component={Link} to={`/tenant/${tenant.id}/manage`} size="xl" fw={500}>
+            {tenant.name}
+          </Anchor>
+        ) : (
+          <Text c="red">Invalid tenant data</Text>
+        )}
       </Card>
     );
   }
@@ -72,10 +76,10 @@ export function TenantStatus() {
             value={newTenantName}
             onChange={(e) => setNewTenantName(e.target.value)}
             error={createError ? 'Failed to create workspace' : ''}
-            disabled={isCreating}
+            disabled={isCreatingTenant}
           />
           <Group justify="flex-end">
-            <Button type="submit" loading={isCreating}>
+            <Button type="submit" loading={isCreatingTenant}>
               Create Workspace
             </Button>
           </Group>
