@@ -5,7 +5,7 @@ import { TenantService } from '../services';
 import { ValidationError } from '@core/errors';
 import { logger } from '@core/utils/logger';
 import { getUserIdentifier } from '@core/utils/user-mapping';
-import { createTenantSchema } from '../schemas/validation';
+import { createTenantSchema } from '@features/tenant/validation';
 
 // Create a singleton instance of TenantService
 const tenantService = new TenantService();
