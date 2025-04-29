@@ -1,9 +1,9 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { TenantService } from './service';
-import { TenantModel } from '@models/v2/tenant.model';
-import { AppError } from '@core/errors/appError';
-import type { User } from '@models/v2/user.model';
+import { TenantModel } from '../../../models/v2/tenant.model';
+import { AppError } from '../../../core/errors/appError';
+import type { User } from '../../../models/v2/user.model';
 
 describe('TenantService', () => {
   let mongoServer: MongoMemoryServer;

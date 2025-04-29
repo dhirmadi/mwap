@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { InviteController } from './controller';
 import { requireAuth } from '@core/middleware/auth';
-import { requireTenantOwner } from '@core/middleware/tenant';
+import { requireTenantOwner } from '@core/middleware/auth/requireTenantOwner';
 
 // Create router for project-scoped routes
 const projectRouter = Router({ mergeParams: true });

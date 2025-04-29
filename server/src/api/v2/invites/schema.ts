@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Types } from 'mongoose';
-import { ProjectRole } from '@features/projects/types/roles';
+import { ProjectRole } from '../../../features/projects/types/roles';
 
 // Helper function to validate ObjectId
 const isValidObjectId = (value: string) => Types.ObjectId.isValid(value);

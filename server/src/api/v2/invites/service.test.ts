@@ -1,9 +1,9 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Types } from 'mongoose';
 import { InviteService } from './service';
-import { InviteModel } from '@models/v2/invite.model';
-import { ProjectModel } from '@models/v2/project.model';
-import { ProjectRole } from '@features/projects/types/roles';
+import { InviteModel } from '../../../models/v2/invite.model';
+import { ProjectModel } from '../../../models/v2/project.model';
+import { ProjectRole } from '../../../features/projects/types/roles';
 
 describe('InviteService', () => {
   let mongoServer: MongoMemoryServer;

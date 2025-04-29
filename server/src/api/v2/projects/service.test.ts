@@ -1,11 +1,11 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Types } from 'mongoose';
 import { ProjectService } from './service';
-import { ProjectModel } from '@models/v2/project.model';
-import { TenantModel } from '@models/v2/tenant.model';
-import { CloudProviderModel } from '@models/v2/cloudProvider.model';
-import { ProjectTypeModel } from '@models/v2/projectType.model';
-import { AppError } from '@core/errors/appError';
+import { ProjectModel } from '../../../models/v2/project.model';
+import { TenantModel } from '../../../models/v2/tenant.model';
+import { CloudProviderModel } from '../../../models/v2/cloudProvider.model';
+import { ProjectTypeModel } from '../../../models/v2/projectType.model';
+import { AppError } from '../../../core/errors/appError';
 
 describe('ProjectService', () => {
   let mongoServer: MongoMemoryServer;
