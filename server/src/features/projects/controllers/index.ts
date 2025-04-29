@@ -96,7 +96,14 @@ export const ProjectController: AsyncController = {
 
       // Create project and automatically assign creator as owner using auth ID
       const project = await ProjectModel.create({
-        ...req.body,
+        name: req.body.name,
+        description: req.body.description,
+        tenantId: req.body.tenantId,
+        cloudProvider: req.body.provider,
+        cloudFolder: {
+          id: req.body.folderPath,
+          path: req.body.folderPath
+        },
         members: [{
           userId: getUserIdentifier(req.user, 'auth'),
           role: ProjectRole.OWNER,
@@ -109,9 +116,12 @@ export const ProjectController: AsyncController = {
         project: {
           id: project._id,
           name: project.name,
+          description: project.description,
           tenantId: project.tenantId,
           members: project.members,
-          createdAt: project.createdAt
+          createdAt: project.createdAt,
+          cloudProvider: project.cloudProvider,
+          cloudFolder: project.cloudFolder
         },
         user: {
           id: req.user.id,
@@ -128,9 +138,12 @@ export const ProjectController: AsyncController = {
         data: {
           id: project._id,
           name: project.name,
+          description: project.description,
           tenantId: project.tenantId,
           role: ProjectRole.OWNER,
-          createdAt: project.createdAt
+          createdAt: project.createdAt,
+          cloudProvider: project.cloudProvider,
+          cloudFolder: project.cloudFolder
         },
         meta: {
           requestId: req.id
@@ -196,10 +209,13 @@ export const ProjectController: AsyncController = {
       }).select({
         _id: 1,
         name: 1,
+        description: 1,
         tenantId: 1,
         'members.$': 1,
         createdAt: 1,
-        archived: 1
+        archived: 1,
+        cloudProvider: 1,
+        cloudFolder: 1
       });
 
       logger.debug('Found projects for user', {
@@ -213,10 +229,13 @@ export const ProjectController: AsyncController = {
         return {
           id: project._id,
           name: project.name,
+          description: project.description,
           tenantId: project.tenantId,
           role: member.role,
           archived: project.archived,
-          createdAt: project.createdAt
+          createdAt: project.createdAt,
+          cloudProvider: project.cloudProvider,
+          cloudFolder: project.cloudFolder
         };
       });
 

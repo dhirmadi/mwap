@@ -16,9 +16,15 @@ export interface ProjectMember {
 export interface Project {
   tenantId: Types.ObjectId;
   name: string;
+  description?: string;
   createdAt: Date;
   members: ProjectMember[];
   archived?: boolean;
+  cloudProvider: string;
+  cloudFolder: {
+    id: string;
+    path: string;
+  };
 }
 
 export interface ProjectDocument extends Project, Document {}
@@ -51,6 +57,10 @@ const projectSchema = new Schema<ProjectDocument>({
     required: true,
     trim: true
   },
+  description: {
+    type: String,
+    trim: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -60,6 +70,21 @@ const projectSchema = new Schema<ProjectDocument>({
     type: Boolean,
     default: false,
     index: true // Index for filtering archived/active projects
+  },
+  cloudProvider: {
+    type: String,
+    required: true,
+    enum: ['gdrive', 'dropbox', 'box', 'onedrive']
+  },
+  cloudFolder: {
+    id: {
+      type: String,
+      required: true
+    },
+    path: {
+      type: String,
+      required: true
+    }
   }
 });
 
