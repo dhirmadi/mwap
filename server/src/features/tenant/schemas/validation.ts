@@ -22,6 +22,25 @@ export const tenantIdSchema = z.object({
   })
 });
 
+// Common validation schemas
+export const idParamSchema = z.object({
+  params: z.object({
+    id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ID format')
+  })
+});
+
+export const userIdParamSchema = z.object({
+  params: z.object({
+    userId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID format')
+  })
+});
+
+export const tenantQuerySchema = z.object({
+  query: z.object({
+    tenantId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid tenant ID format')
+  })
+});
+
 const VALID_PROVIDERS = ['gdrive', 'dropbox', 'box', 'onedrive'] as const;
 
 export const providerParamSchema = z.object({

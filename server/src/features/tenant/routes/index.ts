@@ -15,6 +15,10 @@ import integrationRoutes from './integrations.routes';
 
 const router = Router();
 
+// Common middleware chains
+const requireAuth = [validateToken, extractUser, requireUser];
+const requireTenantOwner = [validateToken, validateRequest(tenantIdSchema), extractUser, verifyTenantOwner];
+
 // Log all requests to tenant routes
 router.use((req, res, next) => {
   logger.debug('Tenant route accessed', {
@@ -40,7 +44,7 @@ router.use((req, res, next) => {
 // Create new tenant (requires auth)
 router.post(
   '/',
-  validateToken,
+  ...requireAuth,
   validateRequest(createTenantSchema),
   TenantController.createTenant
 );
@@ -48,29 +52,21 @@ router.post(
 // Get current user's tenant
 router.get(
   '/me',
-  validateToken,
-  extractUser,  
-  requireUser, 
+  ...requireAuth,
   TenantController.getCurrentTenant
 );
 
 // Get specific tenant (requires auth + tenant ownership)
 router.get(
   '/:id',
-  validateToken,
-  validateRequest(tenantIdSchema),
-  extractUser,
-  verifyTenantOwner,
+  ...requireTenantOwner,
   TenantController.getTenant
 );
 
 // Update tenant (requires auth + tenant ownership)
 router.patch(
   '/:id',
-  validateToken,
-  validateRequest(tenantIdSchema),
-  extractUser,
-  verifyTenantOwner,
+  ...requireTenantOwner,
   validateRequest(updateTenantSchema),
   TenantController.updateTenant
 );
@@ -78,10 +74,7 @@ router.patch(
 // Delete tenant (requires auth + tenant ownership)
 router.delete(
   '/:id',
-  validateToken,
-  validateRequest(tenantIdSchema),
-  extractUser,
-  verifyTenantOwner,
+  ...requireTenantOwner,
   TenantController.archiveTenant
 );
 
@@ -96,10 +89,7 @@ router.get('/health', (_req, res) => {
 // Integration routes (requires auth + tenant ownership)
 router.use(
   '/:id/integrations',
-  validateToken,
-  validateRequest(tenantIdSchema),
-  extractUser,
-  verifyTenantOwner,
+  ...requireTenantOwner,
   integrationRoutes
 );
 
