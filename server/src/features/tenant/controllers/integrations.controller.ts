@@ -15,14 +15,7 @@ export async function getIntegrations(req: Request, res: Response, next: NextFun
       throw new AppError('Tenant not found', 404);
     }
 
-    // Check if user is owner
-    const isOwner = tenant.members.some(m => 
-      m.userId === req.user.id && m.role === 'OWNER'
-    );
-
-    if (!isOwner) {
-      throw new AppError('Only tenant owners can view integrations', 403);
-    }
+    // User ownership is already verified by verifyTenantOwner middleware
 
     logger.info({
       msg: 'Retrieved tenant integrations',
@@ -50,14 +43,7 @@ export async function addIntegration(req: Request<{id: string}, unknown, AddInte
       throw new AppError('Tenant not found', 404);
     }
 
-    // Check if user is owner
-    const isOwner = tenant.members.some(m => 
-      m.userId === req.user.id && m.role === 'OWNER'
-    );
-
-    if (!isOwner) {
-      throw new AppError('Only tenant owners can add integrations', 403);
-    }
+    // User ownership is already verified by verifyTenantOwner middleware
 
     // Check if integration already exists
     if (tenant.integrations.some(i => i.provider === provider)) {
@@ -126,14 +112,7 @@ export async function deleteIntegration(req: Request<{id: string, provider: Inte
       throw new AppError('Tenant not found', 404);
     }
 
-    // Check if user is owner
-    const isOwner = tenant.members.some(m => 
-      m.userId === req.user.id && m.role === 'OWNER'
-    );
-
-    if (!isOwner) {
-      throw new AppError('Only tenant owners can delete integrations', 403);
-    }
+    // User ownership is already verified by verifyTenantOwner middleware
 
     // Check if integration exists
     const integrationIndex = tenant.integrations.findIndex(i => i.provider === provider);

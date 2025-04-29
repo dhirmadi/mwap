@@ -22,9 +22,19 @@ export const tenantIdSchema = z.object({
   })
 });
 
+const VALID_PROVIDERS = ['gdrive', 'dropbox', 'box', 'onedrive'] as const;
+
+export const providerParamSchema = z.object({
+  params: z.object({
+    provider: z.enum(VALID_PROVIDERS, {
+      errorMap: () => ({ message: 'Provider must be one of: gdrive, dropbox, box, onedrive' })
+    })
+  })
+});
+
 export const addIntegrationSchema = z.object({
   body: z.object({
-    provider: z.enum(['gdrive', 'dropbox', 'box', 'onedrive'], {
+    provider: z.enum(VALID_PROVIDERS, {
       errorMap: () => ({ message: 'Provider must be one of: gdrive, dropbox, box, onedrive' })
     }),
     token: z.string()
