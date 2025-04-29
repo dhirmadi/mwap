@@ -6,7 +6,6 @@ import { requireUser } from '@core/middleware/auth/requireUser';
 import { verifyTenantOwner } from '@core/middleware/scoping/verifyTenantOwner';
 import { validateRequest } from '@core/middleware/validation/requestValidation';
 import { logger } from '@core/utils/logger';
-import ()
 import { createTenantSchema, updateTenantSchema } from '@features/tenant/validation';
 import { tenantIdSchema } from '../schemas/validation';
 import integrationRoutes from './integrations.routes';
