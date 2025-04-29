@@ -39,21 +39,21 @@ export function useProjectSubmission(tenantId: string) {
       const response = await createProject(payload);
       
       // Validate response
-      if (!response) {
+      if (!response || !response.data) {
         debug.error('Empty project response');
         throw new Error('Project creation failed - empty response');
       }
       
-      if (!response.id) {
+      if (!response.data.id) {
         debug.error('Invalid project response - missing ID', { response });
         throw new Error('Project creation failed - invalid response');
       }
 
       // Show success and navigate
       showSuccessNotification();
-      navigate(`/projects/${response.id}`);
+      navigate(`/projects/${response.data.id}`);
       
-      return response;
+      return response.data;
     } catch (error) {
       debug.error('Project submission failed:', {
         error,
