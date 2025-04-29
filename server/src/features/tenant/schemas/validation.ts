@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+/* removed due to duplication
 export const createTenantSchema = z.object({
   name: z.string()
     .min(2, 'Tenant name must be at least 2 characters long')
@@ -14,7 +15,7 @@ export const updateTenantSchema = z.object({
     .trim()
     .optional()
 });
-
+*/
 export const tenantIdSchema = z.object({
   params: z.object({
     id: z.string()
