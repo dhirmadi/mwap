@@ -79,8 +79,15 @@
 // User has tenant
 {
   "data": {
-    "id": "tenant-123",
-    "name": "My Workspace"
+    "id": "507f1f77bcf86cd799439011", // MongoDB ObjectId as string
+    "name": "My Workspace",
+    "members": [{
+      "userId": "auth0|123",
+      "role": "OWNER",
+      "joinedAt": "2025-04-28T10:00:00.000Z"
+    }],
+    "createdAt": "2025-04-28T10:00:00.000Z",
+    "archived": false
   },
   "meta": {
     "requestId": "req-123"
@@ -236,3 +243,41 @@ app.use(errorHandler);   // Transform and log errors
    - Consistent response types
    - Proper null handling
    - Clear collection types
+
+## Server as Source of Truth
+
+The server's response format is the authoritative source of truth. The frontend must:
+
+1. Always expect the full response object including all required fields
+2. Never assume optional fields will be present
+3. Transform server responses only when absolutely necessary for UI purposes
+4. Validate against the server's schema, not a simplified client version
+5. Use TypeScript types that exactly match the server's response format
+
+Example of proper response handling:
+```typescript
+// ✅ Correct: Use server's exact format
+interface TenantResponse {
+  data: {
+    id: string;
+    name: string;
+    members: Array<{
+      userId: string;
+      role: TenantRole;
+      joinedAt: string;
+    }>;
+    createdAt: string;
+    archived: boolean;
+  };
+  meta: {
+    requestId: string;
+    timestamp: string;
+  };
+}
+
+// ❌ Incorrect: Don't simplify server responses
+interface SimplifiedTenant {
+  id: string;
+  name: string;
+}
+```

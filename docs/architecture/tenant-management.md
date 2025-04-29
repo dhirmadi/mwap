@@ -24,11 +24,13 @@ Projects link to specific cloud storage folders and establish their own member l
 ### 1. Tenant
 
 - Created when a user starts a workspace.
-- Fields:
-  - `ownerId` (User reference)
-  - `name`
-  - `createdAt`
-  - `integrations` (Array of connected cloud providers)
+- Fields (as returned by server):
+  - `id` (string, MongoDB ObjectId)
+  - `name` (string, 3-50 chars)
+  - `members` (Array of {userId, role, joinedAt})
+  - `createdAt` (ISO date string)
+  - `archived` (boolean)
+  - `integrations` (Array of connected providers)
 
 - Supports:
   - Cloud provider integration (connect/disconnect).
