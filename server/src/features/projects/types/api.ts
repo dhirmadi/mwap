@@ -6,6 +6,11 @@ import { SuccessResponse } from '@core/types/responses';
 export interface CreateProjectRequest {
   name: string;
   description?: string;
+  cloudProvider: string;
+  cloudFolder: {
+    id: string;
+    path: string;
+  };
 }
 
 export interface UpdateProjectRequest {

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ProjectRole } from '@features/projects/types/roles';
 import { TenantRole } from '@core/types/auth';
+import { PROJECT_CONFIG } from '@core/config/constants';
 
 // Base schemas for common fields
 const idSchema = z.string().uuid();
@@ -92,10 +93,18 @@ export const inviteSchema = z.object({
   used: z.boolean(),
 });
 
+// Cloud folder schema
+export const cloudFolderSchema = z.object({
+  id: z.string(),
+  path: z.string()
+});
+
 // API request schemas
 export const createProjectRequestSchema = z.object({
   name: nameSchema,
   description: z.string().max(1000).optional(),
+  cloudProvider: z.enum(PROJECT_CONFIG.CLOUD_PROVIDERS),
+  cloudFolder: cloudFolderSchema
 });
 
 export const updateProjectRequestSchema = projectUpdateSchema;

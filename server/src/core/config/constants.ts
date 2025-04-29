@@ -1,3 +1,9 @@
+export const PROJECT_CONFIG = {
+  CLOUD_PROVIDERS: ['gdrive', 'dropbox', 'box', 'onedrive'] as const,
+  MAX_NAME_LENGTH: 100,
+  MAX_DESCRIPTION_LENGTH: 1000
+};
+
 export const constants = {
   development: {
     frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',

@@ -9,4 +9,9 @@ export interface Project {
   createdAt: Date;
   updatedAt: Date;
   archived: boolean;
+  cloudProvider: string;
+  cloudFolder: {
+    id: string;
+    path: string;
+  };
 }
