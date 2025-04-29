@@ -1,7 +1,12 @@
 # MWAP API Documentation
 
-## Base URL
-All API endpoints are prefixed with `/api/v1`. For example, `/tenant` becomes `/api/v1/tenant`.
+## API Versions
+
+### V2 API (Latest)
+The V2 API is the latest version with improved validation, error handling, and security. See [V2 Documentation](./v2/README.md) for details.
+
+### V1 API (Legacy)
+The V1 API is maintained for backward compatibility. All V1 endpoints are prefixed with `/api/v1`. For example, `/tenant` becomes `/api/v1/tenant`.
 
 ## Headers
 
