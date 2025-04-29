@@ -237,7 +237,8 @@ export async function post<T, D = unknown>(
 ): Promise<T> {
   try {
     const response = await client.post<T>(url, data, config);
-    return response.data;
+    //return response.data;
+    return response.data.data;
   } catch (error) {
     throw transformApiError(error);
   }
