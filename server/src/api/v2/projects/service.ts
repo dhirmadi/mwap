@@ -1,5 +1,5 @@
 import { ProjectCreateSchema, type ProjectCreateInput } from './schema';
-import { AppError } from '../../../utils/errors';
+import { AppError } from '@core/errors';
 import { Project } from '../../../models/project';
 import type { User } from '../../../models/user';
 
