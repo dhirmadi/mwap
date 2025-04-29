@@ -1,72 +1,104 @@
-import { ProjectCreateSchema, type ProjectCreateInput } from './schema';
+import { Types } from 'mongoose';
+import { ProjectModel } from '@models/v2/project.model';
+import { TenantModel } from '@models/v2/tenant.model';
+import { CloudProviderModel } from '@models/v2/cloudProvider.model';
+import { ProjectTypeModel } from '@models/v2/projectType.model';
+import { ProjectCreateSchema, ProjectUpdateSchema } from './schema';
 import { AppError } from '@core/errors';
-import { Project } from '@models/v2/project.model';
 import type { User } from '@models/v2/user.model';
+import type { ProjectCreate, ProjectUpdate } from './schema';
 
 export class ProjectService {
-  static async createProject(user: User, payload: ProjectCreateInput) {
+  static async createProject(user: User, payload: ProjectCreate) {
     const validationResult = ProjectCreateSchema.safeParse(payload);
-    
     if (!validationResult.success) {
-      throw new AppError('Invalid input', 400, validationResult.error.format());
+      throw AppError.badRequest('Invalid input', validationResult.error.format());
     }
 
-    const existingProject = await Project.findOne({
-      folderId: payload.folderId,
-      tenantId: user.tenantId,
+    // Verify tenant exists and user has access
+    const tenant = await TenantModel.findOne({
+      _id: payload.tenantId,
+      ownerId: user._id,
       archived: false
     });
 
-    if (existingProject) {
-      throw new AppError('Project already exists for this folder', 409);
+    if (!tenant) {
+      throw AppError.forbidden('Not authorized to create projects for this tenant');
     }
 
-    const project = new Project({
-      ...payload,
-      ownerId: user.id,
-      tenantId: user.tenantId,
-      archived: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    // Verify cloud provider exists
+    const provider = await CloudProviderModel.findOne({
+      providerId: payload.cloudProvider,
+      archived: false
     });
 
-    await project.save();
-    return project;
+    if (!provider) {
+      throw AppError.badRequest('Invalid cloud provider');
+    }
+
+    // Verify project type exists
+    const projectType = await ProjectTypeModel.findOne({
+      projectTypeId: payload.projectTypeId,
+      archived: false
+    });
+
+    if (!projectType) {
+      throw AppError.badRequest('Invalid project type');
+    }
+
+    try {
+      const project = new ProjectModel({
+        ...payload,
+        ownerId: user._id
+      });
+      await project.save();
+      return project;
+    } catch (error: any) {
+      if (error.code === 11000) {
+        throw AppError.badRequest('A project already exists with this folder in the tenant');
+      }
+      throw error;
+    }
   }
 
-  static async getProject(projectId: string, userId: string) {
-    const project = await Project.findOne({ _id: projectId, archived: false });
+  static async getProject(projectId: string) {
+    const project = await ProjectModel.findById(projectId);
     
     if (!project) {
-      throw new AppError('Project not found', 404);
+      throw AppError.notFound('Project not found');
     }
 
     return project;
   }
 
-  static async updateProject(projectId: string, userId: string, updates: Partial<ProjectCreateInput>) {
-    const project = await Project.findOneAndUpdate(
+  static async updateProject(projectId: string, payload: ProjectUpdate) {
+    const validationResult = ProjectUpdateSchema.safeParse(payload);
+    if (!validationResult.success) {
+      throw AppError.badRequest('Invalid input', validationResult.error.format());
+    }
+
+    const project = await ProjectModel.findOneAndUpdate(
       { _id: projectId, archived: false },
-      { ...updates, updatedAt: new Date() },
+      { ...payload, updatedAt: new Date() },
       { new: true }
     );
 
     if (!project) {
-      throw new AppError('Project not found', 404);
+      throw AppError.notFound('Project not found or archived');
     }
 
     return project;
   }
 
-  static async archiveProject(projectId: string, userId: string) {
-    const project = await Project.findOneAndUpdate(
+  static async archiveProject(projectId: string) {
+    const project = await ProjectModel.findOneAndUpdate(
       { _id: projectId, archived: false },
       { archived: true, updatedAt: new Date() },
       { new: true }
     );
 
     if (!project) {
-      throw new AppError('Project not found', 404);
+      throw AppError.notFound('Project not found or already archived');
     }
 
     return project;

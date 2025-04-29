@@ -4,6 +4,7 @@ export interface Project {
   name: string;
   cloudProvider: string;
   folderId: string;
+  folderPath?: string;
   projectTypeId: string;
   ownerId: Types.ObjectId;
   tenantId: Types.ObjectId;
@@ -45,6 +46,11 @@ const projectSchema = new Schema<ProjectDocument>(
       type: Schema.Types.ObjectId,
       required: true,
       ref: 'Tenant'
+    },
+    folderPath: {
+      type: String,
+      required: false,
+      trim: true
     },
     archived: {
       type: Boolean,
