@@ -14,7 +14,9 @@ export const createTenantSchema = z.object({
         'Name can only contain letters, numbers, spaces, hyphens and underscores'
       )
       .transform(val => val.trim())
-  })
+  }),
+  query: z.object({}).optional(),
+  params: z.object({}).optional()
 });
 
 /**
