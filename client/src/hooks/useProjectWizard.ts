@@ -95,13 +95,24 @@ export function useProjectWizard({
   const { submit: submitProject } = useProjectSubmission(tenantId);
 
   // Validate current step when data changes
-  useEffect(() => {
+ /* useEffect(() => {
     const currentStepConfig = STEPS[state.currentStep];
     if (!currentStepConfig) return;
 
     validateStep(state.data, currentStepConfig.fields)
       .then(isValid => setValid(isValid));
-  }, [state.data, state.currentStep, validateStep, setValid]);
+  }, [state.data, state.currentStep, validateStep, setValid]); */
+
+  useEffect(() => {
+    const currentStepConfig = STEPS[state.currentStep];
+    if (!currentStepConfig) return;
+  
+    validateStep(state.data, currentStepConfig.fields)
+      .then(isValid => {
+        setValid(isValid);
+        if (isValid) validatedSteps.add(state.currentStep); // <-- Currently missing this logic
+      });
+  }, [state.data, state.currentStep]);
 
   // Handle form submission
   const submit = useCallback(async () => {
