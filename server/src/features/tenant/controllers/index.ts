@@ -58,7 +58,7 @@ export const TenantController: AsyncController = {
           requestId: req.id,
           receivedBody: req.body
         });
-        throw new ValidationError('Invalid request data', { errors });
+        throw new ValidationError('Invalid request data', { errors, body: req.body });
       }
 
       logger.debug('Validation passed, creating tenant', {

@@ -4,19 +4,15 @@ import { z } from 'zod';
  * Schema for creating a tenant
  */
 export const createTenantSchema = z.object({
-  body: z.object({
-    name: z
-      .string()
-      .min(3, 'Name must be at least 3 characters')
-      .max(50, 'Name must be at most 50 characters')
-      .regex(
-        /^[a-zA-Z0-9\s\-_]+$/,
-        'Name can only contain letters, numbers, spaces, hyphens and underscores'
-      )
-      .transform(val => val.trim())
-  }),
-  query: z.object({}).optional(),
-  params: z.object({}).optional()
+  name: z
+    .string()
+    .min(3, 'Name must be at least 3 characters')
+    .max(50, 'Name must be at most 50 characters')
+    .regex(
+      /^[a-zA-Z0-9\s\-_]+$/,
+      'Name can only contain letters, numbers, spaces, hyphens and underscores'
+    )
+    .transform(val => val.trim())
 });
 
 /**
