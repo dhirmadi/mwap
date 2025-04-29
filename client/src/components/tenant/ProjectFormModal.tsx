@@ -88,7 +88,7 @@ export function ProjectFormModal({
             <WizardControls
               canGoBack={activeStep > 0}
               canGoForward={activeStep < STEPS.length - 1 && !state.validating}
-              canSubmit={activeStep === STEPS.length - 1 && form.isValid()}
+              canSubmit={activeStep === STEPS.length - 1}
               isSubmitting={isLoading || state === 'submitting'}
               onBack={handlePrev}
               onNext={handleNext}
