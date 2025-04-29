@@ -65,3 +65,19 @@ export function useCreateProject(tenantId: string) {
       queryClient.invalidateQueries({
         queryKey: ['tenant', tenantId, 'projects']
       });
+    },
+    onError: (error) => {
+      debug.error('Project creation failed:', {
+        error,
+        tenantId,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  return {
+    createProject,
+    isLoading,
+    error
+  };
+}
