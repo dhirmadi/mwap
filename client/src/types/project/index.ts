@@ -26,11 +26,14 @@ export interface Project {
   readonly name: string;
   readonly description?: string;
   readonly tenantId: string;
-  readonly createdBy: string;
   readonly createdAt: string;
-  readonly updatedAt: string;
   readonly archived: boolean;
   readonly members: ProjectMember[];
+  readonly cloudProvider: CloudProvider;
+  readonly cloudFolder: {
+    readonly id: string;
+    readonly path: string;
+  };
 }
 
 /**

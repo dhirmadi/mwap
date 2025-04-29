@@ -114,12 +114,12 @@ export function useCreateProject(tenantId: string) {
         );
 
         // Validate response
-        if (!response || !response.id) {
+        if (!response || !response.data || !response.data.id) {
           debug.error('Invalid project response', { response });
           throw new Error('Invalid project response');
         }
-
-        return response;
+        
+        return response.data;
       } catch (error: any) {
         // Debug logging for error response
         debug.group('PROJECT CREATION - ERROR RESPONSE');
