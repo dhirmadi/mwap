@@ -4,44 +4,53 @@ import { TenantService } from '@features/tenant/services';
 import { getUserIdentifier } from '@core/utils/user-mapping';
 import { logger } from '@core/utils/logger';
 
+const verifyTenantOwnership = async (tenantId: string, userId: string, tenantService: TenantService) => {
+  const tenant = await tenantService.getTenantById(tenantId);
+
+  if (!tenant) {
+    throw new AppError('Tenant not found', 404);
+  }
+
+  // Check both ownerId and members array for owner role
+  const isOwner = tenant.ownerId === userId || 
+    tenant.members.some(member => 
+      member.userId === userId && 
+      member.role === 'OWNER'
+    );
+
+  if (!isOwner) {
+    logger.warn('Unauthorized tenant access attempt', {
+      userId,
+      tenantId,
+      ownerId: tenant.ownerId,
+      memberRoles: tenant.members.map(m => ({ userId: m.userId, role: m.role }))
+    });
+    throw new AppError('Not tenant owner', 403);
+  }
+
+  return tenant;
+};
+
 export const verifyTenantOwner = async (
   req: Request,
   _res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { id: tenantId } = req.params;
+    const tenantId = req.params.id || req.body.tenantId;
     
+    if (!tenantId) {
+      return next(new AppError('Tenant ID is required', 400));
+    }
+
     if (!req.user?.id) {
       return next(new AppError('User not authenticated', 401));
     }
 
     const tenantService = new TenantService();
-    const tenant = await tenantService.getTenantById(tenantId);
-
-    if (!tenant) {
-      return next(new AppError('Tenant not found', 404));
-    }
-
     const userId = getUserIdentifier(req.user, 'auth');
 
-    // Check both ownerId and members array for owner role
-    const isOwner = tenant.ownerId === userId || 
-      tenant.members.some(member => 
-        member.userId === userId && 
-        member.role === 'OWNER'
-      );
-
-    if (!isOwner) {
-      logger.warn('Unauthorized tenant access attempt', {
-        userId,
-        tenantId,
-        ownerId: tenant.ownerId,
-        memberRoles: tenant.members.map(m => ({ userId: m.userId, role: m.role }))
-      });
-      return next(new AppError('Not tenant owner', 403));
-    }
-
+    const tenant = await verifyTenantOwnership(tenantId, userId, tenantService);
     req.tenant = tenant;
     next();
   } catch (error) {

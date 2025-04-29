@@ -9,6 +9,7 @@ import { verifyProjectRole } from '@core/middleware/scoping/verifyProjectRole';
 import { validateRequest } from '@core/middleware/validation/requestValidation';
 import { ProjectRole } from '@features/projects/schemas';
 import { idParamSchema, userIdParamSchema } from '@features/tenant/schemas/validation';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -23,6 +24,13 @@ const requireProjectAccess = [...requireAuth, verifyProjectRole([ProjectRole.OWN
 // Create new project (requires tenant owner)
 router.post(
   '/',
+  validateRequest(z.object({
+    body: z.object({
+      tenantId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid tenant ID format'),
+      name: z.string().min(1, 'Project name is required'),
+      description: z.string().optional()
+    })
+  })),
   ...requireAuth,
   verifyTenantOwner,
   ProjectController.createProject
