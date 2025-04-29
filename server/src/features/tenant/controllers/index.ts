@@ -79,9 +79,18 @@ export const TenantController: AsyncController = {
         timestamp: new Date().toISOString()
       });
 
+      // Transform response to match frontend types
+      const transformedTenant = {
+        id: tenant._id.toString(),
+        name: tenant.name,
+        members: tenant.members,
+        createdAt: tenant.createdAt,
+        archived: tenant.archived || false
+      };
+
       // Return success response
       res.status(201).json({
-        data: tenant,
+        data: transformedTenant,
         meta: { 
           requestId: req.id,
           timestamp: new Date().toISOString()
@@ -119,8 +128,17 @@ export const TenantController: AsyncController = {
         requestId: req.id
       });
 
+      // Transform response to match frontend types
+      const transformedTenant = tenant ? {
+        id: tenant._id.toString(),
+        name: tenant.name,
+        members: tenant.members,
+        createdAt: tenant.createdAt,
+        archived: tenant.archived || false
+      } : null;
+
       res.status(200).json({
-        data: tenant,
+        data: transformedTenant,
         meta: {
           requestId: req.id,
           timestamp: new Date().toISOString()
@@ -183,8 +201,17 @@ export const TenantController: AsyncController = {
         requestId: req.id
       });
 
+      // Transform response to match frontend types
+      const transformedTenant = tenant ? {
+        id: tenant._id.toString(),
+        name: tenant.name,
+        members: tenant.members,
+        createdAt: tenant.createdAt,
+        archived: tenant.archived || false
+      } : null;
+
       res.status(200).json({
-        data: tenant,
+        data: transformedTenant,
         meta: {
           requestId: req.id,
           timestamp: new Date().toISOString()
