@@ -6,23 +6,19 @@ import { useTenant } from '../hooks/useTenant';
 import { LoadingState } from '../components/common';
 import { CloudIntegrations, TenantProjects } from '../components/tenant';
 
-/**
- * Tenant admin page component
- * Displays tenant management interface for tenant owners
- */
 export function TenantAdmin(): JSX.Element {
-  const { id } = useParams<{ id: string }>();
-  const { tenant, isLoading, error } = useTenant(id);
+  const { id } = useParams<{ id: string }>(); // Still get id from route for TenantProjects and CloudIntegrations
+  const { tenant, isLoadingTenant, tenantError } = useTenant();
 
   useEffect(() => {
-    console.log(`Rendering tenant admin page for tenant ${id}`);
+    console.log(`Rendering tenant admin page for tenant id=${id}`);
   }, [id]);
 
-  if (isLoading) {
+  if (isLoadingTenant) {
     return <LoadingState />;
   }
 
-  if (error || !tenant) {
+  if (tenantError || !tenant) {
     return (
       <Container>
         <Title order={2} mb="lg">Error Loading Tenant</Title>
