@@ -1,7 +1,7 @@
 import { ProjectCreateSchema, type ProjectCreateInput } from './schema';
 import { AppError } from '@core/errors';
-import { Project } from '../../../models/project';
-import type { User } from '../../../models/user';
+import { Project } from '@models/v2/project.model';
+import type { User } from '@models/v2/user.model';
 
 export class ProjectService {
   static async createProject(user: User, payload: ProjectCreateInput) {

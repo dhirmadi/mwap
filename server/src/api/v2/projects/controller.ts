@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ProjectService } from './service';
-import { AppError } from '../../../utils/errors';
+import { AppError } from '@core/errors/appError';
 
 export class ProjectController {
   static async createProject(req: Request, res: Response, next: NextFunction) {
