@@ -114,7 +114,10 @@ export function useCreateProject(tenantId: string) {
         );
 
         // Validate response
-        if (!response || !response.data || !response.data.id) {
+        //if (!response || !response.data || !response.data.id) {
+          const project = response?.data;
+          
+          if (!project?.id) {
           debug.error('Invalid project response', { response });
           throw new Error('Invalid project response');
         }
