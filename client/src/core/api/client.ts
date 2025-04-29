@@ -222,8 +222,8 @@ export async function get<T>(
   config?: AxiosRequestConfig
 ): Promise<T> {
   try {
-    const response = await client.get<T>(url, config);
-    return response.data;
+    const response = await client.get(url, config);
+    return response.data.data as T; // ✅ unwrap .data.data
   } catch (error) {
     throw transformApiError(error);
   }
@@ -251,12 +251,13 @@ export async function put<T, D = unknown>(
   config?: AxiosRequestConfig
 ): Promise<T> {
   try {
-    const response = await client.put<T>(url, data, config);
-    return response.data;
+    const response = await client.put(url, data, config);
+    return response.data.data as T; // ✅ unwrap
   } catch (error) {
     throw transformApiError(error);
   }
 }
+
 
 export async function patch<T, D = unknown>(
   client: AxiosInstance,
@@ -265,12 +266,13 @@ export async function patch<T, D = unknown>(
   config?: AxiosRequestConfig
 ): Promise<T> {
   try {
-    const response = await client.patch<T>(url, data, config);
-    return response.data;
+    const response = await client.patch(url, data, config);
+    return response.data.data as T; // ✅ unwrap
   } catch (error) {
     throw transformApiError(error);
   }
 }
+
 
 export async function del<T>(
   client: AxiosInstance,
@@ -278,8 +280,8 @@ export async function del<T>(
   config?: AxiosRequestConfig
 ): Promise<T> {
   try {
-    const response = await client.delete<T>(url, config);
-    return response.data;
+    const response = await client.delete(url, config);
+    return response.data.data as T; // ✅ unwrap
   } catch (error) {
     throw transformApiError(error);
   }
