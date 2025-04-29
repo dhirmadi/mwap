@@ -74,7 +74,9 @@ const projectSchema = new Schema<ProjectDocument>({
   cloudProvider: {
     type: String,
     required: true,
-    enum: ['gdrive', 'dropbox', 'box', 'onedrive']
+    enum: ['GDRIVE', 'DROPBOX', 'BOX', 'ONEDRIVE'],
+    set: (value: string) => value.toUpperCase(),
+    get: (value: string) => value.toUpperCase()
   },
   cloudFolder: {
     id: {

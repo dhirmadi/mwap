@@ -99,7 +99,7 @@ export const ProjectController: AsyncController = {
         name: req.body.name,
         description: req.body.description,
         tenantId: req.body.tenantId,
-        cloudProvider: req.body.provider,
+        cloudProvider: req.body.provider.toUpperCase(),
         cloudFolder: {
           id: req.body.folderPath,
           path: req.body.folderPath
