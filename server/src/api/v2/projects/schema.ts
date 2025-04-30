@@ -34,7 +34,35 @@ export const ProjectUpdateSchema = z.object({
     .trim()
 });
 
+export const ProjectRole = z.enum(['OWNER', 'DEPUTY', 'MEMBER']);
+export type ProjectRole = z.infer<typeof ProjectRole>;
+
+export const PROJECT_ROLE_HIERARCHY: Record<ProjectRole, number> = {
+  'OWNER': 3,
+  'DEPUTY': 2,
+  'MEMBER': 1
+};
+
+export const UpdateMemberRoleSchema = z.object({
+  role: ProjectRole
+});
+
+export type UpdateMemberRoleRequest = z.infer<typeof UpdateMemberRoleSchema>;
+
+export const AddMemberSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  role: ProjectRole
+});
+
+export const ProjectMemberResponse = z.object({
+  userId: z.string(),
+  role: ProjectRole,
+  joinedAt: z.string()
+});
+
 export type ProjectCreate = z.infer<typeof ProjectCreateSchema> & {
   tenantId: Types.ObjectId;
 };
 export type ProjectUpdate = z.infer<typeof ProjectUpdateSchema>;
+export type AddMemberRequest = z.infer<typeof AddMemberSchema>;
+export type ProjectMemberResponse = z.infer<typeof ProjectMemberResponse>;

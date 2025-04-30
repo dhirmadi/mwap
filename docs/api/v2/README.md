@@ -8,8 +8,26 @@ The MWAP API v2 provides a more structured and secure way to interact with the p
 - Improved error handling with custom error types
 - Strict tenant isolation
 - Role-based access control
-- Audit logging
 - Rate limiting
+
+## Role Hierarchy
+
+Projects use a hierarchical role system:
+
+```
+OWNER > DEPUTY > MEMBER
+```
+
+Role permissions:
+- OWNER: Full project control, can manage all members
+- DEPUTY: Can manage members with lower roles
+- MEMBER: Basic project access
+
+Role management rules:
+- Users can only assign/modify roles lower than their own
+- Cannot modify your own role
+- Cannot remove yourself from a project
+- Only OWNER/DEPUTY can manage members
 
 ## Services
 

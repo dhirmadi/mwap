@@ -58,4 +58,53 @@ export class ProjectController {
       next(error);
     }
   }
+
+  static async addMember(req: Request, res: Response, next: NextFunction) {
+    try {
+      const member = await ProjectService.addMember(
+        req.params.id,
+        req.user!,
+        req.body
+      );
+
+      res.json({
+        success: true,
+        data: member
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async removeMember(req: Request, res: Response, next: NextFunction) {
+    try {
+      await ProjectService.removeMember(
+        req.params.id,
+        req.user!,
+        req.params.userId
+      );
+
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async updateMemberRole(req: Request, res: Response, next: NextFunction) {
+    try {
+      const member = await ProjectService.updateMemberRole(
+        req.params.id,
+        req.user!,
+        req.params.userId,
+        req.body
+      );
+
+      res.json({
+        success: true,
+        data: member
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -221,4 +221,335 @@ describe('ProjectService', () => {
         .toThrow('Project not found or already archived');
     });
   });
+
+  describe('addMember', () => {
+    let testProject: any;
+
+    beforeEach(async () => {
+      testProject = await ProjectModel.create({
+        name: 'Test Project',
+        tenantId: testTenant._id,
+        ownerId: testUser._id,
+        cloudProvider: testProvider.providerId,
+        projectTypeId: testProjectType.projectTypeId,
+        folderId: 'test-folder',
+        folderPath: '/test/path',
+        archived: false,
+        members: [{
+          userId: testUser._id.toString(),
+          role: 'OWNER',
+          joinedAt: new Date().toISOString()
+        }]
+      });
+    });
+
+    it('should add a member with valid data', async () => {
+      const payload = {
+        userId: 'user456',
+        role: 'MEMBER'
+      };
+
+      const result = await ProjectService.addMember(
+        testProject._id.toString(),
+        testUser,
+        payload
+      );
+
+      expect(result).toEqual({
+        userId: 'user456',
+        role: 'MEMBER',
+        joinedAt: expect.any(String)
+      });
+
+      const updatedProject = await ProjectModel.findById(testProject._id);
+      expect(updatedProject?.members).toHaveLength(2);
+      expect(updatedProject?.members[1]).toEqual(result);
+    });
+
+    it('should reject if user is already a member', async () => {
+      const payload = {
+        userId: testUser._id.toString(),
+        role: 'MEMBER'
+      };
+
+      await expect(
+        ProjectService.addMember(testProject._id.toString(), testUser, payload)
+      ).rejects.toThrow('User is already a member of this project');
+    });
+
+    it('should reject if current user is not OWNER/DEPUTY', async () => {
+      testProject.members[0].role = 'MEMBER';
+      await testProject.save();
+
+      const payload = {
+        userId: 'user456',
+        role: 'MEMBER'
+      };
+
+      await expect(
+        ProjectService.addMember(testProject._id.toString(), testUser, payload)
+      ).rejects.toThrow('Only project owners and deputies can add members');
+    });
+
+    it('should reject if assigning role equal/higher than current user', async () => {
+      testProject.members[0].role = 'DEPUTY';
+      await testProject.save();
+
+      const payload = {
+        userId: 'user456',
+        role: 'DEPUTY'
+      };
+
+      await expect(
+        ProjectService.addMember(testProject._id.toString(), testUser, payload)
+      ).rejects.toThrow('Cannot assign a role equal to or higher than your own');
+    });
+
+    it('should reject if project is archived', async () => {
+      testProject.archived = true;
+      await testProject.save();
+
+      const payload = {
+        userId: 'user456',
+        role: 'MEMBER'
+      };
+
+      await expect(
+        ProjectService.addMember(testProject._id.toString(), testUser, payload)
+      ).rejects.toThrow('Project not found or archived');
+    });
+  });
+
+  describe('removeMember', () => {
+    let testProject: any;
+    const memberUserId = new Types.ObjectId().toString();
+
+    beforeEach(async () => {
+      testProject = await ProjectModel.create({
+        name: 'Test Project',
+        tenantId: testTenant._id,
+        ownerId: testUser._id,
+        cloudProvider: testProvider.providerId,
+        projectTypeId: testProjectType.projectTypeId,
+        folderId: 'test-folder',
+        folderPath: '/test/path',
+        archived: false,
+        members: [
+          {
+            userId: testUser._id.toString(),
+            role: 'OWNER',
+            joinedAt: new Date().toISOString()
+          },
+          {
+            userId: memberUserId,
+            role: 'MEMBER',
+            joinedAt: new Date().toISOString()
+          }
+        ]
+      });
+    });
+
+    it('should remove a member with valid data', async () => {
+      await ProjectService.removeMember(
+        testProject._id.toString(),
+        testUser,
+        memberUserId
+      );
+
+      const updatedProject = await ProjectModel.findById(testProject._id);
+      expect(updatedProject?.members).toHaveLength(1);
+      expect(updatedProject?.members[0].userId).toBe(testUser._id.toString());
+    });
+
+    it('should reject if member not found', async () => {
+      const nonExistentUserId = new Types.ObjectId().toString();
+
+      await expect(
+        ProjectService.removeMember(testProject._id.toString(), testUser, nonExistentUserId)
+      ).rejects.toThrow('Member not found in project');
+    });
+
+    it('should reject if current user is not OWNER/DEPUTY', async () => {
+      testProject.members[0].role = 'MEMBER';
+      await testProject.save();
+
+      await expect(
+        ProjectService.removeMember(testProject._id.toString(), testUser, memberUserId)
+      ).rejects.toThrow('Only project owners and deputies can remove members');
+    });
+
+    it('should reject if removing self', async () => {
+      await expect(
+        ProjectService.removeMember(testProject._id.toString(), testUser, testUser._id.toString())
+      ).rejects.toThrow('Cannot remove yourself from the project');
+    });
+
+    it('should reject if removing member with equal role', async () => {
+      testProject.members[0].role = 'DEPUTY';
+      testProject.members[1].role = 'DEPUTY';
+      await testProject.save();
+
+      await expect(
+        ProjectService.removeMember(testProject._id.toString(), testUser, memberUserId)
+      ).rejects.toThrow('Cannot remove a member with equal or higher role');
+    });
+
+    it('should reject if removing member with higher role', async () => {
+      testProject.members[0].role = 'DEPUTY';
+      testProject.members[1].role = 'OWNER';
+      await testProject.save();
+
+      await expect(
+        ProjectService.removeMember(testProject._id.toString(), testUser, memberUserId)
+      ).rejects.toThrow('Cannot remove a member with equal or higher role');
+    });
+
+    it('should reject if project is archived', async () => {
+      testProject.archived = true;
+      await testProject.save();
+
+      await expect(
+        ProjectService.removeMember(testProject._id.toString(), testUser, memberUserId)
+      ).rejects.toThrow('Project not found or archived');
+    });
+  });
+
+  describe('updateMemberRole', () => {
+    let testProject: any;
+    const memberUserId = new Types.ObjectId().toString();
+
+    beforeEach(async () => {
+      testProject = await ProjectModel.create({
+        name: 'Test Project',
+        tenantId: testTenant._id,
+        ownerId: testUser._id,
+        cloudProvider: testProvider.providerId,
+        projectTypeId: testProjectType.projectTypeId,
+        folderId: 'test-folder',
+        folderPath: '/test/path',
+        archived: false,
+        members: [
+          {
+            userId: testUser._id.toString(),
+            role: 'OWNER',
+            joinedAt: new Date().toISOString()
+          },
+          {
+            userId: memberUserId,
+            role: 'MEMBER',
+            joinedAt: new Date().toISOString()
+          }
+        ]
+      });
+    });
+
+    it('should update member role with valid data', async () => {
+      const payload = { role: 'DEPUTY' as const };
+
+      const result = await ProjectService.updateMemberRole(
+        testProject._id.toString(),
+        testUser,
+        memberUserId,
+        payload
+      );
+
+      expect(result.role).toBe('DEPUTY');
+      
+      const updatedProject = await ProjectModel.findById(testProject._id);
+      expect(updatedProject?.members[1].role).toBe('DEPUTY');
+    });
+
+    it('should reject invalid role value', async () => {
+      const payload = { role: 'INVALID' as any };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, memberUserId, payload)
+      ).rejects.toThrow();
+    });
+
+    it('should reject if member not found', async () => {
+      const nonExistentUserId = new Types.ObjectId().toString();
+      const payload = { role: 'DEPUTY' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, nonExistentUserId, payload)
+      ).rejects.toThrow('Member not found in project');
+    });
+
+    it('should reject if current user is not OWNER/DEPUTY', async () => {
+      testProject.members[0].role = 'MEMBER';
+      await testProject.save();
+
+      const payload = { role: 'DEPUTY' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, memberUserId, payload)
+      ).rejects.toThrow('Only project owners and deputies can modify roles');
+    });
+
+    it('should reject if modifying own role', async () => {
+      const payload = { role: 'DEPUTY' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, testUser._id.toString(), payload)
+      ).rejects.toThrow('Cannot modify your own role');
+    });
+
+    it('should reject if modifying role of member with equal role', async () => {
+      testProject.members[0].role = 'DEPUTY';
+      testProject.members[1].role = 'DEPUTY';
+      await testProject.save();
+
+      const payload = { role: 'MEMBER' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, memberUserId, payload)
+      ).rejects.toThrow('Cannot modify role of a member with equal or higher role');
+    });
+
+    it('should reject if modifying role of member with higher role', async () => {
+      testProject.members[0].role = 'DEPUTY';
+      testProject.members[1].role = 'OWNER';
+      await testProject.save();
+
+      const payload = { role: 'MEMBER' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, memberUserId, payload)
+      ).rejects.toThrow('Cannot modify role of a member with equal or higher role');
+    });
+
+    it('should reject if assigning role equal to current user', async () => {
+      testProject.members[0].role = 'DEPUTY';
+      await testProject.save();
+
+      const payload = { role: 'DEPUTY' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, memberUserId, payload)
+      ).rejects.toThrow('Cannot assign a role equal to or higher than your own');
+    });
+
+    it('should reject if assigning role higher than current user', async () => {
+      testProject.members[0].role = 'DEPUTY';
+      await testProject.save();
+
+      const payload = { role: 'OWNER' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, memberUserId, payload)
+      ).rejects.toThrow('Cannot assign a role equal to or higher than your own');
+    });
+
+    it('should reject if project is archived', async () => {
+      testProject.archived = true;
+      await testProject.save();
+
+      const payload = { role: 'DEPUTY' as const };
+
+      await expect(
+        ProjectService.updateMemberRole(testProject._id.toString(), testUser, memberUserId, payload)
+      ).rejects.toThrow('Project not found or archived');
+    });
+  });
 });
