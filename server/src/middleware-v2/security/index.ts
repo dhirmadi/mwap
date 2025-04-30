@@ -63,7 +63,7 @@ export interface RateLimiterOptions {
 
   /**
    * Time window in milliseconds
-   * @default 60000 (1 minute)
+   * @default 900000 (15 minutes)
    */
   windowMs?: number;
 
@@ -88,7 +88,7 @@ export interface RateLimiterOptions {
 export async function createRateLimiter(options: RateLimiterOptions = {}) {
   const {
     max = 100,
-    windowMs = 60 * 1000,
+    windowMs = 15 * 60 * 1000, // 15 minutes
     useRedis = false,
     redis,
   } = options;

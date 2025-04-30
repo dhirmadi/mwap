@@ -1,4 +1,8 @@
+/**
+ * This module uses core-v2 only
+ */
+
 export * from './model';
 export * from './service';
 export * from './controller';
-export { createProjectsRouter } from './routes';
+export { createProjectRouter } from './routes';

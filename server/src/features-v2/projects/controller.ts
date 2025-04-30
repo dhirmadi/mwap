@@ -1,53 +1,79 @@
+/**
+ * This module uses core-v2 only
+ */
+
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../../core-v2/errors';
-import { ProjectsService } from './service';
-import { CreateProjectsSchema, UpdateProjectsSchema } from './model';
+import { ProjectService } from './service';
+import { CreateProjectSchema, UpdateProjectSchema } from './model';
 
-export class ProjectsController {
-  constructor(private service: ProjectsService) {}
+export class ProjectController {
+  constructor(private service: ProjectService) {}
 
-  async createProjects(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createProject(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const data = CreateProjectsSchema.parse(req.body);
-      const projects = await this.service.createProjects(data);
-      res.status(201).json(projects);
+      const data = CreateProjectSchema.parse(req.body);
+      const project = await this.service.createProject(data);
+      res.status(201).json(project);
     } catch (error) {
       next(error);
     }
   }
 
-  async getProjects(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getProject(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const projects = await this.service.getProjects(req.params.id);
-      res.json(projects);
+      const project = await this.service.getProject(req.params.id);
+      res.json(project);
     } catch (error) {
       next(error);
     }
   }
 
-  async updateProjects(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateProject(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const data = UpdateProjectsSchema.parse(req.body);
-      const projects = await this.service.updateProjects(req.params.id, data);
-      res.json(projects);
+      const data = UpdateProjectSchema.parse(req.body);
+      const project = await this.service.updateProject(req.params.id, data);
+      res.json(project);
     } catch (error) {
       next(error);
     }
   }
 
-  async deleteProjects(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async deleteProject(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      await this.service.deleteProjects(req.params.id);
+      await this.service.deleteProject(req.params.id);
       res.status(204).end();
     } catch (error) {
       next(error);
     }
   }
 
-  async listProjectss(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async listProjects(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const projectss = await this.service.listProjectss();
-      res.json(projectss);
+      const tenantId = req.params.tenantId || req.query.tenantId as string;
+      if (!tenantId) {
+        throw AppError.badRequest('tenantId is required');
+      }
+      const projects = await this.service.listProjects(tenantId);
+      res.json(projects);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async archiveProject(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const project = await this.service.archiveProject(req.params.id);
+      res.json(project);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async restoreProject(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const project = await this.service.restoreProject(req.params.id);
+      res.json(project);
     } catch (error) {
       next(error);
     }

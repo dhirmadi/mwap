@@ -4,6 +4,7 @@ import { AppError } from '../core-v2/errors';
 
 // Re-export all schemas and types
 export * from './schemas';
+export * from './validateRequest';
 
 /**
  * Type-safe request validation options
@@ -20,6 +21,12 @@ export interface ValidationOptions {
    * @default true
    */
   strip?: boolean;
+
+  /**
+   * Whether to attach validated data to req.validated
+   * @default false
+   */
+  attachToValidated?: boolean;
 }
 
 /**
@@ -44,6 +51,7 @@ export const validate = <T extends z.ZodType>(
   const {
     source = 'body',
     strip = true,
+    attachToValidated = false,
   } = options;
 
   return async (
@@ -63,8 +71,13 @@ export const validate = <T extends z.ZodType>(
       // Validate and transform the data
       const validated = await validationSchema.parseAsync(data);
 
-      // Replace the request data with the validated version
-      req[source] = validated;
+      if (attachToValidated) {
+        // Attach to req.validated if requested
+        (req as RequestWithValidated<z.infer<T>>).validated = validated;
+      } else {
+        // Replace the request data with the validated version
+        req[source] = validated;
+      }
 
       next();
     } catch (error) {

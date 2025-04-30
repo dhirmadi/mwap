@@ -1,3 +1,7 @@
+/**
+ * This module uses core-v2 only
+ */
+
 import { Router } from 'express';
 import { requireRoles, MWAP_ROLES } from '../../../middleware-v2/auth/roles';
 import { TenantController } from './controller';

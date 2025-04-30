@@ -1,4 +1,8 @@
+/**
+ * This module uses core-v2 only
+ */
+
 export * from './model';
 export * from './service';
 export * from './controller';
-export { createInvitesRouter } from './routes';
+export { createInviteRouter } from './routes';

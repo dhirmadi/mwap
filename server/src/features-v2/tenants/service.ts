@@ -1,3 +1,7 @@
+/**
+ * This module uses core-v2 only
+ */
+
 import type { Tenant } from './model';
 
 export class TenantService {
@@ -17,7 +21,7 @@ export class TenantService {
     throw new Error('Not implemented');
   }
 
-  async listTenants(ownerId: string): Promise<Tenant[]> {
+  async listTenants(): Promise<Tenant[]> {
     throw new Error('Not implemented');
   }
 }

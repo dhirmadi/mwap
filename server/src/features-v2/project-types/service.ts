@@ -1,23 +1,35 @@
-import type { ProjectTypes } from './model';
+/**
+ * This module uses core-v2 only
+ */
 
-export class ProjectTypesService {
-  async createProjectTypes(data: Partial<ProjectTypes>): Promise<ProjectTypes> {
+import type { ProjectType } from './model';
+
+export class ProjectTypeService {
+  async createProjectType(data: Partial<ProjectType>): Promise<ProjectType> {
     throw new Error('Not implemented');
   }
 
-  async getProjectTypes(id: string): Promise<ProjectTypes> {
+  async getProjectType(id: string): Promise<ProjectType> {
     throw new Error('Not implemented');
   }
 
-  async updateProjectTypes(id: string, data: Partial<ProjectTypes>): Promise<ProjectTypes> {
+  async updateProjectType(id: string, data: Partial<ProjectType>): Promise<ProjectType> {
     throw new Error('Not implemented');
   }
 
-  async deleteProjectTypes(id: string): Promise<void> {
+  async deleteProjectType(id: string): Promise<void> {
     throw new Error('Not implemented');
   }
 
-  async listProjectTypess(): Promise<ProjectTypes[]> {
+  async listProjectTypes(includeInactive = false): Promise<ProjectType[]> {
+    throw new Error('Not implemented');
+  }
+
+  async activateProjectType(id: string): Promise<ProjectType> {
+    throw new Error('Not implemented');
+  }
+
+  async deactivateProjectType(id: string): Promise<ProjectType> {
     throw new Error('Not implemented');
   }
 }

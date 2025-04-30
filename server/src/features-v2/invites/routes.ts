@@ -1,36 +1,60 @@
+/**
+ * This module uses core-v2 only
+ */
+
 import { Router } from 'express';
 import { requireRoles, MWAP_ROLES } from '../../../middleware-v2/auth/roles';
-import { InvitesController } from './controller';
-import { InvitesService } from './service';
+import { InviteController } from './controller';
+import { InviteService } from './service';
 
-export function createInvitesRouter(): Router {
+export function createInviteRouter(): Router {
   const router = Router();
-  const service = new InvitesService();
-  const controller = new InvitesController(service);
+  const service = new InviteService();
+  const controller = new InviteController(service);
 
   router.post('/',
     requireRoles(MWAP_ROLES.OWNER),
-    controller.createInvites.bind(controller)
+    controller.createInvite.bind(controller)
   );
 
   router.get('/:id',
     requireRoles(MWAP_ROLES.MEMBER),
-    controller.getInvites.bind(controller)
+    controller.getInvite.bind(controller)
   );
 
   router.patch('/:id',
     requireRoles(MWAP_ROLES.OWNER),
-    controller.updateInvites.bind(controller)
+    controller.updateInvite.bind(controller)
   );
 
   router.delete('/:id',
     requireRoles(MWAP_ROLES.OWNER),
-    controller.deleteInvites.bind(controller)
+    controller.deleteInvite.bind(controller)
   );
 
   router.get('/',
     requireRoles(MWAP_ROLES.MEMBER),
-    controller.listInvitess.bind(controller)
+    controller.listInvites.bind(controller)
+  );
+
+  router.post('/:id/accept',
+    requireRoles(MWAP_ROLES.MEMBER),
+    controller.acceptInvite.bind(controller)
+  );
+
+  router.post('/:id/reject',
+    requireRoles(MWAP_ROLES.MEMBER),
+    controller.rejectInvite.bind(controller)
+  );
+
+  router.post('/:id/resend',
+    requireRoles(MWAP_ROLES.OWNER),
+    controller.resendInvite.bind(controller)
+  );
+
+  router.post('/:id/revoke',
+    requireRoles(MWAP_ROLES.OWNER),
+    controller.revokeInvite.bind(controller)
   );
 
   return router;

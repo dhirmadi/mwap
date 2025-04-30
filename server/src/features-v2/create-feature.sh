@@ -3,7 +3,8 @@
 # Usage: ./create-feature.sh feature-name
 
 FEATURE=$1
-PASCAL_CASE=$(echo $FEATURE | sed -r 's/(^|-)([a-z])/\U\2/g')
+SINGULAR=${FEATURE%s}
+PASCAL_CASE=$(echo $SINGULAR | sed -r 's/(^|-)([a-z])/\U\2/g')
 
 # Create model.ts
 cat > $FEATURE/model.ts << EOL

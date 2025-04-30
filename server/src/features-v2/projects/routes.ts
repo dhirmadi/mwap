@@ -1,36 +1,50 @@
+/**
+ * This module uses core-v2 only
+ */
+
 import { Router } from 'express';
 import { requireRoles, MWAP_ROLES } from '../../../middleware-v2/auth/roles';
-import { ProjectsController } from './controller';
-import { ProjectsService } from './service';
+import { ProjectController } from './controller';
+import { ProjectService } from './service';
 
-export function createProjectsRouter(): Router {
+export function createProjectRouter(): Router {
   const router = Router();
-  const service = new ProjectsService();
-  const controller = new ProjectsController(service);
+  const service = new ProjectService();
+  const controller = new ProjectController(service);
 
   router.post('/',
     requireRoles(MWAP_ROLES.OWNER),
-    controller.createProjects.bind(controller)
+    controller.createProject.bind(controller)
   );
 
   router.get('/:id',
     requireRoles(MWAP_ROLES.MEMBER),
-    controller.getProjects.bind(controller)
+    controller.getProject.bind(controller)
   );
 
   router.patch('/:id',
     requireRoles(MWAP_ROLES.OWNER),
-    controller.updateProjects.bind(controller)
+    controller.updateProject.bind(controller)
   );
 
   router.delete('/:id',
     requireRoles(MWAP_ROLES.OWNER),
-    controller.deleteProjects.bind(controller)
+    controller.deleteProject.bind(controller)
   );
 
   router.get('/',
     requireRoles(MWAP_ROLES.MEMBER),
-    controller.listProjectss.bind(controller)
+    controller.listProjects.bind(controller)
+  );
+
+  router.post('/:id/archive',
+    requireRoles(MWAP_ROLES.OWNER),
+    controller.archiveProject.bind(controller)
+  );
+
+  router.post('/:id/restore',
+    requireRoles(MWAP_ROLES.OWNER),
+    controller.restoreProject.bind(controller)
   );
 
   return router;

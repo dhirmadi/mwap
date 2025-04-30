@@ -1,3 +1,7 @@
+/**
+ * This module uses core-v2 only
+ */
+
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../../core-v2/errors';
 import { TenantService } from './service';
@@ -9,10 +13,7 @@ export class TenantController {
   async createTenant(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = CreateTenantSchema.parse(req.body);
-      const tenant = await this.service.createTenant({
-        ...data,
-        ownerId: req.user!.sub,
-      });
+      const tenant = await this.service.createTenant(data);
       res.status(201).json(tenant);
     } catch (error) {
       next(error);
@@ -49,7 +50,7 @@ export class TenantController {
 
   async listTenants(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenants = await this.service.listTenants(req.user!.sub);
+      const tenants = await this.service.listTenants();
       res.json(tenants);
     } catch (error) {
       next(error);

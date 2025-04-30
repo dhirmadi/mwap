@@ -1,23 +1,43 @@
-import type { Invites } from './model';
+/**
+ * This module uses core-v2 only
+ */
 
-export class InvitesService {
-  async createInvites(data: Partial<Invites>): Promise<Invites> {
+import type { Invite } from './model';
+
+export class InviteService {
+  async createInvite(data: Partial<Invite>): Promise<Invite> {
     throw new Error('Not implemented');
   }
 
-  async getInvites(id: string): Promise<Invites> {
+  async getInvite(id: string): Promise<Invite> {
     throw new Error('Not implemented');
   }
 
-  async updateInvites(id: string, data: Partial<Invites>): Promise<Invites> {
+  async updateInvite(id: string, data: Partial<Invite>): Promise<Invite> {
     throw new Error('Not implemented');
   }
 
-  async deleteInvites(id: string): Promise<void> {
+  async deleteInvite(id: string): Promise<void> {
     throw new Error('Not implemented');
   }
 
-  async listInvitess(): Promise<Invites[]> {
+  async listInvites(projectId: string): Promise<Invite[]> {
+    throw new Error('Not implemented');
+  }
+
+  async acceptInvite(id: string): Promise<Invite> {
+    throw new Error('Not implemented');
+  }
+
+  async rejectInvite(id: string): Promise<Invite> {
+    throw new Error('Not implemented');
+  }
+
+  async resendInvite(id: string): Promise<Invite> {
+    throw new Error('Not implemented');
+  }
+
+  async revokeInvite(id: string): Promise<Invite> {
     throw new Error('Not implemented');
   }
 }

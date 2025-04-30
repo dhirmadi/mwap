@@ -1,53 +1,76 @@
+/**
+ * This module uses core-v2 only
+ */
+
 import type { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../../core-v2/errors';
-import { ProjectTypesService } from './service';
-import { CreateProjectTypesSchema, UpdateProjectTypesSchema } from './model';
+import { ProjectTypeService } from './service';
+import { CreateProjectTypeSchema, UpdateProjectTypeSchema } from './model';
 
-export class ProjectTypesController {
-  constructor(private service: ProjectTypesService) {}
+export class ProjectTypeController {
+  constructor(private service: ProjectTypeService) {}
 
-  async createProjectTypes(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const data = CreateProjectTypesSchema.parse(req.body);
-      const project-types = await this.service.createProjectTypes(data);
-      res.status(201).json(project-types);
+      const data = CreateProjectTypeSchema.parse(req.body);
+      const projectType = await this.service.createProjectType(data);
+      res.status(201).json(projectType);
     } catch (error) {
       next(error);
     }
   }
 
-  async getProjectTypes(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const project-types = await this.service.getProjectTypes(req.params.id);
-      res.json(project-types);
+      const projectType = await this.service.getProjectType(req.params.id);
+      res.json(projectType);
     } catch (error) {
       next(error);
     }
   }
 
-  async updateProjectTypes(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const data = UpdateProjectTypesSchema.parse(req.body);
-      const project-types = await this.service.updateProjectTypes(req.params.id, data);
-      res.json(project-types);
+      const data = UpdateProjectTypeSchema.parse(req.body);
+      const projectType = await this.service.updateProjectType(req.params.id, data);
+      res.json(projectType);
     } catch (error) {
       next(error);
     }
   }
 
-  async deleteProjectTypes(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async deleteProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      await this.service.deleteProjectTypes(req.params.id);
+      await this.service.deleteProjectType(req.params.id);
       res.status(204).end();
     } catch (error) {
       next(error);
     }
   }
 
-  async listProjectTypess(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async listProjectTypes(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const project-typess = await this.service.listProjectTypess();
-      res.json(project-typess);
+      const includeInactive = req.query.includeInactive === 'true';
+      const projectTypes = await this.service.listProjectTypes(includeInactive);
+      res.json(projectTypes);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async activateProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const projectType = await this.service.activateProjectType(req.params.id);
+      res.json(projectType);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deactivateProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const projectType = await this.service.deactivateProjectType(req.params.id);
+      res.json(projectType);
     } catch (error) {
       next(error);
     }
