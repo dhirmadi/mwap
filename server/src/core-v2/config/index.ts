@@ -1,0 +1,1 @@
+export { config, getConfig, type EnvConfig } from './environment';

@@ -1,0 +1,1 @@
+New typed core logic for MWAP v2 APIs
