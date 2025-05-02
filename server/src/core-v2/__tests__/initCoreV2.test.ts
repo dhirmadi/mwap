@@ -331,4 +331,68 @@ describe('Core V2 Integration', () => {
       process.env.NODE_ENV = originalEnv;
     });
   });
+
+  describe('Complete Middleware Pipeline', () => {
+    it('should handle a complete request through all middleware', async () => {
+      // Setup test route that requires auth
+      app.post('/api/items', 
+        (req, res) => {
+          if (!req.user) throw AppError.unauthorized();
+          res.json({ success: true, user: req.user });
+        }
+      );
+
+      // 1. Test CORS preflight
+      await request(app)
+        .options('/api/items')
+        .set('Origin', 'http://localhost:5173')
+        .set('Access-Control-Request-Method', 'POST')
+        .expect(204)
+        .expect('Access-Control-Allow-Origin', 'http://localhost:5173')
+        .expect('Access-Control-Allow-Methods', /POST/);
+
+      // 2. Test unauthorized access
+      const unauthorizedResponse = await request(app)
+        .post('/api/items')
+        .set('Origin', 'http://localhost:5173')
+        .expect(401);
+      
+      expect(unauthorizedResponse.body.error).toMatchObject({
+        code: 'UNAUTHORIZED',
+        message: expect.any(String)
+      });
+
+      // 3. Test with valid token
+      const authorizedResponse = await request(app)
+        .post('/api/items')
+        .set('Origin', 'http://localhost:5173')
+        .set('Authorization', `Bearer valid.jwt.token`)
+        .expect(200);
+
+      // Verify response and headers
+      expect(authorizedResponse.body).toEqual({
+        success: true,
+        user: mockUser
+      });
+      expect(authorizedResponse.headers).toMatchObject({
+        'x-content-type-options': 'nosniff',
+        'x-frame-options': 'DENY',
+        'x-xss-protection': '1; mode=block',
+        'x-ratelimit-limit': expect.any(String),
+        'x-ratelimit-remaining': expect.any(String),
+        'access-control-allow-origin': 'http://localhost:5173'
+      });
+
+      // 4. Test 404 for non-existent route
+      const notFoundResponse = await request(app)
+        .get('/api/non-existent')
+        .set('Origin', 'http://localhost:5173')
+        .expect(404);
+
+      expect(notFoundResponse.body.error).toMatchObject({
+        code: 'NOT_FOUND',
+        message: expect.stringContaining('not found')
+      });
+    });
+  });
 });
