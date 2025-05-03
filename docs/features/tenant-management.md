@@ -7,15 +7,14 @@ Tenant management is a core feature of MWAP that provides multi-tenant isolation
 ## Features
 
 ### Tenant Creation
-- Automatic tenant creation on first login
+- tenant creation obly possible if no tenant already exists
 - Custom tenant name and settings
 - Tenant owner assignment
 
-### Member Management
-- Invite members to tenant
-- Manage member roles
-- Remove members
-- Transfer ownership
+### Project Management (using project )
+- Create projects
+- Archive Projects
+- Delete Projects
 
 ### Tenant Settings
 - Update tenant name
