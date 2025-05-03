@@ -91,12 +91,22 @@
   - Performance monitoring
   - Debug information
 
-### Planned
+### In Progress
 - Testing Framework
-  - Unit tests
-  - Integration tests
-  - E2E tests
-  - Test coverage
+  - ✅ Unit tests for core components
+  - ✅ Integration tests for middleware
+  - ✅ Request validation tests
+  - ⏳ E2E tests
+  - ⏳ Test coverage reports
+- Security Hardening
+  - ✅ Security headers (Helmet)
+  - ✅ Rate limiting
+  - ✅ Input validation (Zod)
+  - ✅ Access control (Auth0)
+  - ⏳ Penetration testing
+  - ⏳ Security audit
+
+### Planned
 - CI/CD Pipeline
   - Automated builds
   - Test automation
@@ -107,13 +117,28 @@
   - Resource usage
   - Error rates
   - User metrics
-- Security Hardening
-  - Security headers
-  - Rate limiting
-  - Input validation
-  - Access control
 
 ## Recent Updates
+
+### v0.5.0 - Core V2 Middleware and Types
+- ✅ Enhanced Express request type augmentations
+  - Strong typing for user object
+  - Validated request data
+  - Project role handling
+  - Performance tracking
+  - URL rewrite support
+- ✅ Comprehensive test coverage
+  - Security headers validation
+  - Authentication flow
+  - Rate limiting
+  - Error handling
+  - Content type validation
+  - Environment-aware behavior
+- ✅ Improved middleware pipeline
+  - Proper ordering
+  - Error propagation
+  - Request validation
+  - Performance tracking
 
 ### v0.4.3 - Enhanced CORS and Security
 - ✅ Added custom header support in CORS configuration
