@@ -1,45 +1,28 @@
-# MWAP (Modular Web Application Platform)
+# 🚀 MWAP - Modular Web Application Platform v2
 
-A modern, full-stack web application platform built with scalability and modularity in mind.
+MWAP is a secure, scalable SaaS framework for building multi-tenant web applications with modern cloud storage integration.
 
-## 🌟 Features
+## 🌟 Overview
 
-Current Features:
-- **Full-Stack TypeScript**: End-to-end type safety with TypeScript configuration
-- **Modern Frontend**: 
-  * React 18 with Vite build system
-  * Mantine UI v7 for components and styling
-  * React Router v6 for navigation
-- **Backend Foundation**: 
-  * Node.js with Express
-  * Structured routing system
-  * Middleware support
-- **Authentication**: 
-  * Auth0 integration with PKCE flow
-  * Protected routes with JWT validation
-  * Multiple OAuth provider support
-- **Cloud Storage Integration**:
-  * Multiple simultaneous providers
-  * Google Drive, Dropbox, Box, OneDrive support
-  * Safe provider-aware merge strategy
-  * Token management and refresh
-- **Security**: 
-  * CORS configuration
-  * Rate limiting
-  * Helmet for HTTP headers
-  * Request logging
+MWAP v2 provides:
+- Multi-tenant user management with role-based access control
+- Project-based collaboration with granular permissions
+- Cloud storage integration (Dropbox, Google Drive, Box, OneDrive)
+- Secure authentication via Auth0 with PKCE flow
+- API-first architecture with TypeScript end-to-end
 
-Planned Features:
-- **Deployment**: Heroku pipeline setup
-- **API Layer**: RESTful API endpoints with controllers
-- **Business Logic**: Service layer implementation
+## 🛠 Tech Stack
 
-Completed Features:
-- **Database**: MongoDB integration with Mongoose
-  * Connection management with retry
-  * Health monitoring
-  * Buffer timeout handling
-  * Connection state reporting
+- **Frontend**: React 18 + Vite + Mantine UI
+- **Backend**: Node.js (ESM) + Express + MongoDB Atlas
+- **Authentication**: Auth0 (PKCE, MFA)
+- **Storage**: Multi-provider cloud integration
+- **Hosting**: Heroku Standard-2X Dynos
+- **CI/CD**: GitHub Actions
+
+## ⚠️ Legacy Code Notice
+
+V1 modules have been moved to `server/src/legacy/` and are deprecated. Do not use these in new code. See the [migration guide](docs/migration-checklist.md) for details on upgrading to v2.
 
 ## 🚀 Quick Start
 
