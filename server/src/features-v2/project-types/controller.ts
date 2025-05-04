@@ -8,7 +8,11 @@ import { ProjectTypeService } from './service';
 import { CreateProjectTypeSchema, UpdateProjectTypeSchema } from './model';
 
 export class ProjectTypeController {
-  constructor(private service: ProjectTypeService) {}
+  private service: ProjectTypeService;
+
+  constructor() {
+    this.service = new ProjectTypeService();
+  }
 
   async createProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -51,7 +55,7 @@ export class ProjectTypeController {
   async listProjectTypes(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const includeInactive = req.query.includeInactive === 'true';
-      const projectTypes = await this.service.listProjectTypes(includeInactive);
+      const projectTypes = await this.service.listProjectTypes(req.user, includeInactive);
       res.json(projectTypes);
     } catch (error) {
       next(error);
@@ -69,8 +73,8 @@ export class ProjectTypeController {
 
   async deactivateProjectType(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const projectType = await this.service.deactivateProjectType(req.params.id);
-      res.json(projectType);
+      await this.service.deactivateProjectType(req.params.id);
+      res.status(204).json();
     } catch (error) {
       next(error);
     }

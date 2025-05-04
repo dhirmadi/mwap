@@ -1,5 +1,6 @@
+import "@jest/globals";
 import { Request, Response } from 'express';
-import { AppError } from '../../../core-v2/errors';
+import { AppError, ValidationError } from '../../../core-v2/errors';
 import { ProjectTypeController } from '../controller';
 import { ProjectTypeService } from '../service';
 
@@ -50,12 +51,11 @@ describe('ProjectTypeController', () => {
     mockNext = jest.fn();
 
     // Mock service methods
-    const service = ProjectTypeService.prototype;
-    service.createProjectType = jest.fn().mockResolvedValue(mockProjectType);
-    service.listProjectTypes = jest.fn().mockResolvedValue([mockProjectType]);
-    service.updateProjectType = jest.fn().mockResolvedValue(mockProjectType);
-    service.getProjectType = jest.fn().mockResolvedValue(mockProjectType);
-    service.deactivateProjectType = jest.fn().mockResolvedValue(undefined);
+    jest.spyOn(ProjectTypeService.prototype, 'createProjectType').mockResolvedValue(mockProjectType);
+    jest.spyOn(ProjectTypeService.prototype, 'listProjectTypes').mockResolvedValue([mockProjectType]);
+    jest.spyOn(ProjectTypeService.prototype, 'updateProjectType').mockResolvedValue(mockProjectType);
+    jest.spyOn(ProjectTypeService.prototype, 'getProjectType').mockResolvedValue(mockProjectType);
+    jest.spyOn(ProjectTypeService.prototype, 'deactivateProjectType').mockResolvedValue(undefined);
   });
 
   describe('createProjectType', () => {
@@ -100,10 +100,8 @@ describe('ProjectTypeController', () => {
     });
 
     it('should forward service errors', async () => {
-      const error = AppError.validation('Invalid input');
-      ProjectTypeService.prototype.createProjectType = jest
-        .fn()
-        .mockRejectedValue(error);
+      const error = new ValidationError('Invalid input');
+      jest.spyOn(ProjectTypeService.prototype, 'createProjectType').mockRejectedValue(error);
 
       mockReq.body = validInput;
 
@@ -218,9 +216,7 @@ describe('ProjectTypeController', () => {
 
     it('should handle not found error', async () => {
       const error = AppError.notFound('Project type not found');
-      ProjectTypeService.prototype.getProjectType = jest
-        .fn()
-        .mockRejectedValue(error);
+      jest.spyOn(ProjectTypeService.prototype, 'getProjectType').mockRejectedValue(error);
 
       mockReq.params = { id: 'invalid' };
 
@@ -250,9 +246,7 @@ describe('ProjectTypeController', () => {
 
     it('should handle not found error', async () => {
       const error = AppError.notFound('Project type not found');
-      ProjectTypeService.prototype.deactivateProjectType = jest
-        .fn()
-        .mockRejectedValue(error);
+      jest.spyOn(ProjectTypeService.prototype, 'deactivateProjectType').mockRejectedValue(error);
 
       mockReq.params = { id: 'invalid' };
 

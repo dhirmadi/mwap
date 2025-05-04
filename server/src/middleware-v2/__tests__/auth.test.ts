@@ -1,3 +1,4 @@
+import "@jest/globals";
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../core-v2/errors';
 import { extractUser, requireRoles, requireSuperAdmin } from '../auth';

@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
-import { AppError } from '../../core/errors'; // Assuming this exists in the legacy code
+import { AppError } from '../../core-v2/errors'; // Assuming this exists in the legacy code
 
 // Type definitions
 export interface MWAPUser {

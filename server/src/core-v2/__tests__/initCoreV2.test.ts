@@ -1,3 +1,4 @@
+import "@jest/globals";
 import express from 'express';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';

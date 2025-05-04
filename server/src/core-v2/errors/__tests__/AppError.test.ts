@@ -1,3 +1,4 @@
+import "@jest/globals";
 import { z } from 'zod';
 import {
   AppError,
@@ -202,30 +203,48 @@ describe('AppError', () => {
         code: string;
       }>;
 
-      expect(details).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            path: 'email',
-            message: expect.stringContaining('email'),
-          }),
-          expect.objectContaining({
-            path: 'age',
-            message: expect.stringContaining('18'),
-          }),
-          expect.objectContaining({
-            path: 'roles',
-            message: expect.stringContaining('empty'),
-          }),
-          expect.objectContaining({
-            path: 'profile.name',
-            message: expect.stringContaining('2'),
-          }),
-          expect.objectContaining({
-            path: 'profile.bio',
-            message: expect.stringContaining('string'),
-          }),
-        ])
-      );
+      expect(details).toEqual([
+        {
+          path: 'email',
+          message: 'Invalid email',
+          code: 'invalid_string',
+          type: 'invalid_string',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'age',
+          message: 'Number must be greater than or equal to 18',
+          code: 'too_small',
+          type: 'too_small',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'roles',
+          message: 'Array must contain at least 1 element(s)',
+          code: 'too_small',
+          type: 'too_small',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'profile.name',
+          message: 'String must contain at least 2 character(s)',
+          code: 'too_small',
+          type: 'too_small',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'profile.bio',
+          message: 'Expected string, received number',
+          code: 'invalid_type',
+          type: 'invalid_type',
+          expected: 'string',
+          received: 'number'
+        }
+      ]);
     });
 
     it('should handle nested object validation', () => {
@@ -294,30 +313,48 @@ describe('AppError', () => {
         code: string;
       }>;
 
-      expect(details).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            path: 'tags.0',
-            message: expect.stringContaining('3'),
-          }),
-          expect.objectContaining({
-            path: 'tags.1',
-            message: expect.stringContaining('3'),
-          }),
-          expect.objectContaining({
-            path: 'scores.1',
-            message: expect.stringContaining('positive'),
-          }),
-          expect.objectContaining({
-            path: 'scores.2',
-            message: expect.stringContaining('positive'),
-          }),
-          expect.objectContaining({
-            path: 'scores.3',
-            message: expect.stringContaining('number'),
-          }),
-        ])
-      );
+      expect(details).toEqual([
+        {
+          path: 'tags.0',
+          message: 'String must contain at least 3 character(s)',
+          code: 'too_small',
+          type: 'too_small',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'tags.1',
+          message: 'String must contain at least 3 character(s)',
+          code: 'too_small',
+          type: 'too_small',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'scores.1',
+          message: 'Number must be greater than 0',
+          code: 'too_small',
+          type: 'too_small',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'scores.2',
+          message: 'Number must be greater than 0',
+          code: 'too_small',
+          type: 'too_small',
+          expected: undefined,
+          received: undefined
+        },
+        {
+          path: 'scores.3',
+          message: 'Expected number, received string',
+          code: 'invalid_type',
+          type: 'invalid_type',
+          expected: 'number',
+          received: 'string'
+        }
+      ]);
     });
   });
 });

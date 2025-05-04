@@ -1,3 +1,4 @@
+import "@jest/globals";
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose, { Types } from 'mongoose';
 import { InviteService } from './service';

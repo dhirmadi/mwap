@@ -6,9 +6,14 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@core/(.*)$': '<rootDir>/src/core-v2/$1',
+    '^@models/(.*)$': '<rootDir>/src/models/$1',
+    '^@types/(.*)$': '<rootDir>/src/types/$1',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1'
   },
-  setupFiles: ['<rootDir>/src/core-v2/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/core-v2/__tests__/setup.ts'],
   verbose: true,
+  testTimeout: 10000,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',

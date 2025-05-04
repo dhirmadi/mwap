@@ -1,3 +1,4 @@
+import "@jest/globals";
 import { AppError } from '../../../core-v2/errors';
 import { logger } from '../../../core-v2/logger';
 import { requireSuperAdmin } from '../../../middleware-v2/auth';
@@ -6,12 +7,21 @@ import { ProjectTypeService } from '../service';
 
 jest.mock('../../../core-v2/logger');
 jest.mock('../../../middleware-v2/auth');
-jest.mock('../model');
+jest.mock('../model', () => ({
+  ProjectTypeModel: {
+    findById: jest.fn(),
+    findOne: jest.fn(),
+    findMany: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+  },
+}));
 
 describe('ProjectTypeService', () => {
   let service: ProjectTypeService;
   const mockUser = {
     sub: 'user-123',
+    tenantId: 'tenant-123',
     isSuperAdmin: true,
   };
 
@@ -30,8 +40,8 @@ describe('ProjectTypeService', () => {
       ],
     },
     active: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date('2025-05-04T17:48:44.931Z'),
+    updatedAt: new Date('2025-05-04T17:48:44.931Z'),
   };
 
   beforeEach(() => {

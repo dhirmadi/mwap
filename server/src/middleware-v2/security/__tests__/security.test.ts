@@ -1,3 +1,4 @@
+import "@jest/globals";
 import express from 'express';
 import request from 'supertest';
 import { applySecurity, helmetConfig, corsConfig, createRateLimiter } from '../index';

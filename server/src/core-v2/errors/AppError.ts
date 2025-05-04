@@ -9,6 +9,10 @@ export class AppError extends Error {
   readonly code: string;
   readonly details?: ErrorDetails;
 
+  static notFound(message: string): NotFoundError {
+    return new NotFoundError('Resource', 'unknown', { message });
+  }
+
   constructor(
     message: string,
     code: string,
@@ -19,26 +23,10 @@ export class AppError extends Error {
     this.name = this.constructor.name;
     this.code = code;
     this.statusCode = statusCode;
-    this.details = details;
+    this.details = details || { message };
 
     // Ensure proper stack trace
     Error.captureStackTrace(this, this.constructor);
-  }
-
-  /**
-   * Convert a Zod validation error to AppError
-   */
-  static fromZodError(error: ZodError): ValidationError {
-    const details = error.errors.map(err => ({
-      path: err.path.join('.'),
-      message: err.message,
-      code: err.code,
-    }));
-
-    return new ValidationError(
-      'Validation failed',
-      details
-    );
   }
 
   /**
@@ -57,20 +45,6 @@ export class AppError extends Error {
   }
 }
 
-export class ValidationError extends AppError {
-  constructor(
-    message: string = 'Validation failed',
-    details?: ErrorDetails
-  ) {
-    super(
-      message,
-      'VALIDATION_ERROR',
-      400,
-      details
-    );
-  }
-}
-
 export class AuthError extends AppError {
   constructor(
     message: string = 'Authentication failed',
@@ -81,7 +55,7 @@ export class AuthError extends AppError {
       message,
       code,
       401,
-      details
+      details || { message }
     );
   }
 }
@@ -92,11 +66,12 @@ export class NotFoundError extends AppError {
     id: string,
     details?: ErrorDetails
   ) {
+    const message = `${resource} not found with id: ${id}`;
     super(
-      `${resource} not found with id: ${id}`,
+      message,
       'NOT_FOUND',
       404,
-      details
+      details || { message, resource, id }
     );
   }
 }

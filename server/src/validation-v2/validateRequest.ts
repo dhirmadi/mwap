@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { AppError } from '../core-v2/errors';
+import { AppError, ValidationError } from '../core-v2/errors';
 
 /**
  * Extends Express Request with validated data
@@ -70,7 +70,7 @@ export function validateRequest<T extends z.ZodTypeAny>(
     } catch (error) {
       // Convert Zod validation errors to AppError
       if (error instanceof z.ZodError) {
-        next(AppError.fromZodError(error));
+        next(ValidationError.fromZodError(error));
         return;
       }
       // Pass through other errors
@@ -122,7 +122,7 @@ export function validateRequestSchema(schema: RequestValidationSchema) {
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
-        next(AppError.fromZodError(error));
+        next(ValidationError.fromZodError(error));
       } else {
         next(error);
       }

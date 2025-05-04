@@ -1,3 +1,4 @@
+import "@jest/globals";
 import { ProjectService, type CreateProjectInput } from '../service';
 import { TenantModel } from '../../tenants/model';
 import { ProjectModel } from '../model';
@@ -73,17 +74,17 @@ describe('ProjectService', () => {
     jest.clearAllMocks();
 
     // Mock tenant lookup
-    (TenantModel.findById as jest.Mock).mockResolvedValue(mockTenant);
+    jest.spyOn(TenantModel, 'findById').mockResolvedValue(mockTenant);
 
     // Mock provider validation
-    (getProviderClient as jest.Mock).mockReturnValue({
+    jest.spyOn(getProviderClient as any, 'default').mockReturnValue({
       validateFolder: jest.fn().mockResolvedValue(true),
     });
 
     // Mock project operations
-    (ProjectModel.create as jest.Mock).mockResolvedValue(undefined);
-    (ProjectModel.findById as jest.Mock).mockResolvedValue(mockProject);
-    (ProjectModel.getMembers as jest.Mock).mockResolvedValue(mockMembers);
+    jest.spyOn(ProjectModel, 'create').mockResolvedValue(undefined);
+    jest.spyOn(ProjectModel, 'findById').mockResolvedValue(mockProject);
+    jest.spyOn(ProjectModel, 'getMembers').mockResolvedValue(mockMembers);
   });
 
   describe('createProject', () => {
@@ -118,7 +119,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when tenant not found', async () => {
-      (TenantModel.findById as jest.Mock).mockResolvedValue(null);
+      jest.spyOn(TenantModel, 'findById').mockResolvedValue(null);
       await expect(service.createProject(mockInput)).rejects.toThrow(
         AppError.notFound('Tenant not found')
       );
@@ -129,7 +130,7 @@ describe('ProjectService', () => {
         ...mockTenant,
         storage: { tokens: [] },
       };
-      (TenantModel.findById as jest.Mock).mockResolvedValue(tenant);
+      jest.spyOn(TenantModel, 'findById').mockResolvedValue(tenant);
 
       await expect(service.createProject(mockInput)).rejects.toThrow(
         AppError.unauthorized('Storage provider dropbox not configured for tenant')
@@ -137,7 +138,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when folder validation fails', async () => {
-      (getProviderClient as jest.Mock).mockReturnValue({
+      jest.spyOn(getProviderClient as any, 'default').mockReturnValue({
         validateFolder: jest.fn().mockResolvedValue(false),
       });
 
@@ -147,7 +148,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when folder validation errors', async () => {
-      (getProviderClient as jest.Mock).mockReturnValue({
+      jest.spyOn(getProviderClient as any, 'default').mockReturnValue({
         validateFolder: jest.fn().mockRejectedValue(new Error('Provider error')),
       });
 
@@ -157,7 +158,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when project creation fails', async () => {
-      (ProjectModel.create as jest.Mock).mockRejectedValue(
+      jest.spyOn(ProjectModel, 'create').mockRejectedValue(
         new Error('Database error')
       );
 
@@ -191,7 +192,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when project not found', async () => {
-      (ProjectModel.findById as jest.Mock).mockResolvedValue(null);
+      jest.spyOn(ProjectModel, 'findById').mockResolvedValue(null);
 
       await expect(
         service.getProject('project-123', 'user-123', 'tenant-123')
@@ -249,7 +250,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when project not found', async () => {
-      (ProjectModel.findById as jest.Mock).mockResolvedValue(null);
+      jest.spyOn(ProjectModel, 'findById').mockResolvedValue(null);
 
       await expect(
         service.updateProject('project-123', updateInput, 'user-123', 'tenant-123')
@@ -279,7 +280,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when update fails', async () => {
-      (ProjectModel.update as jest.Mock).mockRejectedValue(new Error('Database error'));
+      jest.spyOn(ProjectModel, 'update').mockRejectedValue(new Error('Database error'));
 
       await expect(
         service.updateProject('project-123', updateInput, 'user-123', 'tenant-123')
@@ -322,7 +323,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when project not found', async () => {
-      (ProjectModel.findById as jest.Mock).mockResolvedValue(null);
+      jest.spyOn(ProjectModel, 'findById').mockResolvedValue(null);
 
       await expect(
         service.archiveProject('project-123', 'user-123', 'tenant-123')
@@ -354,7 +355,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when archive fails', async () => {
-      (ProjectModel.update as jest.Mock).mockRejectedValue(new Error('Database error'));
+      jest.spyOn(ProjectModel, 'update').mockRejectedValue(new Error('Database error'));
 
       await expect(
         service.archiveProject('project-123', 'user-123', 'tenant-123')
@@ -365,7 +366,7 @@ describe('ProjectService', () => {
   describe('restoreProject', () => {
     beforeEach(() => {
       // Mock archived project
-      (ProjectModel.findById as jest.Mock).mockResolvedValue({
+      jest.spyOn(ProjectModel, 'findById').mockResolvedValue({
         ...mockProject,
         status: 'archived',
       });
@@ -405,7 +406,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when project not found', async () => {
-      (ProjectModel.findById as jest.Mock).mockResolvedValue(null);
+      jest.spyOn(ProjectModel, 'findById').mockResolvedValue(null);
 
       await expect(
         service.restoreProject('project-123', 'user-123', 'tenant-123')
@@ -425,7 +426,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when project not archived', async () => {
-      (ProjectModel.findById as jest.Mock).mockResolvedValue(mockProject); // active project
+      jest.spyOn(ProjectModel, 'findById').mockResolvedValue(mockProject); // active project
 
       await expect(
         service.restoreProject('project-123', 'user-123', 'tenant-123')
@@ -433,7 +434,7 @@ describe('ProjectService', () => {
     });
 
     it('should throw error when restore fails', async () => {
-      (ProjectModel.update as jest.Mock).mockRejectedValue(new Error('Database error'));
+      jest.spyOn(ProjectModel, 'update').mockRejectedValue(new Error('Database error'));
 
       await expect(
         service.restoreProject('project-123', 'user-123', 'tenant-123')
@@ -456,7 +457,7 @@ describe('ProjectService', () => {
     ];
 
     beforeEach(() => {
-      (ProjectModel.findByQuery as jest.Mock).mockResolvedValue(mockProjects);
+      jest.spyOn(ProjectModel, 'findByQuery').mockResolvedValue(mockProjects);
     });
 
     it('should return list of active projects for member', async () => {
@@ -478,14 +479,14 @@ describe('ProjectService', () => {
     });
 
     it('should return empty array when no projects found', async () => {
-      (ProjectModel.findByQuery as jest.Mock).mockResolvedValue([]);
+      jest.spyOn(ProjectModel, 'findByQuery').mockResolvedValue([]);
 
       const projects = await service.listProjects('user-123', 'tenant-123');
       expect(projects).toEqual([]);
     });
 
     it('should throw error when query fails', async () => {
-      (ProjectModel.findByQuery as jest.Mock).mockRejectedValue(new Error('Database error'));
+      jest.spyOn(ProjectModel, 'findByQuery').mockRejectedValue(new Error('Database error'));
 
       await expect(
         service.listProjects('user-123', 'tenant-123')
