@@ -13,7 +13,17 @@ module.exports = {
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
+    '!src/**/__mocks__/**',
+    '!src/**/*.mock.ts',
   ],
   coverageReporters: ['text', 'lcov', 'json'],
   coverageDirectory: 'coverage',
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 85,
+      lines: 85,
+      statements: 85,
+    },
+  },
 };
