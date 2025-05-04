@@ -4,15 +4,18 @@
 
 import { z } from 'zod';
 
+export const ProjectRoleSchema = z.enum(['OWNER', 'DEPUTY', 'MEMBER']);
+export type ProjectRole = z.infer<typeof ProjectRoleSchema>;
+
 export const InviteSchema = z.object({
   id: z.string().uuid(),
-  email: z.string().email(),
-  role: z.enum(['admin', 'deputy', 'contributor']),
+  code: z.string().min(8).max(12),
   projectId: z.string().uuid(),
-  status: z.enum(['pending', 'accepted', 'rejected', 'expired']),
-  expiresAt: z.date(),
+  tenantId: z.string().uuid(),
+  role: ProjectRoleSchema,
+  createdBy: z.string(),
   createdAt: z.date(),
-  updatedAt: z.date(),
+  expiresAt: z.date(),
 });
 
 export type Invite = z.infer<typeof InviteSchema>;
@@ -20,15 +23,20 @@ export type Invite = z.infer<typeof InviteSchema>;
 // Request validation schemas
 export const CreateInviteSchema = InviteSchema.omit({
   id: true,
-  status: true,
-  expiresAt: true,
+  code: true,
   createdAt: true,
-  updatedAt: true,
+  expiresAt: true,
 });
 
-export const UpdateInviteSchema = InviteSchema.partial().omit({
-  id: true,
-  projectId: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Response DTOs
+export interface InviteDTO {
+  code: string;
+  role: ProjectRole;
+  createdAt: Date;
+  expiresAt: Date;
+}
+
+export interface RedeemDTO {
+  projectId: string;
+  role: ProjectRole;
+}
