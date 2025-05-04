@@ -1,6 +1,6 @@
-import { CloudProviderModel } from '@models/v2/cloudProvider.model';
+import { CloudProviderModel } from '@models-v2/cloudProvider.model';
 import { CloudProviderCreateSchema, CloudProviderUpdateSchema } from './schema';
-import { AppError } from '@core/errors/appError';
+import { AppError } from '@core-v2/errors/AppError';
 import type { CloudProviderCreate, CloudProviderUpdate } from './schema';
 
 export class CloudProviderService {

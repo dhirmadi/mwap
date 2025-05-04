@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { CloudController } from './controller';
-import { requireAuth } from '@core/middleware/auth';
+import { requireAuth } from '@core-v2/auth';
 
 const router = Router();
 

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { ProjectController } from './controller';
-import { requireAuth } from '@core/middleware/auth';
-import { requireTenantOwner } from '@core/middleware/auth/requireTenantOwner';
-import { verifyProjectRole } from '@core/middleware/auth/verifyProjectRole';
+import { requireAuth } from '@core-v2/auth';
+import { requireTenantOwner } from '@core-v2/auth/tenantOwner';
+import { verifyProjectRole } from '@core-v2/auth/projectRole';
 
 const router = Router();
 

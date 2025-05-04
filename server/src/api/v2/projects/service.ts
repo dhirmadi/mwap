@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import { ProjectModel } from '@models/v2/project.model';
-import { TenantModel } from '@models/v2/tenant.model';
-import { CloudProviderModel } from '@models/v2/cloudProvider.model';
-import { ProjectTypeModel } from '@models/v2/projectType.model';
+import { ProjectModel } from '@models-v2/project.model';
+import { TenantModel } from '@models-v2/tenant.model';
+import { CloudProviderModel } from '@models-v2/cloudProvider.model';
+import { ProjectTypeModel } from '@models-v2/projectType.model';
 import { 
   ProjectCreateSchema, 
   ProjectUpdateSchema, 
@@ -11,8 +11,8 @@ import {
   PROJECT_ROLE_HIERARCHY,
   ProjectRole 
 } from './schema';
-import { AppError } from '@core/errors';
-import type { User } from '@models/v2/user.model';
+import { AppError } from '@core-v2/errors/AppError';
+import type { User } from '@models-v2/user.model';
 import type { ProjectCreate, ProjectUpdate, AddMemberRequest, UpdateMemberRoleRequest } from './schema';
 
 export class ProjectService {

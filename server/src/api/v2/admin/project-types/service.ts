@@ -1,6 +1,6 @@
-import { ProjectTypeModel } from '@models/v2/projectType.model';
+import { ProjectTypeModel } from '@models-v2/projectType.model';
 import { ProjectTypeCreateSchema, ProjectTypeUpdateSchema } from './schema';
-import { AppError } from '@core/errors/appError';
+import { AppError } from '@core-v2/errors/AppError';
 import type { ProjectTypeCreate, ProjectTypeUpdate } from './schema';
 
 export class ProjectTypeService {

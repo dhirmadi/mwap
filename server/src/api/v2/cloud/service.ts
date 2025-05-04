@@ -1,7 +1,7 @@
-import { CloudProviderModel } from '@models/v2/cloudProvider.model';
+import { CloudProviderModel } from '@models-v2/cloudProvider.model';
 import { OAuth2Manager } from './oauth';
-import { AppError } from '@core/errors/appError';
-import type { User } from '@models/v2/user.model';
+import { AppError } from '@core-v2/errors/AppError';
+import type { User } from '@models-v2/user.model';
 
 export class CloudService {
   static async startOAuth(providerId: string, user: User) {

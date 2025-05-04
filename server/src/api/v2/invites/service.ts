@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
 import { randomBytes } from 'crypto';
-import { InviteModel } from '@models/v2/invite.model';
-import { ProjectModel } from '@models/v2/project.model';
-import { AppError } from '@core/errors/appError';
-import type { User } from '@models/v2/user.model';
+import { InviteModel } from '@models-v2/invite.model';
+import { ProjectModel } from '@models-v2/project.model';
+import { AppError } from '@core-v2/errors/AppError';
+import type { User } from '@models-v2/user.model';
 import type { InviteCreate } from './schema';
 
 export class InviteService {

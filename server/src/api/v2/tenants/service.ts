@@ -1,8 +1,8 @@
-import { TenantModel } from '@models/v2/tenant.model';
+import { TenantModel } from '@models-v2/tenant.model';
 import { TenantCreateSchema, TenantUpdateSchema } from './schema';
-import { AppError } from '@core/errors/appError';
+import { AppError } from '@core-v2/errors/AppError';
 import type { TenantCreate, TenantUpdate } from './schema';
-import type { User } from '@models/v2/user.model';
+import type { User } from '@models-v2/user.model';
 
 export class TenantService {
   static async createTenant(user: User, payload: TenantCreate) {
