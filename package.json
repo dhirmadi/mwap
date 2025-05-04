@@ -37,12 +37,17 @@
     "server/node_modules"
   ],
   "dependencies": {
+    "jwks-rsa": "^3.2.0",
+    "pino": "^9.6.0",
+    "rate-limit-redis": "^4.2.0",
     "typescript": "^5.3.3"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
     "husky": "^9.0.11",
-    "lint-staged": "^15.2.2"
+    "lint-staged": "^15.2.2",
+    "mongodb-memory-server": "^10.1.4",
+    "nanoid": "^5.1.5"
   },
   "lint-staged": {
     "client/src/**/*.{js,jsx,ts,tsx}": [
