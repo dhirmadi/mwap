@@ -3,8 +3,10 @@ import express from 'express';
 
 import { applySecurity } from '../middleware-v2/security';
 import { extractUser } from '../middleware-v2/auth/extractUser';
-import { AppError, globalErrorHandler } from './errors';
+import { AppError } from './errors';
+import { globalErrorHandler } from './errors/globalErrorHandler';
 import { logger } from '../logging-v2';
+import { requestLogger } from '../logging-v2';
 
 /**
  * Handle 404 Not Found errors
@@ -35,6 +37,9 @@ export async function initCoreV2(app: Express): Promise<Express> {
   try {
     // Security middleware stack (includes express.json)
     await applySecurity(app);
+
+    // Request logging middleware
+    app.use(requestLogger());
 
     // Auth middleware
     app.use(extractUser);
