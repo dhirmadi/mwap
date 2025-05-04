@@ -198,17 +198,23 @@ To add new middleware to the v2 stack:
 ## Folder Structure
 
 ```
-server/
-├── core-v2/           # Core foundation
-│   ├── errors/        # Error handling
-│   ├── types/         # Shared type definitions
-│   └── utils/         # Shared utilities
-├── middleware-v2/     # Express middleware
-│   ├── auth/          # Authentication & authorization
-│   └── security/      # Security headers, CORS, etc.
-├── validation-v2/     # Request validation
-│   └── schemas/       # Zod schemas
-└── types-v2/         # Global type definitions
+server/src/
+├── api/              # API routes and handlers
+│   ├── v2/           # V2 API implementation
+│   └── router.ts     # API router configuration
+├── core-v2/          # Core foundation
+│   ├── errors/       # Error handling
+│   ├── rbac/         # Role-based access control
+│   └── utils/        # Shared utilities
+├── middleware-v2/    # Express middleware
+│   ├── auth/         # Authentication & authorization
+│   ├── errors/       # Error handling middleware
+│   ├── scoping/      # Tenant/Project scoping
+│   ├── security/     # Security headers, CORS, etc.
+│   └── validation/   # Request validation
+├── models-v2/        # Database models
+├── types-v2/         # Global type definitions
+└── legacy/           # Deprecated v1 code
 ```
 
 ## Authentication & Authorization
