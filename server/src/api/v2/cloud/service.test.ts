@@ -2,7 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { CloudService } from './service';
 import { CloudProviderModel } from '../../../models/v2/cloudProvider.model';
-import { AppError } from '../../../core/errors/appError';
+import { AppError } from '../../../core-v2/errors/appError';
 import type { User } from '../../../models/v2/user.model';
 
 describe('CloudService', () => {

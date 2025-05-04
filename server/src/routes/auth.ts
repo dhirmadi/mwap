@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { AppError, ValidationError } from '../core/errors';
-import { logger } from '../core/logging';
-import { OAuthProvider, getOAuthConfig, PROVIDER_ALIASES } from '../core/auth/oauth-config';
-import { exchangeCodeForToken } from '../core/auth/oauth-client';
+import { AppError, ValidationError } from '../core-v2/errors';
+import { logger } from '../core-v2/logging';
+import { OAuthProvider, getOAuthConfig, PROVIDER_ALIASES } from '../core-v2/auth/oauth-config';
+import { exchangeCodeForToken } from '../core-v2/auth/oauth-client';
 import { TenantModel } from '@features/tenant/schemas';
 
 const router = Router();

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import { AppError } from '../../core/errors';
+import { AppError } from '../../core-v2/errors';
 import type { MWAPUser } from './extractUser';
 
 // Define valid roles as a const for type safety

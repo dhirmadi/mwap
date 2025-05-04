@@ -1,5 +1,5 @@
 // This file should show ESLint errors for legacy imports
-import { legacyUtil } from '../core/utils';
+import { legacyUtil } from '../core-v2/utils';
 import { oldMiddleware } from '../middleware/auth';
 
 // These imports should be allowed
