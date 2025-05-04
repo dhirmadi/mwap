@@ -1,29 +1,84 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import { app } from './app';
-import { connectDB } from '@core/config/database';
-import { env } from '@core/config/environment';
-import { logger } from '@core/utils/logger';
+import { connectDB } from '@core-v2/database';
+import { config } from '@core-v2/config';
+import { logger } from '@core-v2/logging';
+import { createRedisClient } from '@core-v2/cache/redis';
+import { MetricsReporter } from '@core-v2/monitoring/metrics';
+import { validateEnvironment } from '@core-v2/config/validate';
 
-// Connect to database
-connectDB();
+// Application startup sequence
+async function startServer() {
+  const startTime = Date.now();
+  
+  try {
+    // 1. Validate environment
+    logger.info('Validating environment configuration...');
+    validateEnvironment();
 
-// Start server
-const server = app.listen(env.port, () => {
-  logger.info('Server started', {
-    port: env.port,
-    environment: env.nodeEnv
-  });
-});
+    // 2. Initialize metrics reporter
+    const metrics = new MetricsReporter();
+    
+    // 3. Connect to Redis
+    logger.info('Connecting to Redis...');
+    const redis = await createRedisClient();
+    
+    // 4. Connect to MongoDB
+    logger.info('Connecting to MongoDB...');
+    await connectDB();
+    
+    // 5. Start HTTP server
+    const server = app.listen(config.port, () => {
+      const startupDuration = Date.now() - startTime;
+      logger.info('Server started successfully', {
+        port: config.port,
+        environment: config.nodeEnv,
+        startupDuration: `${startupDuration}ms`,
+        mongodb: {
+          host: config.mongodb.host,
+          database: config.mongodb.database
+        },
+        redis: {
+          host: config.redis.host,
+          database: config.redis.database
+        }
+      });
+      
+      // Report startup metrics
+      metrics.recordStartup({
+        duration: startupDuration,
+        success: true
+      });
+    });
+
+    return { server, redis, metrics };
+  } catch (error) {
+    logger.error('Failed to start server', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      duration: Date.now() - startTime
+    });
+    process.exit(1);
+  }
+}
 
 // Graceful shutdown
 const SHUTDOWN_TIMEOUT = 10000; // 10 seconds
 
-const shutdown = async (signal: string) => {
+interface ServerContext {
+  server: ReturnType<typeof app.listen>;
+  redis: Awaited<ReturnType<typeof createRedisClient>>;
+  metrics: MetricsReporter;
+}
+
+async function shutdown(signal: string, context?: ServerContext) {
   let exitCode = 0;
   const shutdownStart = Date.now();
 
-  logger.info('Starting graceful shutdown...', { signal });
+  logger.info('Starting graceful shutdown...', { 
+    signal,
+    hasContext: !!context 
+  });
 
   try {
     // Create a timeout promise
@@ -35,27 +90,35 @@ const shutdown = async (signal: string) => {
 
     // Create a shutdown promise that handles all cleanup
     const shutdownPromise = (async () => {
-      // 1. Stop accepting new requests
-      logger.info('Stopping server from accepting new connections...');
-      await new Promise<void>((resolve, reject) => {
-        server.close((err) => {
-          if (err) {
-            logger.error('Error closing server', { error: err.message });
-            reject(err);
-          } else {
-            logger.info('Server stopped accepting new connections');
-            resolve();
-          }
+      if (context) {
+        // 1. Stop metrics reporting
+        logger.info('Stopping metrics reporter...');
+        await context.metrics.flush();
+        
+        // 2. Stop accepting new requests
+        logger.info('Stopping server from accepting new connections...');
+        await new Promise<void>((resolve, reject) => {
+          context.server.close((err) => {
+            if (err) {
+              logger.error('Error closing server', { error: err.message });
+              reject(err);
+            } else {
+              logger.info('Server stopped accepting new connections');
+              resolve();
+            }
+          });
         });
-      });
 
-      // 2. Close database connections
-      logger.info('Closing database connections...');
+        // 3. Close Redis connection
+        logger.info('Closing Redis connection...');
+        await context.redis.quit();
+        logger.info('Redis connection closed');
+      }
+
+      // 4. Close database connections
+      logger.info('Closing MongoDB connection...');
       await mongoose.disconnect();
-      logger.info('Database connections closed');
-
-      // 3. Any other cleanup can be added here
-      // For example, closing cache connections, file handles, etc.
+      logger.info('MongoDB connection closed');
 
       const shutdownDuration = Date.now() - shutdownStart;
       logger.info('Graceful shutdown completed', { 
@@ -77,21 +140,61 @@ const shutdown = async (signal: string) => {
     // Ensure we exit even if something goes wrong
     process.exit(exitCode);
   }
-};
+}
 
-// Handle different termination signals
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+// Initialize server and setup signal handlers
+async function initialize() {
+  let context: ServerContext | undefined;
 
-// Handle uncaught exceptions and unhandled rejections
-process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
-  shutdown('uncaughtException');
-});
+  try {
+    context = await startServer();
 
-process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { 
-    reason: reason instanceof Error ? reason.message : 'Unknown reason'
+    // Handle termination signals
+    process.on('SIGTERM', () => shutdown('SIGTERM', context));
+    process.on('SIGINT', () => shutdown('SIGINT', context));
+
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (error) => {
+      logger.error('Uncaught exception', {
+        error: error.message,
+        stack: error.stack
+      });
+      shutdown('uncaughtException', context);
+    });
+
+    // Handle unhandled rejections
+    process.on('unhandledRejection', (reason) => {
+      logger.error('Unhandled rejection', {
+        reason: reason instanceof Error ? reason.message : 'Unknown reason',
+        stack: reason instanceof Error ? reason.stack : undefined
+      });
+      shutdown('unhandledRejection', context);
+    });
+
+    // Monitor event loop
+    setInterval(() => {
+      const heap = process.memoryUsage();
+      context?.metrics.recordMemoryUsage({
+        heapTotal: heap.heapTotal,
+        heapUsed: heap.heapUsed,
+        external: heap.external,
+        rss: heap.rss
+      });
+    }, 30000); // Every 30 seconds
+
+  } catch (error) {
+    logger.error('Failed to initialize server', {
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+    await shutdown('initializationError');
+  }
+}
+
+// Start the server
+initialize().catch((error) => {
+  logger.error('Critical initialization error', {
+    error: error instanceof Error ? error.message : 'Unknown error',
+    stack: error instanceof Error ? error.stack : undefined
   });
-  shutdown('unhandledRejection');
+  process.exit(1);
 });

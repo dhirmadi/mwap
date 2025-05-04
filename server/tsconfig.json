@@ -19,18 +19,24 @@
       "cors",
       "helmet",
       "jest",
-      "redis"
+      "redis",
+      "ioredis",
+      "prom-client"
     ],
     "sourceMap": true,
     "declaration": true,
     "noImplicitAny": false,
     "baseUrl": ".",
     "paths": {
-      "@core/*": ["src/core-v2/*"],
-      "@models/*": ["src/models/v2/*"],
-      "@features/*": ["src/features-v2/*"],
-      "@types/*": ["src/types-v2/*"],
-      "@api/*": ["src/api/v2/*"]
+      "@core-v2/*": ["src/core-v2/*"],
+      "@models-v2/*": ["src/models/v2/*"],
+      "@features-v2/*": ["src/features-v2/*"],
+      "@types-v2/*": ["src/types-v2/*"],
+      "@api-v2/*": ["src/api/v2/*"],
+      "@middleware-v2/*": ["src/middleware-v2/*"],
+      "@validation-v2/*": ["src/validation-v2/*"],
+      "@providers-v2/*": ["src/providers-v2/*"],
+      "@logging-v2/*": ["src/logging-v2/*"]
     }
   },
   "include": ["src/**/*"],
