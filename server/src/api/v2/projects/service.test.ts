@@ -5,7 +5,7 @@ import { ProjectModel } from '../../../models/v2/project.model';
 import { TenantModel } from '../../../models/v2/tenant.model';
 import { CloudProviderModel } from '../../../models/v2/cloudProvider.model';
 import { ProjectTypeModel } from '../../../models/v2/projectType.model';
-import { AppError } from '../../../core-v2/errors/appError';
+import { AppError } from '../../../core-v2/errors/AppError';
 
 describe('ProjectService', () => {
   let mongoServer: MongoMemoryServer;

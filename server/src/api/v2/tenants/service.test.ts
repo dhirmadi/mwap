@@ -2,7 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { TenantService } from './service';
 import { TenantModel } from '../../../models/v2/tenant.model';
-import { AppError } from '../../../core-v2/errors/appError';
+import { AppError } from '../../../core-v2/errors/AppError';
 import type { User } from '../../../models/v2/user.model';
 
 describe('TenantService', () => {

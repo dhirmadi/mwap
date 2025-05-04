@@ -1,7 +1,7 @@
 /** @deprecated Use equivalent functionality from v2 modules instead. This module will be removed in a future release. */
 
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '@core/errors/appError';
+import { AppError } from '@core/errors/AppError';
 import { ProjectModel } from '@models/v2/project.model'; // or TenantModel if checking tenant directly
 
 export const requireTenantOwner = async (req: Request, res: Response, next: NextFunction) => {

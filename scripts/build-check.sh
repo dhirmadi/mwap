@@ -4,7 +4,7 @@ echo "📦 Cleaning up previous builds..."
 rm -rf dist
 
 echo "📄 Running TypeScript compilation..."
-npx tsc --noEmit
+npx tsc -p ./server/tsconfig.ts --noEmit
 
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript build failed."

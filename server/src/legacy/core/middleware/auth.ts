@@ -1,7 +1,7 @@
 /** @deprecated Use equivalent functionality from v2 modules instead. This module will be removed in a future release. */
 
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../errors/appError';
+import { AppError } from '../errors/AppError';
 import { User } from '@models/v2/user.model';
 
 declare global {

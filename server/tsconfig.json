@@ -39,5 +39,11 @@
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "legacy",
+    "**/legacy/**",
+    "**/__tests__/**",
+    "**/__mocks__/**"
+  ]
 }
