@@ -32,3 +32,13 @@ export const UpdateProjectSchema = ProjectSchema.partial().omit({
   createdAt: true,
   updatedAt: true,
 });
+
+// List response DTO
+export const ProjectListItemSchema = ProjectSchema.pick({
+  id: true,
+  name: true,
+  typeId: true,
+  createdAt: true,
+});
+
+export type ProjectListItem = z.infer<typeof ProjectListItemSchema>;

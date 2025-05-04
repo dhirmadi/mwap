@@ -18,7 +18,10 @@
     "format": "prettier --write .",
     "clean": "rm -rf dist",
     "prestart": "npm run build:prod",
-    "postinstall": "npm run build:prod"
+    "postinstall": "npm run build:prod",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@types/compression": "^1.7.5",
@@ -40,7 +43,10 @@
     "express-rate-limit": "^7.2.0",
     "googleapis": "^148.0.0",
     "helmet": "^7.1.0",
+    "jwks-rsa": "^3.2.0",
     "mongoose": "^8.13.2",
+    "pino": "^9.6.0",
+    "rate-limit-redis": "^4.2.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2",
     "uuid": "^11.1.0",
@@ -48,11 +54,16 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/supertest": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
     "eslint": "^8.57.1",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
+    "supertest": "^7.1.0",
+    "ts-jest": "^29.3.2",
     "ts-node-dev": "^2.0.0"
   }
 }

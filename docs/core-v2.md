@@ -12,6 +12,182 @@
 
 The v2 system enforces strict boundaries and provides a more robust foundation for building features.
 
+## Core Middleware Stack
+
+### Purpose of `initCoreV2(app)`
+
+The `initCoreV2(app)` function initializes the core middleware stack for MWAP v2. It:
+
+1. Sets up essential security and performance middleware
+2. Configures authentication and authorization
+3. Establishes error handling and logging
+4. Ensures consistent request processing
+
+```typescript
+// Example usage in app.ts
+import { initCoreV2 } from './core-v2/init';
+
+async function bootstrap() {
+  const app = express();
+  await initCoreV2(app);  // Initialize core middleware
+  
+  // Add feature routes after core initialization
+  app.use('/api/v2/projects', projectRouter);
+  
+  return app;
+}
+```
+
+### Middleware Order
+
+The middleware stack is applied in a specific order to ensure proper security and request handling:
+
+1. **Security Layer** (First)
+   ```typescript
+   // Applied in initCoreV2
+   app.use(helmet());  // Security headers
+   app.use(cors(corsOptions));  // CORS protection
+   app.use(rateLimit(rateLimitConfig));  // Rate limiting
+   ```
+
+2. **Request Processing**
+   ```typescript
+   app.use(compression());  // Compression
+   app.use(express.json({ limit: '10mb' }));  // Body parsing
+   app.use(requestLogger());  // Request logging
+   ```
+
+3. **Authentication**
+   ```typescript
+   app.use(extractUser());  // JWT validation & user extraction
+   ```
+
+4. **Feature Middleware** (Your routes go here)
+
+5. **Error Handling** (Last)
+   ```typescript
+   app.use(notFoundHandler);  // 404 handler
+   app.use(errorHandler);     // Global error handler
+   ```
+
+⚠️ **WARNING**: Never mix v1 and v2 middleware in the same chain. Always use the complete v2 stack for v2 routes.
+
+### Core Middleware Components
+
+#### `validateRequest(schema)`
+
+Request validation middleware using Zod:
+
+```typescript
+const schema = z.object({
+  body: z.object({
+    name: z.string(),
+    type: z.enum(['web', 'mobile'])
+  }),
+  params: z.object({
+    id: z.string().uuid()
+  })
+});
+
+router.post('/:id',
+  validateRequest(schema),  // Validates body and params
+  controller.handleRequest
+);
+```
+
+Key features:
+- Type inference for validated data
+- Nested object validation
+- Custom error messages
+- Automatic 400 responses for invalid requests
+
+#### `extractUser()`
+
+JWT validation and user extraction:
+
+```typescript
+router.get('/profile',
+  extractUser(),  // Required for protected routes
+  (req, res) => {
+    const user = req.user;  // TypeScript knows user exists
+    res.json({ profile: user });
+  }
+);
+```
+
+Features:
+- Auth0 JWT validation
+- User object injection
+- Role information extraction
+- Automatic 401 for invalid tokens
+
+#### `requireRoles(roles)`
+
+Role-based access control:
+
+```typescript
+router.delete('/projects/:id',
+  requireRoles([ROLES.ADMIN, ROLES.OWNER]),
+  controller.deleteProject
+);
+```
+
+Features:
+- Single or multiple role support
+- Role hierarchy awareness
+- Project-specific roles
+- Automatic 403 for insufficient permissions
+
+### Adding New Feature Middleware
+
+To add new middleware to the v2 stack:
+
+1. Create in correct location:
+   ```typescript
+   // middleware-v2/feature/myMiddleware.ts
+   import type { Request, Response, NextFunction } from 'express';
+   import { AppError } from '../../core-v2/errors';
+   
+   export function myMiddleware() {
+     return async (req: Request, res: Response, next: NextFunction) => {
+       try {
+         // Middleware logic here
+         next();
+       } catch (error) {
+         next(error);  // Pass to error handler
+       }
+     };
+   }
+   ```
+
+2. Add tests:
+   ```typescript
+   // __tests__/myMiddleware.test.ts
+   describe('myMiddleware', () => {
+     it('should process request correctly', async () => {
+       const middleware = myMiddleware();
+       // Test implementation
+     });
+   });
+   ```
+
+3. Use in routes:
+   ```typescript
+   router.use(myMiddleware());  // Global for all routes
+   // or
+   router.get('/path', myMiddleware(), controller);  // Route specific
+   ```
+
+⚠️ **Important Guidelines**:
+
+1. Always handle async errors with try/catch
+2. Use typed request/response objects
+3. Pass errors to next() - don't handle directly
+4. Add middleware-specific types in types-v2/
+5. Keep middleware focused and single-purpose
+6. Document behavior and requirements
+7. Add comprehensive tests
+
 ## Key Principles
 
 1. **Type Safety First**: Everything is TypeScript with `strict: true`
