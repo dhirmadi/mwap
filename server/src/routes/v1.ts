@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { router as apiRoutes } from './index';
-import { logger } from '@core/utils/logger';
+import { logger } from '@core-v2/logging';
 
 const v1Router = Router();
 
