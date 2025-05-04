@@ -139,18 +139,23 @@ mwap/
 │
 ├── server/                # Backend application
 │   ├── src/
-│   │   ├── __tests__/    # Test files
-│   │   │   ├── unit/     # Unit tests
-│   │   │   └── utils/    # Test utilities
-│   │   ├── config/       # Configuration files
-│   │   ├── middleware/   # Modular middleware
+│   │   ├── api/          # API routes and handlers
+│   │   │   ├── v2/       # V2 API implementation
+│   │   │   └── router.ts # API router configuration
+│   │   ├── core-v2/      # Core functionality
+│   │   │   ├── errors/   # Error handling
+│   │   │   ├── rbac/     # Role-based access control
+│   │   │   └── utils/    # Shared utilities
+│   │   ├── middleware-v2/ # Modular middleware
 │   │   │   ├── auth/     # Authentication middleware
 │   │   │   ├── errors/   # Error handling middleware
 │   │   │   ├── scoping/  # Tenant/Project scoping
 │   │   │   ├── security/ # Security middleware
 │   │   │   └── validation/ # Request validation
-│   │   ├── routes/       # Express routes
-│   │   └── index.js      # Entry point
+│   │   ├── models-v2/    # Database models
+│   │   ├── types-v2/     # TypeScript type definitions
+│   │   ├── legacy/       # Deprecated v1 code
+│   │   └── index.ts      # Entry point
 │   └── package.json      # Backend dependencies
 │
 └── package.json          # Root package.json
@@ -247,37 +252,36 @@ The following security measures are in place:
 ### Available Endpoints
 
 #### Tenant Management
-- `POST /api/v1/tenant` - Create new tenant
-- `GET /api/v1/tenant/me` - Get current tenant
-- `PATCH /api/v1/tenant/:id` - Update tenant
-- `DELETE /api/v1/tenant/:id` - Archive tenant
+- `POST /api/v2/tenants` - Create new tenant
+- `GET /api/v2/tenants/me` - Get current tenant
+- `PATCH /api/v2/tenants/:id` - Update tenant
+- `DELETE /api/v2/tenants/:id` - Archive tenant
 
 #### Cloud Storage Integration
-- `GET /api/v1/tenant/:id/integrations` - List cloud storage integrations
-- `POST /api/v1/tenant/:id/integrations` - Add cloud storage integration
-- `DELETE /api/v1/tenant/:id/integrations/:provider` - Remove integration
-- `GET /api/v1/auth/:provider` - Start OAuth flow
-- `GET /api/v1/auth/:provider/callback` - Handle OAuth callback
+- `GET /api/v2/cloud/providers` - List available cloud providers
+- `POST /api/v2/cloud/oauth/start` - Start OAuth flow
+- `POST /api/v2/cloud/oauth/complete` - Complete OAuth flow
+- `GET /api/v2/cloud/folders` - List cloud storage folders
 
 #### Project Management
-- `GET /api/v1/projects/:id` - Get project details
-- `PATCH /api/v1/projects/:id` - Update project (archive)
-- `DELETE /api/v1/projects/:id` - Delete project
-- Project admin view at `/projects/:id/manage` (requires ADMIN role)
+- `GET /api/v2/projects/:id` - Get project details
+- `POST /api/v2/projects` - Create new project
+- `PATCH /api/v2/projects/:id` - Update project
+- `DELETE /api/v2/projects/:id` - Delete project
 
-#### Authentication
-- Auth0 token validation
-- Role-based access control
-- OAuth provider support
+#### Project Types & Invites
+- `GET /api/v2/admin/project-types` - List project types
+- `POST /api/v2/projects/:id/invites` - Create project invite
+- `GET /api/v2/projects/:id/invites` - List project invites
+- `POST /api/v2/invites/redeem` - Redeem invite code
 
-See [API Documentation](./docs/API.md) for detailed endpoint specifications.
+#### System Administration
+- `GET /api/v2/admin/providers` - List cloud providers
+- `POST /api/v2/admin/providers` - Add cloud provider
+- `PATCH /api/v2/admin/providers/:id` - Update provider
+- `DELETE /api/v2/admin/providers/:id` - Remove provider
 
-### Planned Endpoints
-The following endpoints are in development:
-- Project management
-- User management
-- Invite system
-- Admin features
+See [API Documentation](./docs/api/v2/README.md) for detailed endpoint specifications.
 
 ## 🚀 Deployment
 
@@ -352,26 +356,33 @@ Note: The deployment pipeline is under development. Manual deployment is current
 ## 📚 Documentation
 
 ### API Documentation
-- [API Overview](./docs/api/API.md)
-- [Tenant Endpoints](./docs/api/v1/tenants.md)
-- [Project Endpoints](./docs/api/v1/projects.md)
-- [Auth Endpoints](./docs/api/v1/auth.md)
+- [API Overview](./docs/api/v2/README.md)
+- [Tenant Management](./docs/api/v2/tenants.md)
+- [Project Management](./docs/api/v2/projects.md)
+- [Cloud Integration](./docs/api/v2/cloud.md)
+- [Invite System](./docs/api/v2/invites.md)
+- [Admin Features](./docs/api/v2/admin/project-types.md)
 
-### Development
-- [Project Status](./docs/STATUS.md)
+### Core Documentation
+- [Core v2 Architecture](./docs/core-v2.md)
+- [Permissions & RBAC](./docs/permissions.md)
 - [Development Setup](./docs/development/setup.md)
 - [Client Development](./docs/development/client.md)
 
 ### Architecture
 - [Overview](./docs/architecture/overview.md)
 - [API Patterns](./docs/architecture/api-patterns.md)
-- [Middleware Architecture](./docs/architecture/middleware.md)
+- [Cloud Providers](./docs/architecture/cloud-providers.md)
 - [Auth ID Handling](./docs/architecture/auth-id-handling.md)
+- [Tenant Management](./docs/architecture/tenant-management.md)
 
 ### Standards & Guidelines
 - [DRY Principles](./docs/standards/DRY.md)
 - [Contributing Guidelines](./docs/contributing/CONTRIBUTING.md)
 - [Security Policy](./SECURITY.md)
+
+### Legacy Documentation
+- [V1 API Reference](./docs/legacy/README.md)
 
 ### Deployment
 - [Deployment Guide](./docs/deployment.md)

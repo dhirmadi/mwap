@@ -6,6 +6,7 @@ import type { MWAPUser } from './extractUser';
 export const MWAP_ROLES = {
   OWNER: 'OWNER',
   DEPUTY: 'DEPUTY',
+  CONTRIBUTOR: 'CONTRIBUTOR',
   MEMBER: 'MEMBER',
   SUPERADMIN: 'SUPERADMIN',
 } as const;
@@ -99,10 +100,11 @@ export const verifyProjectRole = (minimumRole: MWAPRole = MWAP_ROLES.MEMBER) => 
 
       // Role hierarchy for authorization
       const roleHierarchy: Record<MWAPRole, number> = {
-        [MWAP_ROLES.OWNER]: 3,
-        [MWAP_ROLES.DEPUTY]: 2,
-        [MWAP_ROLES.MEMBER]: 1,
-        [MWAP_ROLES.SUPERADMIN]: 4, // Highest level, though checked separately above
+        [MWAP_ROLES.SUPERADMIN]: 5, // Highest level, though checked separately above
+        [MWAP_ROLES.OWNER]: 4,
+        [MWAP_ROLES.DEPUTY]: 3,
+        [MWAP_ROLES.CONTRIBUTOR]: 2,
+        [MWAP_ROLES.MEMBER]: 1
       };
 
       // TODO: Fetch project role from database

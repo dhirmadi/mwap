@@ -11,13 +11,15 @@ MWAP implements a role-based access control (RBAC) system with:
 
 ### Project Roles
 Project roles follow a standardized hierarchy:
-1. OWNER (highest) - Full control over project
-2. DEPUTY (middle) - Can manage members except owners
-3. MEMBER (base) - Basic access and collaboration
+1. OWNER (highest) - Full control over project and members
+2. DEPUTY (middle) - Can manage resources and members (except owners)
+3. CONTRIBUTOR (middle-low) - Can create and edit content
+4. MEMBER (base) - Basic read access and collaboration
 
 This aligns with tenant roles for consistency:
 - Tenant OWNER maps to Project OWNER
 - Tenant ADMIN maps to Project DEPUTY
+- Tenant CONTRIBUTOR maps to Project CONTRIBUTOR
 - Tenant MEMBER maps to Project MEMBER
 
 ### Role Validation
@@ -84,14 +86,44 @@ All permission checks use Auth0 ID (`user.sub`):
 Project permissions build on the standardized role system:
 - OWNER has full control over project and members
 - DEPUTY can manage members (except owners) and resources
-- MEMBER has basic access and collaboration rights
+- CONTRIBUTOR can create and edit project content
+- MEMBER has basic read access and collaboration rights
+
+Each role includes all permissions from lower roles:
+```typescript
+export const PROJECT_PERMISSIONS = {
+  [ProjectRole.OWNER]: [
+    ...DEPUTY_PERMISSIONS,
+    'delete:project',
+    'manage:owners',
+    'manage:settings'
+  ],
+  [ProjectRole.DEPUTY]: [
+    ...CONTRIBUTOR_PERMISSIONS,
+    'manage:members',
+    'manage:resources',
+    'invite:members'
+  ],
+  [ProjectRole.CONTRIBUTOR]: [
+    ...MEMBER_PERMISSIONS,
+    'create:content',
+    'edit:content',
+    'delete:content'
+  ],
+  [ProjectRole.MEMBER]: [
+    'read:project',
+    'read:content',
+    'comment:content'
+  ]
+};
 
 Role hierarchy ensures consistent permission checks:
 ```typescript
 export const PROJECT_ROLE_HIERARCHY = {
-  [ProjectRole.OWNER]: 3,   // Highest level
-  [ProjectRole.DEPUTY]: 2,  // Middle tier
-  [ProjectRole.MEMBER]: 1   // Base level
+  [ProjectRole.OWNER]: 4,      // Highest level
+  [ProjectRole.DEPUTY]: 3,     // Management level
+  [ProjectRole.CONTRIBUTOR]: 2, // Content creation level
+  [ProjectRole.MEMBER]: 1      // Base level
 };
 ```
 
@@ -100,27 +132,45 @@ export const PROJECT_ROLE_HIERARCHY = {
 ### Auth Middleware
 
 ```typescript
-const requireAuth = (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user?.sub) {
-    throw new AuthError('Authentication required');
-  }
-  next();
+// middleware-v2/auth/extractUser.ts
+export const extractUser = () => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const token = getTokenFromHeader(req);
+      if (!token) {
+        throw AppError.unauthorized('No token provided');
+      }
+
+      const user = await validateAndDecodeToken(token);
+      req.user = user;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };
 ```
 
 ### Permission Middleware
 
 ```typescript
-const requireTenantOwner = async (req: Request, res: Response, next: NextFunction) => {
-  const hasPermission = await permissionService.checkPermission(
-    req.user,
-    req.tenant,
-    PERMISSIONS.TENANT_OWNER
-  );
-  if (!hasPermission) {
-    throw new AuthorizationError('Requires tenant owner permission');
-  }
-  next();
+// middleware-v2/auth/roles.ts
+export const requireRoles = (roles: MWAP_ROLES | MWAP_ROLES[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userRoles = req.user?.roles || [];
+      const requiredRoles = Array.isArray(roles) ? roles : [roles];
+
+      const hasRole = requiredRoles.some(role => userRoles.includes(role));
+      if (!hasRole) {
+        throw AppError.forbidden('Insufficient permissions');
+      }
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
 };
 ```
 
@@ -166,24 +216,29 @@ const requireTenantOwner = async (req: Request, res: Response, next: NextFunctio
 ### Common Issues
 
 1. **Permission Denied**:
-   - Check ID type used
-   - Verify role assignment
-   - Check hierarchy level
+   - Check token validity and expiration
+   - Verify role assignment in Auth0
+   - Check role hierarchy level
+   - Ensure correct role middleware is used
 
 2. **Role Issues**:
-   - Verify role exists in ProjectRole enum
-   - Check role hierarchy (OWNER > DEPUTY > MEMBER)
+   - Verify role exists in MWAP_ROLES enum
+   - Check role hierarchy (OWNER > DEPUTY > CONTRIBUTOR > MEMBER)
    - Validate role change permissions
-   - Ensure Deputy can't modify Owner roles
+   - Ensure role inheritance is working
+   - Check for role conflicts
 
 3. **Integration Access**:
-   - Check provider permissions
-   - Verify token access
-   - Check role requirements
+   - Verify OAuth2 token validity
+   - Check provider configuration
+   - Validate scopes and permissions
+   - Ensure correct provider middleware
 
 ## Related Documentation
 
-- [User ID Handling](./user-id-handling.md)
-- [Tenant Management](./tenant-management.md)
-- [Project Management](./project-management.md)
-- [Security Guide](./security-guide.md)
+- [Core v2 Architecture](./core-v2.md)
+- [API v2 Overview](./api/v2/README.md)
+- [Tenant Management](./api/v2/tenants.md)
+- [Project Management](./api/v2/projects.md)
+- [Cloud Integration](./api/v2/cloud.md)
+- [Admin Features](./api/v2/admin/project-types.md)
