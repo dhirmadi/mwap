@@ -45,12 +45,17 @@ module.exports = {
         'no-restricted-imports': ['error', {
           patterns: [{
             group: [
-              '*/core/*', '*/core',
-              '../core/*', '../../core/*',
-              '../middleware/*', '../../middleware/*',
-              '**/core/**', '**/middleware/**'
+              '../core/',
+              '../middleware/',
+              '../features/',
+              '../../core/',
+              '../../middleware/',
+              '../../features/',
+              '**/core/**',
+              '**/middleware/**',
+              '**/features/**'
             ],
-            message: 'Use core-v2/middleware-v2 modules instead. Legacy core/ and middleware/ imports are not allowed in v2 code.',
+            message: 'Use only core-v2, middleware-v2, and features-v2 modules. Legacy imports are not allowed in v2 code.',
           }],
         }],
         '@typescript-eslint/explicit-function-return-type': 'error',
