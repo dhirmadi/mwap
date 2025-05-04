@@ -32,8 +32,16 @@ module.exports = {
     // Prevent legacy imports in v2 code
     'no-restricted-imports': ['error', {
       patterns: [{
-        group: ['*/core/*', '*/core', '../core/*', '../../core/*', '../middleware/*', '../../middleware/*'],
-        message: 'Use core-v2/middleware-v2 modules instead. Legacy core/ and middleware/ imports are not allowed in v2 code.',
+        group: [
+          '../legacy/core/**',
+          '../legacy/features/**',
+          '../legacy/middleware/**',
+          '../../legacy/core/**',
+          '../../legacy/features/**',
+          '../../legacy/middleware/**',
+          '**/legacy/**'
+        ],
+        message: 'Use only core-v2, features-v2, and middleware-v2 modules. Legacy imports are not allowed in v2 code.',
       }],
     }],
   },

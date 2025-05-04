@@ -33,7 +33,18 @@ app.get('/health', (_req, res) => {
 });
 
 // API routes
-app.use('/api/v1', apiRoutes);
+if (process.env.DISABLE_API_V1 !== 'true') {
+  app.use('/api/v1', apiRoutes);
+  logger.info('API v1 routes enabled');
+} else {
+  logger.warn('API v1 routes disabled by environment flag');
+  app.use('/api/v1', (_req, res) => {
+    res.status(410).json({
+      error: 'API v1 is deprecated and disabled. Please use API v2 endpoints.',
+      docs: '/api/v2/docs'
+    });
+  });
+}
 
 /**
  * Static File Serving Configuration
