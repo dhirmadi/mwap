@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { CloudService } from './service';
 import { StartOAuthSchema, CompleteOAuthSchema, ListFoldersSchema } from './schema';
-import { AppError } from '@core/errors/appError';
+import { AppError } from '@core-v2/errors/AppError';
 
 export class CloudController {
   static async startOAuth(req: Request, res: Response, next: NextFunction) {

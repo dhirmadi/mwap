@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { AuthType } from '@models/v2/cloudProvider.model';
+import type { AuthType } from '@models-v2/cloudProvider.model';
 
 const kebabCaseRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const urlRegex = /^https?:\/\/.+/;

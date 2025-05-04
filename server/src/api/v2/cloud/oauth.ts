@@ -1,6 +1,6 @@
-import { CloudProviderModel } from '@models/v2/cloudProvider.model';
-import { AppError } from '@core/errors/appError';
-import type { User } from '@models/v2/user.model';
+import { CloudProviderModel } from '@models-v2/cloudProvider.model';
+import { AppError } from '@core-v2/errors/AppError';
+import type { User } from '@models-v2/user.model';
 
 export class OAuth2Manager {
   private static generateState(user: User, providerId: string): string {

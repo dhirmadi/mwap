@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { Types } from 'mongoose';
 import { ProjectService } from './service';
-import { AppError } from '@core/errors/appError';
+import { AppError } from '@core-v2/errors/AppError';
 
 export class ProjectController {
   static async createProject(req: Request, res: Response, next: NextFunction) {

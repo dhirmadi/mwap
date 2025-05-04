@@ -1,8 +1,8 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { CloudProviderService } from './service';
-import { CloudProviderModel } from '@models/v2/cloudProvider.model';
-import { AppError } from '@core/errors/appError';
+import { CloudProviderModel } from '@models-v2/cloudProvider.model';
+import { AppError } from '@core-v2/errors/AppError';
 
 describe('CloudProviderService', () => {
   let mongoServer: MongoMemoryServer;

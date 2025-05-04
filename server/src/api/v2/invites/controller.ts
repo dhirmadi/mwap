@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { InviteService } from './service';
 import { InviteCreateSchema, InviteRedeemSchema } from './schema';
-import { AppError } from '@core/errors/appError';
+import { AppError } from '@core-v2/errors/AppError';
 
 export class InviteController {
   static async createInvite(req: Request, res: Response, next: NextFunction) {

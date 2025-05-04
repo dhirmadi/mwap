@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { TenantModel } from '@models/v2/tenant.model';
-import { AppError } from '@core/errors/appError';
+import { TenantModel } from '@models-v2/tenant.model';
+import { AppError } from '@core-v2/errors/AppError';
 
 export const requireTenantOwner = async (
   req: Request,

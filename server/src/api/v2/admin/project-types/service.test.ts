@@ -1,8 +1,8 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { ProjectTypeService } from './service';
-import { ProjectTypeModel } from '@models/v2/projectType.model';
-import { AppError } from '@core/errors/appError';
+import { ProjectTypeModel } from '@models-v2/projectType.model';
+import { AppError } from '@core-v2/errors/AppError';
 
 describe('ProjectTypeService', () => {
   let mongoServer: MongoMemoryServer;
