@@ -44,28 +44,49 @@
 
 ## In Progress Features
 
-### Project Management
-- Project Creation
-- Project Listing
-- Member Management
-- Role-Based Access
+### V2 Migration
+- Feature Migration
+  - ✅ Core modules to core-v2
+  - ✅ Middleware to middleware-v2
+  - ⏳ Project management to features-v2
+  - ⏳ User management to features-v2
+  - ⏳ Tenant management to features-v2
+- Testing Coverage
+  - ✅ Core v2 tests
+  - ✅ Middleware v2 tests
+  - ⏳ Feature v2 tests
+  - ⏳ Integration tests
+- Documentation
+  - ✅ V2 architecture guide
+  - ✅ Migration checklist
+  - ✅ Developer onboarding
+  - ⏳ API v2 documentation
 
-### User Management
-- Profile Management
-- Role Assignment
-- Tenant Association
+### Project Management V2
+- ⏳ Project Creation
+- ⏳ Project Listing
+- ⏳ Member Management
+- ⏳ Role-Based Access
 
 ## Planned Features
 
-### Invites System
+### User Management V2
+- Profile Management
+- Role Assignment
+- Tenant Association
+- OAuth Integration
+
+### Invites System V2
 - Create Invites
 - Redeem Invites
 - Invite Management
+- Role-based Invites
 
-### Admin Features
+### Admin Features V2
 - Tenant Management
 - User Management
 - System Monitoring
+- Analytics Dashboard
 
 ## Technical Improvements
 
@@ -119,6 +140,33 @@
   - User metrics
 
 ## Recent Updates
+
+### v0.6.0 - V2 Architecture and Legacy Cleanup
+- ✅ Moved legacy code to isolated directory
+  - Core modules moved to /legacy
+  - Features moved to /legacy
+  - Middleware moved to /legacy
+  - Added deprecation notices
+- ✅ Enhanced v2 architecture documentation
+  - Core v2 architecture guide
+  - Migration checklist
+  - Developer onboarding guide
+  - Legacy code warnings
+- ✅ Improved test coverage
+  - 85%+ coverage requirement
+  - Controller tests
+  - Service tests
+  - Middleware tests
+- ✅ Enhanced type safety
+  - Strict TypeScript mode
+  - No any types
+  - Proper DTO patterns
+  - Zod validation
+- ✅ Security improvements
+  - RBAC middleware
+  - Request validation
+  - Rate limiting
+  - Error handling
 
 ### v0.5.0 - Core V2 Middleware and Types
 - ✅ Enhanced Express request type augmentations
@@ -206,17 +254,26 @@
 
 ## Next Steps
 
-1. Project Management
-   - Project creation
-   - Member management
-   - Role-based access
+1. Complete V2 Migration
+   - Migrate remaining features to v2
+   - Complete test coverage for all v2 modules
+   - Finalize API v2 documentation
+   - Set up feature flags for v1 deprecation
 
-2. Testing Infrastructure
-   - Set up testing framework
-   - Write unit tests
-   - Add integration tests
+2. Project Management V2
+   - Implement project creation with v2 patterns
+   - Add member management with RBAC
+   - Set up project roles and permissions
+   - Add project analytics
 
-3. CI/CD Pipeline
-   - Automated builds
-   - Test automation
-   - Deployment process
+3. Testing Infrastructure
+   - Complete E2E test suite
+   - Add performance tests
+   - Set up continuous testing
+   - Add coverage reporting
+
+4. CI/CD Pipeline
+   - Set up GitHub Actions
+   - Add automated testing
+   - Configure staging deployments
+   - Add production safeguards
