@@ -7,6 +7,7 @@ import { TenantModel } from '../../../models/v2/tenant.model';
 import { CloudProviderModel } from '../../../models/v2/cloudProvider.model';
 import { ProjectTypeModel } from '../../../models/v2/projectType.model';
 import { AppError } from '../../../core-v2/errors/AppError';
+import { createMockUser } from '../../../core-v2/testing/mockUser';
 
 describe('ProjectService', () => {
   let mongoServer: MongoMemoryServer;
@@ -20,16 +21,15 @@ describe('ProjectService', () => {
     await mongoose.connect(mongoServer.getUri());
 
     // Create test user
-    testUser = {
-      _id: new Types.ObjectId(),
+    testUser = createMockUser({
       email: 'test@example.com',
       name: 'Test User'
-    };
+    });
 
     // Create test tenant
     testTenant = await TenantModel.create({
       name: 'Test Tenant',
-      ownerId: testUser._id,
+      ownerId: testUser.sub,
       archived: false
     });
 
@@ -149,12 +149,18 @@ describe('ProjectService', () => {
       testProject = await ProjectModel.create({
         name: 'Original Name',
         tenantId: testTenant._id,
-        ownerId: testUser._id,
+        ownerId: testUser.sub,
         cloudProvider: testProvider.providerId,
         projectTypeId: testProjectType.projectTypeId,
         folderId: 'test-folder',
         folderPath: '/test/path',
-        archived: false
+        archived: false,
+        members: [{
+          userId: testUser.sub,
+          role: 'OWNER',
+          joinedAt: new Date(),
+          addedBy: testUser.sub
+        }]
       });
     });
 
@@ -192,12 +198,18 @@ describe('ProjectService', () => {
       testProject = await ProjectModel.create({
         name: 'Test Project',
         tenantId: testTenant._id,
-        ownerId: testUser._id,
+        ownerId: testUser.sub,
         cloudProvider: testProvider.providerId,
         projectTypeId: testProjectType.projectTypeId,
         folderId: 'test-folder',
         folderPath: '/test/path',
-        archived: false
+        archived: false,
+        members: [{
+          userId: testUser.sub,
+          role: 'OWNER',
+          joinedAt: new Date(),
+          addedBy: testUser.sub
+        }]
       });
     });
 
@@ -270,7 +282,7 @@ describe('ProjectService', () => {
 
     it('should reject if user is already a member', async () => {
       const payload = {
-        userId: testUser._id.toString(),
+        userId: testUser.sub,
         role: 'MEMBER'
       };
 
@@ -338,14 +350,14 @@ describe('ProjectService', () => {
         archived: false,
         members: [
           {
-            userId: testUser._id.toString(),
+            userId: testUser.sub,
             role: 'OWNER',
-            joinedAt: new Date().toISOString()
+            joinedAt: new Date()
           },
           {
             userId: memberUserId,
             role: 'MEMBER',
-            joinedAt: new Date().toISOString()
+            joinedAt: new Date()
           }
         ]
       });
@@ -432,14 +444,14 @@ describe('ProjectService', () => {
         archived: false,
         members: [
           {
-            userId: testUser._id.toString(),
+            userId: testUser.sub,
             role: 'OWNER',
-            joinedAt: new Date().toISOString()
+            joinedAt: new Date()
           },
           {
             userId: memberUserId,
             role: 'MEMBER',
-            joinedAt: new Date().toISOString()
+            joinedAt: new Date()
           }
         ]
       });
