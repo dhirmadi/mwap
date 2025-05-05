@@ -3,6 +3,7 @@ import { randomBytes } from 'crypto';
 import { InviteModel } from '@models-v2/invite.model';
 import { ProjectModel } from '@models-v2/project.model';
 import { AppError } from '@core-v2/errors/AppError';
+import { UserMigration } from '@core-v2/auth/userMigration';
 import type { User } from '@models-v2/user.model';
 import type { InviteCreate } from './schema';
 
@@ -12,10 +13,13 @@ export class InviteService {
   }
 
   static async createInvite(user: User, projectId: string, payload: InviteCreate) {
+    // Get user ID safely
+    const userId = UserMigration.getUserId(user);
+
     // Verify project exists and user has ownership
     const project = await ProjectModel.findOne({
       _id: new Types.ObjectId(projectId),
-      ownerId: user._id,
+      ownerId: userId,
       archived: false
     });
 

@@ -1,6 +1,7 @@
 import { TenantModel } from '@models-v2/tenant.model';
 import { TenantCreateSchema, TenantUpdateSchema } from './schema';
 import { AppError } from '@core-v2/errors/AppError';
+import { UserMigration } from '@core-v2/auth/userMigration';
 import type { TenantCreate, TenantUpdate } from './schema';
 import type { User } from '@models-v2/user.model';
 
@@ -11,9 +12,12 @@ export class TenantService {
       throw AppError.badRequest('Invalid input', validationResult.error.format());
     }
 
+    // Get user ID safely
+    const userId = UserMigration.getUserId(user);
+
     // Check if user already has an active tenant
     const existingTenant = await TenantModel.findOne({
-      ownerId: user._id,
+      ownerId: userId,
       archived: false
     });
 
@@ -24,7 +28,7 @@ export class TenantService {
     try {
       const tenant = new TenantModel({
         ...payload,
-        ownerId: user._id
+        ownerId: userId
       });
       await tenant.save();
       return tenant;

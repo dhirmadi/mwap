@@ -1,10 +1,12 @@
 import { CloudProviderModel } from '@models-v2/cloudProvider.model';
 import { AppError } from '@core-v2/errors/AppError';
+import { UserMigration } from '@core-v2/auth/userMigration';
 import type { User } from '@models-v2/user.model';
 
 export class OAuth2Manager {
   private static generateState(user: User, providerId: string): string {
-    return Buffer.from(`${user._id}:${providerId}:${Date.now()}`).toString('base64');
+    const userId = UserMigration.getUserId(user);
+    return Buffer.from(`${userId}:${providerId}:${Date.now()}`).toString('base64');
   }
 
   private static validateState(state: string): { userId: string; providerId: string } {

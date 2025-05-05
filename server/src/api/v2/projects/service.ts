@@ -12,6 +12,7 @@ import {
   ProjectRole 
 } from './schema';
 import { AppError } from '@core-v2/errors/AppError';
+import { UserMigration } from '@core-v2/auth/userMigration';
 import type { User } from '@models-v2/user.model';
 import type { ProjectCreate, ProjectUpdate, AddMemberRequest, UpdateMemberRoleRequest } from './schema';
 
@@ -21,6 +22,9 @@ export class ProjectService {
     if (!validationResult.success) {
       throw AppError.badRequest('Invalid input', validationResult.error.format());
     }
+
+    // Get user ID safely
+    const userId = UserMigration.getUserId(user);
 
     // Verify tenant exists and user has access
     const tenant = await TenantModel.findOne({
@@ -56,12 +60,12 @@ export class ProjectService {
     try {
       const project = new ProjectModel({
         ...payload,
-        ownerId: user._id,
+        ownerId: userId,
         members: [{
-          userId: user._id,
+          userId: userId,
           role: 'OWNER',
           joinedAt: new Date(),
-          addedBy: user._id
+          addedBy: userId
         }]
       });
       await project.save();
@@ -130,8 +134,11 @@ export class ProjectService {
       throw AppError.notFound('Project not found or archived');
     }
 
+    // Get current user ID safely
+    const currentUserId = UserMigration.getUserId(currentUser);
+
     // Get current user's role
-    const currentMember = project.members.find(m => m.userId.toString() === currentUser._id.toString());
+    const currentMember = project.members.find(m => m.userId.toString() === currentUserId);
     if (!currentMember || !['OWNER', 'DEPUTY'].includes(currentMember.role)) {
       throw AppError.forbidden('Only project owners and deputies can add members');
     }
@@ -151,10 +158,10 @@ export class ProjectService {
 
     // Add member
     const newMember = {
-      userId: new Types.ObjectId(payload.userId),
+      userId: payload.userId,  // Already a string
       role: payload.role,
       joinedAt: new Date(),
-      addedBy: currentUser._id
+      addedBy: currentUserId
     };
 
     project.members.push(newMember);
@@ -170,14 +177,17 @@ export class ProjectService {
       throw AppError.notFound('Project not found or archived');
     }
 
+    // Get current user ID safely
+    const currentUserId = UserMigration.getUserId(currentUser);
+
     // Get current user's role
-    const currentMember = project.members.find(m => m.userId.toString() === currentUser._id.toString());
+    const currentMember = project.members.find(m => m.userId.toString() === currentUserId);
     if (!currentMember || !['OWNER', 'DEPUTY'].includes(currentMember.role)) {
       throw AppError.forbidden('Only project owners and deputies can remove members');
     }
 
     // Cannot remove self
-    if (currentUser._id.toString() === targetUserId) {
+    if (currentUserId === targetUserId) {
       throw AppError.forbidden('Cannot remove yourself from the project');
     }
 
@@ -213,14 +223,17 @@ export class ProjectService {
       throw AppError.notFound('Project not found or archived');
     }
 
+    // Get current user ID safely
+    const currentUserId = UserMigration.getUserId(currentUser);
+
     // Get current user's role
-    const currentMember = project.members.find(m => m.userId.toString() === currentUser._id.toString());
+    const currentMember = project.members.find(m => m.userId.toString() === currentUserId);
     if (!currentMember || !['OWNER', 'DEPUTY'].includes(currentMember.role)) {
       throw AppError.forbidden('Only project owners and deputies can modify roles');
     }
 
     // Cannot modify own role
-    if (currentUser._id.toString() === targetUserId) {
+    if (currentUserId === targetUserId) {
       throw AppError.forbidden('Cannot modify your own role');
     }
 
