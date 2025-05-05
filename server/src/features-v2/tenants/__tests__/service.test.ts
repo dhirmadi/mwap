@@ -1,3 +1,4 @@
+import "@jest/globals";
 import { AppError } from '../../../core-v2/errors';
 import { logger } from '../../../core-v2/logger';
 import { encryptToken, decryptToken } from '../../../core-v2/crypto';

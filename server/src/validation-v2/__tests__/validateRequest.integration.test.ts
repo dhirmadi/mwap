@@ -1,3 +1,4 @@
+import "@jest/globals";
 import express from 'express';
 import request from 'supertest';
 import { z } from 'zod';
@@ -118,7 +119,7 @@ describe('validateRequest Integration', () => {
         .get('/users?search=john&limit=50')
         .expect(200);
 
-      expect(response.body.validated).toEqual({
+      expect(response.body.validated.query).toEqual({
         search: 'john',
         limit: 50,
       });
@@ -129,7 +130,7 @@ describe('validateRequest Integration', () => {
         .get('/users?limit=20')
         .expect(200);
 
-      expect(response.body.validated).toEqual({
+      expect(response.body.validated.query).toEqual({
         limit: 20,
       });
     });
@@ -157,7 +158,7 @@ describe('validateRequest Integration', () => {
         .get(`/users/${validUUID}/edit`)
         .expect(200);
 
-      expect(response.body.validated).toEqual({
+      expect(response.body.validated.params).toEqual({
         id: validUUID,
         action: 'edit',
       });
@@ -260,8 +261,8 @@ describe('validateRequest Integration', () => {
         .get('/users?limit=25')
         .expect(200);
 
-      expect(response.body.validated.limit).toBe(25);
-      expect(typeof response.body.validated.limit).toBe('number');
+      expect(response.body.validated.query.limit).toBe(25);
+      expect(typeof response.body.validated.query.limit).toBe('number');
     });
 
     it('should reject non-coercible values', async () => {

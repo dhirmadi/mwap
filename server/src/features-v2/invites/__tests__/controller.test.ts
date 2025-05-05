@@ -1,3 +1,4 @@
+import "@jest/globals";
 import { Request, Response } from 'express';
 import { AppError } from '../../../core-v2/errors';
 import { InviteController } from '../controller';

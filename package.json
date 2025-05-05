@@ -37,14 +37,25 @@
     "server/node_modules"
   ],
   "dependencies": {
+<<<<<<< HEAD
     "typescript": "^5.3.3",
     "@types/ioredis": "^4.28.10",
     "@types/jest": "^29.5.14",
     "@types/redis": "^4.0.10",
+=======
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/ioredis": "^4.28.10",
+    "@types/jest": "^29.5.14",
+>>>>>>> ed31f0386a8cd7f6c88a1850bca409a76fbee1a1
     "concurrently": "^8.2.2",
     "eslint": "^9.26.0",
     "husky": "^9.0.11",
-    "lint-staged": "^15.2.2"
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.2",
+    "mongodb-memory-server": "^10.1.4",
+    "ts-jest": "^29.3.2"
   },
   "lint-staged": {
     "client/src/**/*.{js,jsx,ts,tsx}": [

@@ -1,8 +1,9 @@
+import "@jest/globals";
 import express from 'express';
 import request from 'supertest';
 import { z } from 'zod';
 import { validateRequestSchema, createRequestSchema } from '../validateRequest';
-import { globalErrorHandler } from '../../core-v2/errors';
+import { globalErrorHandler, ValidationError } from '../../core-v2/errors';
 
 describe('validateRequestSchema Integration', () => {
   const app = express();

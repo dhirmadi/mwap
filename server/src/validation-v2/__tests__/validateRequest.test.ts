@@ -1,7 +1,8 @@
+import "@jest/globals";
 import { z } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
 import { validateRequest, type RequestWithValidated } from '../validateRequest';
-import { AppError } from '../../core-v2/errors';
+import { AppError, ValidationError } from '../../core-v2/errors';
 
 describe('validateRequest middleware', () => {
   let mockRequest: Partial<Request>;
@@ -36,7 +37,7 @@ describe('validateRequest middleware', () => {
     );
 
     expect(nextFunction).toHaveBeenCalledWith();
-    expect((mockRequest as RequestWithValidated).validated).toEqual(validData);
+    expect((mockRequest as RequestWithValidated).validated.body).toEqual(validData);
   });
 
   it('should validate query parameters', async () => {

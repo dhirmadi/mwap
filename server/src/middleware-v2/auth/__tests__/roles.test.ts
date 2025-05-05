@@ -1,3 +1,4 @@
+import "@jest/globals";
 import express, { Request, Response } from 'express';
 import request from 'supertest';
 import { AppError } from '../../../core-v2/errors';

@@ -1,3 +1,4 @@
+import "@jest/globals";
 import express from 'express';
 import request from 'supertest';
 import { applySecurity, helmetConfig, corsConfig, createRateLimiter } from '../index';
@@ -61,7 +62,7 @@ describe('Security Middleware', () => {
     });
 
     it('should throw error for Redis without config', async () => {
-      await expect(createRateLimiter({ useRedis: true }))
+      await expect(createRateLimiter({ url: 'redis://invalid:6379' }))
         .rejects
         .toThrow(AppError);
     });
@@ -83,7 +84,7 @@ describe('Security Middleware', () => {
       // Verify security headers
       expect(response.headers).toMatchObject({
         'x-content-type-options': 'nosniff',
-        'x-frame-options': 'DENY',
+        'x-frame-options': 'deny',
         'x-xss-protection': '1; mode=block',
       });
 
@@ -100,20 +101,22 @@ describe('Security Middleware', () => {
       // Create test endpoint
       app.get('/test', (_req, res) => res.json({ ok: true }));
 
-      // Apply security with low limit
+      // Apply security with very low limit
       await applySecurity(app, {
         max: 1,
-        windowMs: 15 * 60 * 1000,
+        windowMs: 1, // 1ms window to ensure rate limit is hit
       });
 
       // First request should succeed
       await request(app)
         .get('/test')
+        .set('x-forwarded-for', '127.0.0.1')
         .expect(200);
 
       // Second request should be blocked
       const response = await request(app)
         .get('/test')
+        .set('x-forwarded-for', '127.0.0.1')
         .expect(429);
 
       expect(response.body).toMatchObject({

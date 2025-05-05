@@ -5,8 +5,8 @@ import { applySecurity } from '../middleware-v2/security';
 import { extractUser } from '../middleware-v2/auth/extractUser';
 import { AppError } from './errors';
 import { globalErrorHandler } from './errors/globalErrorHandler';
-import { logger } from '../logging-v2';
-import { requestLogger } from '../logging-v2';
+import { logger } from './logger';
+import { requestLogger } from './logging/requestLogger';
 
 /**
  * Handle 404 Not Found errors
