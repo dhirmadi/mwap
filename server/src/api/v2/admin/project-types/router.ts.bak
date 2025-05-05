@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { ProjectTypeController } from './controller';
-import { RouterAuth } from '@core-v2/auth/router';
+import { requireAuth } from '@core-v2/auth';
 import { requireRole } from '@core-v2/auth/roles';
 
 const router = Router();
