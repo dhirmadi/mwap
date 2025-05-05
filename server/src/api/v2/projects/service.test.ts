@@ -236,9 +236,10 @@ describe('ProjectService', () => {
         folderPath: '/test/path',
         archived: false,
         members: [{
-          userId: testUser._id.toString(),
+          userId: testUser._id,
           role: 'OWNER',
-          joinedAt: new Date().toISOString()
+          joinedAt: expect.any(Date),
+          addedBy: testUser._id
         }]
       });
     });

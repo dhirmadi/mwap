@@ -57,12 +57,27 @@ export const AddMemberSchema = z.object({
 export const ProjectMemberResponse = z.object({
   userId: z.string(),
   role: ProjectRole,
-  joinedAt: z.string()
+  joinedAt: z.date(),
+  addedBy: z.string()
+});
+
+export const ProjectMemberSchema = z.object({
+  userId: z.string(),
+  role: ProjectRole,
+  joinedAt: z.date(),
+  addedBy: z.string()
 });
 
 export type ProjectCreate = z.infer<typeof ProjectCreateSchema> & {
   tenantId: Types.ObjectId;
+  members?: {
+    userId: Types.ObjectId;
+    role: ProjectRole;
+    joinedAt: Date;
+    addedBy: Types.ObjectId;
+  }[];
 };
 export type ProjectUpdate = z.infer<typeof ProjectUpdateSchema>;
 export type AddMemberRequest = z.infer<typeof AddMemberSchema>;
 export type ProjectMemberResponse = z.infer<typeof ProjectMemberResponse>;
+export type ProjectMember = z.infer<typeof ProjectMemberSchema>;

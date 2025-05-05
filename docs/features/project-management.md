@@ -43,9 +43,10 @@ export const ProjectSchema = z.object({
     features: z.record(z.boolean())
   }),
   members: z.array(z.object({
-    userId: z.string().uuid(),
+    userId: z.string(),
     role: z.enum(['OWNER', 'DEPUTY', 'MEMBER']),
-    joinedAt: z.string().datetime()
+    joinedAt: z.date(),
+    addedBy: z.string()
   })),
   status: z.enum(['active', 'archived']),
   createdAt: z.string().datetime(),

@@ -56,7 +56,13 @@ export class ProjectService {
     try {
       const project = new ProjectModel({
         ...payload,
-        ownerId: user._id
+        ownerId: user._id,
+        members: [{
+          userId: user._id,
+          role: 'OWNER',
+          joinedAt: new Date(),
+          addedBy: user._id
+        }]
       });
       await project.save();
       return project;
@@ -125,7 +131,7 @@ export class ProjectService {
     }
 
     // Get current user's role
-    const currentMember = project.members.find(m => m.userId === currentUser._id);
+    const currentMember = project.members.find(m => m.userId.toString() === currentUser._id.toString());
     if (!currentMember || !['OWNER', 'DEPUTY'].includes(currentMember.role)) {
       throw AppError.forbidden('Only project owners and deputies can add members');
     }
@@ -139,15 +145,16 @@ export class ProjectService {
     }
 
     // Check if user is already a member
-    if (project.members.some(m => m.userId === payload.userId)) {
+    if (project.members.some(m => m.userId.toString() === payload.userId)) {
       throw AppError.badRequest('User is already a member of this project');
     }
 
     // Add member
     const newMember = {
-      userId: payload.userId,
+      userId: new Types.ObjectId(payload.userId),
       role: payload.role,
-      joinedAt: new Date().toISOString()
+      joinedAt: new Date(),
+      addedBy: currentUser._id
     };
 
     project.members.push(newMember);
@@ -164,18 +171,18 @@ export class ProjectService {
     }
 
     // Get current user's role
-    const currentMember = project.members.find(m => m.userId === currentUser._id);
+    const currentMember = project.members.find(m => m.userId.toString() === currentUser._id.toString());
     if (!currentMember || !['OWNER', 'DEPUTY'].includes(currentMember.role)) {
       throw AppError.forbidden('Only project owners and deputies can remove members');
     }
 
     // Cannot remove self
-    if (currentUser._id === targetUserId) {
+    if (currentUser._id.toString() === targetUserId) {
       throw AppError.forbidden('Cannot remove yourself from the project');
     }
 
     // Get target member
-    const targetMember = project.members.find(m => m.userId === targetUserId);
+    const targetMember = project.members.find(m => m.userId.toString() === targetUserId);
     if (!targetMember) {
       throw AppError.notFound('Member not found in project');
     }
@@ -189,7 +196,7 @@ export class ProjectService {
     }
 
     // Remove member
-    project.members = project.members.filter(m => m.userId !== targetUserId);
+    project.members = project.members.filter(m => m.userId.toString() !== targetUserId);
     await project.save();
   }
 
@@ -207,18 +214,18 @@ export class ProjectService {
     }
 
     // Get current user's role
-    const currentMember = project.members.find(m => m.userId === currentUser._id);
+    const currentMember = project.members.find(m => m.userId.toString() === currentUser._id.toString());
     if (!currentMember || !['OWNER', 'DEPUTY'].includes(currentMember.role)) {
       throw AppError.forbidden('Only project owners and deputies can modify roles');
     }
 
     // Cannot modify own role
-    if (currentUser._id === targetUserId) {
+    if (currentUser._id.toString() === targetUserId) {
       throw AppError.forbidden('Cannot modify your own role');
     }
 
     // Get target member
-    const targetMember = project.members.find(m => m.userId === targetUserId);
+    const targetMember = project.members.find(m => m.userId.toString() === targetUserId);
     if (!targetMember) {
       throw AppError.notFound('Member not found in project');
     }

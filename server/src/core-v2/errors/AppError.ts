@@ -55,6 +55,115 @@ export class AppError extends Error {
       },
     };
   }
+
+  // Static methods for common error types
+  static forbidden(
+    message: string = 'Forbidden', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.FORBIDDEN, 
+      403, 
+      details
+    );
+  }
+
+  static badRequest(
+    message: string = 'Bad Request', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.BAD_REQUEST, 
+      400, 
+      details
+    );
+  }
+
+  static internal(
+    message: string = 'Internal Server Error', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.INTERNAL, 
+      500, 
+      details
+    );
+  }
+
+  static unauthorized(
+    message: string = 'Unauthorized', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.AUTH, 
+      401, 
+      details
+    );
+  }
+
+  static validation(
+    message: string = 'Validation Failed', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.VALIDATION, 
+      400, 
+      details
+    );
+  }
+
+  static notFound(
+    message: string = 'Resource Not Found', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.NOT_FOUND, 
+      404, 
+      details
+    );
+  }
+
+  static conflict(
+    message: string = 'Conflict', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.CONFLICT, 
+      409, 
+      details
+    );
+  }
+
+  static notImplemented(
+    message: string = 'Not Implemented', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.NOT_IMPLEMENTED, 
+      501, 
+      details
+    );
+  }
+
+  static rateLimit(
+    message: string = 'Rate Limit Exceeded', 
+    details?: ErrorDetails
+  ): AppError {
+    return new AppError(
+      message, 
+      ErrorCodes.RATE_LIMIT, 
+      429, 
+      details
+    );
+  }
 }
 
 export class ValidationError extends AppError {
