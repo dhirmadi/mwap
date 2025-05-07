@@ -43,7 +43,7 @@
 * **Constraints**:
 
   * One tenant per user (enforced in DB + app layer)
-  * Deletable only by superadmin
+  * Deletable only by superadmin (hard delete, removes all associated projects and integrations)
 * **Relations**:
 
   * One-to-one with User
@@ -65,7 +65,7 @@
   * `folderpath`: string
   * `name`: string
   * `description?`: string (optional)
-  * `archived`: boolean
+  * `archived`: boolean (optional soft-archive, but hard delete supported via API)
   * `members[]`: [{ User.id: string (Auth0 `sub`), role: 'OWNER' | 'DEPUTY' | 'MEMBER' }]
 * **Constraints**:
 
