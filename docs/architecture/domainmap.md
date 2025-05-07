@@ -10,7 +10,9 @@
 
 ### **1. User**
 
-* Represents an authenticated person via Auth0
+* Represents an authenticated person via Auth0  
+*Scope: platform*
+
 * **Source of truth**: Auth0 `sub` (external ID)
 * **Fields**:
 
@@ -27,6 +29,9 @@
 ### **2. Tenant**
 
 * Represents a user-owned workspace and logical isolation unit
+
+  *Scope: tenant*
+
 * **Fields**:
 
   * `_id`: ObjectId (Mongo-generated, do not set manually)
@@ -50,6 +55,7 @@
 ### **3. Project**
 
 * Application instance inside a tenant with fixed config
+*Scope: tenant*
 * **Fields**:
 
   * `_id`: ObjectId (Mongo-generated, do not set manually)
@@ -60,7 +66,7 @@
   * `name`: string
   * `description?`: string (optional)
   * `archived`: boolean
-  * `members[]`: \[{ User.id: string (Auth0 `sub`), role: 'OWNER' | 'DEPUTY' | 'MEMBER' }]
+  * `members[]`: [{ User.id: string (Auth0 `sub`), role: 'OWNER' | 'DEPUTY' | 'MEMBER' }]
 * **Constraints**:
 
   * `cloudProvider`, `folderpath`, `projectTypeId` are immutable after creation
@@ -76,6 +82,7 @@
 ### **4. ProjectType**
 
 * Defines application behavior (Sorter, Tagger, Mailer, etc)
+*Scope: platform*
 * **Fields**:
 
   * `_id`: ObjectId (Mongo-generated, do not set manually)
@@ -99,6 +106,7 @@
 ### **5. CloudProvider**
 
 * Represents a supported, static cloud provider such as GDrive, Dropbox, etc.
+*Scope: platform*
 * **Fields**:
 
   * `_id`: ObjectId (Mongo-generated, do not set manually)
@@ -124,6 +132,7 @@
 ### **6. CloudProviderIntegration**
 
 * Represents a tenant's authenticated connection to a specific `CloudProvider`
+*Scope: tenant*
 * **Fields**:
 
   * `_id`: ObjectId (Mongo-generated, do not set manually)
@@ -150,6 +159,7 @@
 ### **7. File (Virtual)**
 
 * Represents a file that exists in the cloud provider folder configured on the project
+*Scope: tenant*
 * **Not stored in MongoDB** – fetched at runtime via cloud APIs
 * **Fields**:
 
@@ -170,7 +180,7 @@
 * **Relations**:
 
   * Used only in runtime workflows for sorting, tagging, mailing, etc.
-  * Handled via cloud microagents (file listing, moving, metadata enrichment)
+  * Handled via cloud API integrations and internal middleware (e.g., file listing, metadata parsing)
 
 ---
 
@@ -178,11 +188,17 @@
 
 *Represents a platform-level administrator with elevated permissions*
 
+*Scope: platform*
+
 *Stored in MongoDB – Collection: `superadmins`*
 
 - **Fields**:
   - `_id`: ObjectId (Mongo-generated, do not set manually)
   - `userId`: string (**Auth0 `sub`** – serves as primary identity key)
+  - `createdAt`: Date
+  - `createdBy`: string (Auth0 sub of the admin who created this entry)
+  - `name?`: string (optional for traceability)
+  - `email?`: string (optional for traceability)
 
 - **Constraints**:
   - Must reference a valid Auth0 user
@@ -207,10 +223,8 @@ erDiagram
   USER ||--|| TENANT : owns
   TENANT ||--o{ PROJECT : contains
   TENANT ||--o{ CLOUDPROVIDERINTEGRATION : manages
-  PROJECT ||--|{ MEMBER : has
   PROJECT }|--|| PROJECTTYPE : of
   PROJECT ||--o{ FILE : uses
-  SUPERADMIN ||--|| USER : is
   SUPERADMIN ||--o{ TENANT : administers
   SUPERADMIN ||--o{ PROJECT : administers
   SUPERADMIN ||--o{ PROJECTTYPE : manages
