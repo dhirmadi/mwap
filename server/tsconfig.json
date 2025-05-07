@@ -25,9 +25,10 @@
     "baseUrl": ".",
     "paths": {
       "@core/*": ["src/core/*"],
-      "@features/*": ["src/features/*"],
+      "@models/*": ["src/models/*"],
+      "@features/*": ["src/api/v2/*"],
       "@utils/*": ["src/utils/*"],
-      "@types": ["src/core/types"]
+      "@types": ["src/types"]
     }
   },
   "include": ["src/**/*"],
